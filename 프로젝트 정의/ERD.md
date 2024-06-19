@@ -47,8 +47,7 @@ agency_id (FK) : 굿즈 소속 아이디
 category_id (FK): 굿즈 카테고리 아이디
 mkaer_id (FK): 굿즈 제작사 아이디
 
-goods_name_eg: 굿즈 영어 이름
-goods_name_kr: 굿즈 한국 이름
+goods_name_kr: 굿즈 한국 이름 (goods_name_eg: 굿즈 영어 이름)
 goods_price: 굿즈 가격
 goods_image_url: 굿즈 이미지 URL
 goods_description: 굿즈 설명
