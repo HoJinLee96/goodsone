@@ -8,8 +8,7 @@ import dto.User;
 
 public interface UserDAO {
     void addUser(User user) throws SQLException;
-    Optional<User> getUser(int userSeq) throws SQLException;
-    Optional<User> getUserByEmail(String email) throws SQLException;
+    Optional<User> getUser(String email) throws SQLException;
     List<User> getAllUsers() throws SQLException;
     void updateUser(User user) throws SQLException;
     void deleteUser(int userSeq) throws SQLException;

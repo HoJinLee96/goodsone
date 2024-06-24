@@ -9,8 +9,9 @@
   </parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>core</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+		<packaging>jar</packaging>
 
+	
 	<dependencies>
 		<!-- 책에는 안나와있지만 mysql 연동 필요 모듈-->
 		<dependency>

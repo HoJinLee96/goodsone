@@ -4,20 +4,21 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import dao.UserDAO;
+import dao.UserDAOImpl;
 import dto.User;
 
 @Service
-@ComponentScan
+@Component
 public class UserServiceImpl implements UserService {
     private final UserDAO userDAO;
 
     @Autowired
-    public UserServiceImpl(UserDAO userDAO) {
+    public UserServiceImpl(UserDAOImpl userDAO) {
         this.userDAO = userDAO;
     }
 
@@ -32,22 +33,11 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Failed to add user", e);
         }
     }
-    
+
     @Override
-    public Optional<User> getUser(int userSeq) {
+    public Optional<User> getUser(String email) {
         try {
-            return userDAO.getUser(userSeq);
-        } catch (Exception e) {
-            // 예외 처리 로직 추가 (예: 로그 출력)
-            e.printStackTrace();
-            throw new RuntimeException("Failed to get user", e);
-        }
-    }
-    
-    @Override
-    public Optional<User> getUserByEmail(String email) {
-        try {
-            return userDAO.getUserByEmail(email);
+            return userDAO.getUser(email);
         } catch (Exception e) {
             // 예외 처리 로직 추가 (예: 로그 출력)
             e.printStackTrace();

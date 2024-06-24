@@ -1,13 +1,13 @@
-INSERT INTO `user` (user_id, user_password, user_oldpassword, user_name, user_nickname, user_birth, user_phone_agency, user_phone_number, user_email, user_address, created_at, user_status, user_signtype)
+INSERT INTO `user` (user_email, user_password, user_oldpassword, user_name, user_nickname, user_birth, user_phone_agency, user_phone_number, user_address, created_at, user_status, user_signtype)
 VALUES
-('user_1a2b', 'passwd1A@!', 'oldpasswd1A@!', '김철수', '철수123', '1990-01-01', 'skt', '010-1234-5678', 'chulsoo@example.com', '서울시 강남구 테헤란로 123', NOW(), 'normal', 'naver'),
-('user_2c3d', 'passwd2B#$', 'oldpasswd2B#$', '박영희', '영희234', '1985-05-15', 'kt', '010-2345-6789', 'younghee@example.com', '서울시 서초구 서초대로 456', NOW(), 'stay', 'kakao'),
-('user_3e4f', 'passwd3C%^', 'oldpasswd3C%^', '이민호', '민호345', '1992-12-22', 'lg', '010-3456-7890', 'minho@example.com', '서울시 송파구 올림픽로 789', NOW(), 'stop', 'normal'),
-('user_4g5h', 'passwd4D&*', 'oldpasswd4D&*', '최지은', '지은456', '1995-08-08', 'skt', '010-4567-8901', 'jieun@example.com', '부산시 해운대구 해운대로 789', NOW(), 'normal', 'naver'),
-('user_5i6j', 'passwd5E()_', 'oldpasswd5E()_', '장우진', '우진567', '1988-03-20', 'kt', '010-5678-9012', 'woojin@example.com', '대전시 유성구 대학로 123', NOW(), 'stay', 'kakao'),
-('user_6k7l', 'passwd6F+{}', 'oldpasswd6F+{}', '한유라', '유라678', '1991-11-11', 'lg', '010-6789-0123', 'yura@example.com', '광주시 동구 금남로 456', NOW(), 'stop', 'normal'),
-('user_7m8n', 'passwd7G|?><', 'oldpasswd7G|?><', '정지호', '지호789', '1993-07-25', 'skt', '010-7890-1234', 'jiho@example.com', '인천시 연수구 센트럴로 789', NOW(), 'normal', 'naver'),
-('user_8o9p', 'passwd8H@#$', 'oldpasswd8H@#$', '김미진', '미진890', '1987-02-28', 'kt', '010-8901-2345', 'mijin@example.com', '울산시 남구 삼산로 123', NOW(), 'stay', 'kakao');
+('chulsoo@example.com','passwd1A@!', 'oldpasswd1A@!', '김철수', '철수123', '1990-01-01', 'skt', '010-1234-5678', '서울시 강남구 테헤란로 123', NOW(), 'normal', 'naver'),
+('younghee@example.com','passwd2B#$', 'oldpasswd2B#$', '박영희', '영희234', '1985-05-15', 'kt', '010-2345-6789',  '서울시 서초구 서초대로 456', NOW(), 'stay', 'kakao'),
+('minho@example.com', 'passwd3C%^', 'oldpasswd3C%^', '이민호', '민호345', '1992-12-22', 'lg', '010-3456-7890',  '서울시 송파구 올림픽로 789', NOW(), 'stop', 'normal'),
+('jieun@example.com', 'passwd4D&*', 'oldpasswd4D&*', '최지은', '지은456', '1995-08-08', 'skt', '010-4567-8901',  '부산시 해운대구 해운대로 789', NOW(), 'normal', 'naver'),
+( 'woojin@example.com', 'passwd5E()_', 'oldpasswd5E()_', '장우진', '우진567', '1988-03-20', 'kt', '010-5678-9012', '대전시 유성구 대학로 123', NOW(), 'stay', 'kakao'),
+('yura@example.com', 'passwd6F+{}', 'oldpasswd6F+{}', '한유라', '유라678', '1991-11-11', 'lg', '010-6789-0123',  '광주시 동구 금남로 456', NOW(), 'stop', 'normal'),
+('jiho@example.com', 'passwd7G|?><', 'oldpasswd7G|?><', '정지호', '지호789', '1993-07-25', 'skt', '010-7890-1234',  '인천시 연수구 센트럴로 789', NOW(), 'normal', 'naver'),
+('mijin@example.com',  'passwd8H@#$', 'oldpasswd8H@#$', '김미진', '미진890', '1987-02-28', 'kt', '010-8901-2345', '울산시 남구 삼산로 123', NOW(), 'stay', 'kakao');
 
 select * from user;
 
@@ -118,6 +118,6 @@ VALUES
 (1, 4, NULL, '거래가 매우 원활하게 진행되었습니다.', NOW(), NULL);
 
 INSERT INTO `comment` (user_seq, purchase_seq, sale_seq, comment_content, created_at, parents_seq)
-VALUES (3, NULL, 2, '이 물건에 관심이 많습니다.', NOW(), 44);
+VALUES (3, NULL, 2, '감사합니다.', NOW(), 1);
 
 select*from comment;

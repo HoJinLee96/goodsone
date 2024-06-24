@@ -24,7 +24,7 @@ public class UserDAOImpl implements UserDAO {
     // Create
     @Override
     public void addUser(User user) throws SQLException {
-        String sql = "INSERT INTO user (user_emil, user_password, user_oldpassword, user_name, user_nickname, user_birth, user_phone_agency, user_phone_number, user_address, created_at, user_status, user_signtype) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO user (user_email, user_password, user_oldpassword, user_name, user_nickname, user_birth, user_phone_agency, user_phone_number, user_address, created_at, user_status, user_signtype) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, user.getUserEmail());
@@ -46,41 +46,8 @@ public class UserDAOImpl implements UserDAO {
 
     // Read (Get User by ID)
     @Override
-    public Optional<User> getUser(int userSeq) throws SQLException {
-        String sql = "SELECT * FROM user WHERE user_seq = ?";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, userSeq);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    User user = new User.Builder()
-                        .userSeq(resultSet.getInt("user_seq"))
-                        .userEmail(resultSet.getString("user_email"))
-                        .userPassword(resultSet.getString("user_password"))
-                        .userOldPassword(resultSet.getString("user_oldpassword"))
-                        .userName(resultSet.getString("user_name"))
-                        .userNickname(resultSet.getString("user_nickname"))
-                        .userBirth(resultSet.getString("user_birth"))
-                        .userPhoneAgency(resultSet.getString("user_phone_agency"))
-                        .userPhoneNumber(resultSet.getString("user_phone_number"))
-                        .userAddress(resultSet.getString("user_address"))
-                        .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
-                        .updatedAt(resultSet.getTimestamp("updated_at") != null ? resultSet.getTimestamp("updated_at").toLocalDateTime() : null)
-                        .userStatus(resultSet.getString("user_status"))
-                        .userSignType(resultSet.getString("user_signtype"))
-                        .build();
-
-                    return Optional.of(user);
-                }
-            }
-        }
-        return Optional.empty();
-    }
-    
-    // Read (Get User by ID)
-    @Override
-    public Optional<User> getUserByEmail(String email) throws SQLException {
-        String sql = "SELECT * FROM user WHERE user_emial = ?";
+    public Optional<User> getUser(String email) throws SQLException {
+        String sql = "SELECT * FROM user WHERE user_email = ?";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, email);

@@ -8,8 +8,9 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
+import dao.UserDAOImpl;
+
 @Configuration
-@ComponentScan(basePackages= {"dao"})
 @EnableTransactionManagement //트랜잭션
 public class DataSourceConfig {
 
@@ -27,12 +28,12 @@ public class DataSourceConfig {
 		ds.setTimeBetweenEvictionRunsMillis(1000*10);
 		return ds;
 	}
-	
+
+	//트랜잭션 매니저 인터페이스
 	@Bean
 	public PlatformTransactionManager transactionManage() {
 		DataSourceTransactionManager tm = new DataSourceTransactionManager();
 		tm.setDataSource(dataSource());
 		return tm;
 	}
-
 }

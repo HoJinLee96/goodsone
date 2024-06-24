@@ -1,6 +1,6 @@
 CREATE TABLE `user` (
 	user_seq INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	user_id VARCHAR(100) NOT NULL UNIQUE,
+	user_email VARCHAR(100) NOT NULL UNIQUE,
 	user_password VARCHAR(100) NOT NULL,
 	user_oldpassword VARCHAR(100) NOT NULL,
 	user_name VARCHAR(100) NOT NULL,
@@ -8,13 +8,14 @@ CREATE TABLE `user` (
 	user_birth VARCHAR(100) NOT NULL,
 	user_phone_agency ENUM('skt', 'kt', 'lg') NOT NULL,
 	user_phone_number VARCHAR(20) NOT NULL,
-	user_email VARCHAR(100) NOT NULL,
 	user_address VARCHAR(255) NOT NULL,
 	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
 	user_status ENUM('normal', 'stay', 'stop') NOT NULL,
 	user_signtype ENUM('naver', 'kakao', 'normal') NOT NULL
 );
+
+select * from user;
 
 CREATE TABLE `wishlist` (
 	user_seq INT NOT NULL,
