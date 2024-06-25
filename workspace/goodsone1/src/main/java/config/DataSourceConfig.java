@@ -3,6 +3,7 @@ package config;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -33,9 +34,9 @@ public class DataSourceConfig {
 		return tm;
 	}
 
-//	@Bean
-//	public UserDaoImpl userDaoImpl() {
-//		return new UserDaoImpl(dataSource());
-//	}
+    @Bean
+    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+        return new JdbcTemplate(dataSource);
+    }
 
 }

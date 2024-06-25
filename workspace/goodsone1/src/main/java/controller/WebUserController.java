@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import service.UserService;
 
 @Controller
+@RequestMapping("/my")
 public class WebUserController {
 	
 	private UserService userService;
@@ -18,7 +19,6 @@ public class WebUserController {
 		this.userService = userService;
 	}
 
-	@RequestMapping("/my")
 	public String showMyPage(HttpSession session) {
 		if (session.getAttribute("user") != null) {
 			// 로그인 상태

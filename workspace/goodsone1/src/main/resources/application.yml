@@ -1,0 +1,5 @@
+naver-cloud-sms:
+	accessKey: "XsaKYAismYxbkeJwXlx5b8j0S1nmPjoMkSfxzrSH? TP8lL2kLNHFYQHcttK9G"
+    secretKey: "XsaKYAismYxbkeJwXlx5b8j0S1nmPjoMkSfxzrSH"
+ 	serviceId: "ncp:sms:kr:336007695122:sns"
+  	senderPhone: "01096111382"

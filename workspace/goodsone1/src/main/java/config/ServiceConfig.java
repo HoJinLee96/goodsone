@@ -9,13 +9,5 @@ import org.springframework.context.annotation.Import;
 @ComponentScan(basePackages={"dao","service"})
 public class ServiceConfig {
 	
-//	@Bean
-//	public UserDaoImpl userDaoImpl() {
-//		return new UserDaoImpl(dataSource());
-//	}
-//
-//	@Bean
-//	public UserServiceImpl userServiceImpl() {
-//		return new UserServiceImpl();
-//	}
+
 }
