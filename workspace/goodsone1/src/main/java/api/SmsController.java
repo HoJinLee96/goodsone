@@ -29,7 +29,8 @@ public class SmsController {
 
 	@PostMapping("/sms/send")
     public SmsResponseDto sendSms(@RequestBody MessageDto messageDto) throws UnsupportedEncodingException, URISyntaxException, NoSuchAlgorithmException, JsonProcessingException, RestClientException, InvalidKeyException, java.security.InvalidKeyException {
-
+		
+		System.out.println(messageDto.getTo());
         SmsResponseDto responseDto = smsService.sendSms(messageDto);
         return responseDto;
     }

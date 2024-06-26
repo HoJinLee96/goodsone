@@ -89,6 +89,13 @@ CREATE TABLE `sale_post` (
 	updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
+create table sms(
+sms_seq INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+phone INT NOT NULL,
+athu INT NOT NULL,
+create_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- 외래 키 제약 조건 추가
 ALTER TABLE `wishlist` 
     ADD CONSTRAINT `FK_user_TO_wishlist_1` FOREIGN KEY (user_seq) REFERENCES `user` (user_seq),

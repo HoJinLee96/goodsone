@@ -13,12 +13,11 @@ public class SmsResponseDto {
     public SmsResponseDto() {}
 
     // 모든 필드를 포함하는 생성자
-    public SmsResponseDto(String requestId, LocalDateTime requestTime, String statusCode, String statusName, String smsConfirmNum) {
+    public SmsResponseDto(String requestId, LocalDateTime requestTime, String statusCode, String statusName) {
         this.requestId = requestId;
         this.requestTime = requestTime;
         this.statusCode = statusCode;
         this.statusName = statusName;
-        this.smsConfirmNum = smsConfirmNum;
     }
 
     // 특정 필드만 포함하는 생성자
@@ -53,7 +52,6 @@ public class SmsResponseDto {
         private LocalDateTime requestTime;
         private String statusCode;
         private String statusName;
-        private String smsConfirmNum;
 
         public SmsResponseDtoBuilder() {}
 
@@ -77,13 +75,8 @@ public class SmsResponseDto {
             return this;
         }
 
-        public SmsResponseDtoBuilder smsConfirmNum(String smsConfirmNum) {
-            this.smsConfirmNum = smsConfirmNum;
-            return this;
-        }
-
         public SmsResponseDto build() {
-            return new SmsResponseDto(requestId, requestTime, statusCode, statusName, smsConfirmNum);
+            return new SmsResponseDto(requestId, requestTime, statusCode, statusName);
         }
     }
 

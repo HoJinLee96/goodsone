@@ -1,9 +1,9 @@
 package service;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -66,6 +66,8 @@ public class SmsService {
 		headers.set("x-ncp-apigw-timestamp", time);
 		headers.set("x-ncp-iam-access-key", accessKey);
 		headers.set("x-ncp-apigw-signature-v2", getSignature(time)); // signature 서명
+		
+		System.out.println("시그니처 생성완료");
 
 		List<MessageDto> messages = new ArrayList<>();
 		messages.add(messageDto);
@@ -77,6 +79,7 @@ public class SmsService {
 		// request를 json형태로 body로 변환
 		ObjectMapper objectMapper = new ObjectMapper();
 		String body = objectMapper.writeValueAsString(request);
+		
 		// body와 header을 합친다
 		HttpEntity<String> httpBody = new HttpEntity<>(body, headers);
 
@@ -84,9 +87,14 @@ public class SmsService {
 		RestTemplate restTemplate = new RestTemplate();
 		restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
-		SmsResponseDto smsResponseDto = restTemplate.postForObject(
-				new URI("https://sens.apigw.ntruss.com/sms/v2/services/" + serviceId + "/messages"), httpBody,
-				SmsResponseDto.class);
+//		SmsResponseDto smsResponseDto = restTemplate.postForObject(
+//				new URI("https://sens.apigw.ntruss.com/sms/v2/services/" + serviceId + "/messages"), httpBody,
+//				SmsResponseDto.class);
+		SmsResponseDto smsResponseDto = new SmsResponseDto(
+				serviceId,
+				new Timestamp(Long.parseLong(time)).toLocalDateTime(),
+                "202",
+                "성공");
 		SmsResponseDto responseDto = new SmsResponseDto(smsConfirmNum);
 
 		Sms sms = new Sms(messageDto.getTo(), responseDto.getSmsConfirmNum());
@@ -114,7 +122,7 @@ public class SmsService {
 
 		byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
 		String encodeBase64String = Base64.getEncoder().encodeToString(rawHmac);
-
+		
 		return encodeBase64String;
 	}
 

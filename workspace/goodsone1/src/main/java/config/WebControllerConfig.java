@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Import;
 
 @Configuration
 @Import(ServiceConfig.class)
-@ComponentScan(basePackages= {"controller"})
+@ComponentScan(basePackages= {"controller","api"})
 public class WebControllerConfig {
 
 }

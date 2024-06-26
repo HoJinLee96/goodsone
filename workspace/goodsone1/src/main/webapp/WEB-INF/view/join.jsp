@@ -49,19 +49,31 @@
             var messageDto = {
                 to: phone
             };
-
+            console.log(messageDto);
+            
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "${pageContext.request.contextPath}/sms/send", true);
+            xhr.open("POST", "sms/send", true);
             xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.send(JSON.stringify(messageDto));
             xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
+                if (xhr.readyState === 4 && xhr.status === 202) {
                     var response = JSON.parse(xhr.responseText);
-                    alert("인증번호가 발송되었습니다: " + response.smsConfirmNum);
+                    generatedCode = response.smsConfirmNum;
+                    document.getElementById("responseMessage").innerText = "인증번호가 발송되었습니다.";
+                    document.getElementById("verificationCode").readOnly = false;
                 } else if (xhr.readyState === 4) {
                     alert("인증번호 발송에 실패하였습니다.");
                 }
             };
-            xhr.send(JSON.stringify(messageDto));
+        }
+
+        function verifyCode() {
+            var enteredCode = document.getElementById("verificationCode").value;
+            if (enteredCode === generatedCode) {
+                alert("인증 성공");
+            } else {
+                alert("인증 실패. 인증번호를 다시 확인해주세요.");
+            }
         }
     </script>
 </head>
@@ -92,9 +104,13 @@
 		<input type="number" id="birthDay" name="birthDay" placeholder="일" min="1" max="31" required oninput="if(this.value > 31) this.value = 31; if(this.value < 1 && this.value !== '') this.value = 1;" onkeydown="return event.keyCode !== 69 && event.keyCode !== 189 && event.keyCode !== 187;" style="-moz-appearance: textfield; appearance: textfield;">일
 		<br>
 
-        <label for="userPhoneNumber">전화번호:</label>
+   		<label for="userPhoneNumber">전화번호:</label>	
         <input type="text" id="userPhoneNumber" name="userPhoneNumber" required oninput="formatPhoneNumber(this)" maxlength="13"><br>
         <button type="button" onclick="sendSms()">인증번호 발송</button><br>
+
+        <label for="verificationCode">인증번호:</label>
+        <input type="text" id="verificationCode" name="verificationCode" readonly><br>
+        <button type="button" onclick="verifyCode()">인증번호 확인</button><br>
 
         <label for="userAddress">주소:</label>
         <input type="text" id="userAddress" name="userAddress" required><br>

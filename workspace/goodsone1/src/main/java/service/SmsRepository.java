@@ -2,6 +2,7 @@ package service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +22,12 @@ public class SmsRepository {
     }
 
     public void save(Sms sms) {
-        String sql = "INSERT INTO sms (to, sms_confirm_num, created_at) VALUES (?, ?, ?)";
-        jdbcTemplate.update(sql, sms.getTo(), sms.getSmsConfirmNum(), sms.getCreatedAt());
+        String sql = "INSERT INTO sms (phone, athu, create_at) VALUES (?, ?, ?)";
+        jdbcTemplate.update(sql, sms.getTo(), sms.getSmsConfirmNum(),Timestamp.valueOf(sms.getCreatedAt()));
     }
 
     public Sms findById(Long id) {
-        String sql = "SELECT * FROM sms WHERE id = ?";
+        String sql = "SELECT * FROM sms WHERE sms_seq = ?";
         return jdbcTemplate.queryForObject(sql, new SmsRowMapper(), id);
     }
 
@@ -39,10 +40,10 @@ public class SmsRepository {
         @Override
         public Sms mapRow(ResultSet rs, int rowNum) throws SQLException {
             Sms sms = new Sms();
-            sms.setId(rs.getLong("id"));
-            sms.setTo(rs.getString("to"));
-            sms.setSmsConfirmNum(rs.getString("sms_confirm_num"));
-            sms.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+            sms.setId(rs.getLong("sms_seq"));
+            sms.setTo(rs.getString("phone"));
+            sms.setSmsConfirmNum(rs.getString("athu"));
+            sms.setCreatedAt(rs.getTimestamp("create_at").toLocalDateTime());
             return sms;
         }
     }
