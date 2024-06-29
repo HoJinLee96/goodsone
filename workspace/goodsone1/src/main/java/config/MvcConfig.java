@@ -1,18 +1,26 @@
 package config;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import intercepter.AuthInterceptor;
+
 @Configuration
 @EnableWebMvc
-public class MvcConfig implements WebMvcConfigurer{
-	
+@ComponentScan(basePackages="intercepter")
+public class MvcConfig implements WebMvcConfigurer {
+
+	@Autowired
+	private AuthInterceptor authInterceptor;
+
 	@Override
-	public void configureDefaultServletHandling(
-			DefaultServletHandlerConfigurer configurer) {
+	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
 		configurer.enable();
 	}
 
@@ -20,6 +28,11 @@ public class MvcConfig implements WebMvcConfigurer{
 	public void configureViewResolvers(ViewResolverRegistry registry) {
 		registry.jsp("/WEB-INF/view/", ".jsp");
 	}
-	
 
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		registry.addInterceptor(authInterceptor)
+		.addPathPatterns("/**")
+		.excludePathPatterns("/login", "/join");
+	}
 }

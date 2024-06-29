@@ -1,3 +1,15 @@
+---
+create_at: 2024-06-27
+status: 일시정지
+진행중: false
+일시정지: true
+완료: false
+reference:
+update_at: 2024-06-29
+기획: false
+Importance: ""
+---
+
 [SMS API 가이드](https://api.ncloud-docs.com/docs/ai-application-service-sens-smsv2)
 
 # 1. 가입 및 키 발급
@@ -6,7 +18,7 @@
 2. nCloud에서 발급받는 인증키 중 access key
 3. nCloud에서 발급받는 인증키 중 secret key
 
-# 2. API 가이드 기본 정보 확인
+# 2. API sms 가이드 기본 정보 확인
 
 ## API URL : `{http}https://sens.apigw.ntruss.com/sms/v2`
 
@@ -58,11 +70,11 @@ public String makeSignature() {
 ```
 
 
-# 3. API 메시지 발송 가이드 확인
+# 3. API sms 발송 가이드 확인
 
 ## 요청 URL : `{http}POST https://sens.apigw.ntruss.com/sms/v2/services/{serviceId}/messages`
 
-## 요청 헤더
+## 요청 헤더 형식
 ```http
 Content-Type: application/json; charset=utf-8
 x-ncp-apigw-timestamp: {Timestamp}
@@ -70,7 +82,7 @@ x-ncp-iam-access-key: {Sub Account Access Key}
 x-ncp-apigw-signature-v2: {API Gateway Signature}
 ```
 
-## 요청 Body
+## 요청 Body 형식
 ```json
 {
     "type":"(SMS | LMS | MMS)",
@@ -112,7 +124,7 @@ x-ncp-apigw-signature-v2: {API Gateway Signature}
 | reserveTime      | Optional  | String | 예약 일시     | 메시지 발송 예약 일시 (yyyy-MM-dd HH:mm)                                                                                                                 |
 | reserveTimeZone  | Optional  | String | 예약 일시 타임존 | - 예약 일시 타임존 (기본: Asia/Seoul)  <br>- [지원 타임존 목록](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)  <br>- TZ database name 값 사용      |
 
-## 응답 Body
+## 응답 Body 형식
 ```Json
 {
     "requestId":"string",
@@ -129,7 +141,8 @@ x-ncp-apigw-signature-v2: {API Gateway Signature}
 |statusCode|Mandatory|String|요청 상태 코드|- 202: 성공  <br>- 그 외: 실패  <br>- HTTP Status 규격을 따름|
 |statusName|Mandatory|String|요청 상태명|- success: 성공  <br>- fail: 실패|
 
-## 응답 Status
+## 응답 Status 종류
+
 | HTTP Status | Desc                  |
 | ----------- | --------------------- |
 | 202         | Accept (요청 완료)        |
@@ -143,15 +156,24 @@ x-ncp-apigw-signature-v2: {API Gateway Signature}
 
 # 4. 요약 흐름 작성
 
-1.	클라이언트 요청 / js통해 입력한 휴대폰번호로 `MessageDto`생성 및 인자 전달
-2. 요청 수신 클래스에서 인증번호 생성 및 API 사용키, 아이디, 번호 `application.yml` 통해 로드
-2.	현재 시간 및 HTTP 헤더 설정. `System.currentTimeMillis()`, `HttpHeaders`
-3.	서명 생성. `getSignature()`
-4.	요청 메시지 객체 생성. `SmsRequestDto` (인증번호, `MessageDto` 포함)
-5.	`SmsRequestDto` JSON 변환. `ObjectMapper`.`writeValueAsString()` 
-6. body와 header 합침 `HttpEntity<String>`
-6.	외부 SMS API에 POST 요청. `RestTemplate`.`setRequestFactory(new HttpComponentsClientHttpRequestFactory())`
-7.	응답 처리
-8.	데이터베이스에 SMS 정보 저장.
-9.	클라이언트에 응답 반환.
+1.	**클라이언트 요청** : 클라이언트에서 JavaScript를 통해 휴대폰 번호 입력 및 `MessageDto` 생성, `XHR` 설정통해 `/sms/send`로 POST 요청 전송.
+2.	**요청 수신 및 초기 설정** : `SmsController`에서 요청 수신, `SmsService`에서 인증번호 및 설정 값 로드.
+3.	**현재 시간 및 HTTP 헤더 설정** : `System.currentTimeMillis(),` `HttpHeaders `설정.
+4.	**서명 생성** : `getSignature(time) `메서드로 서명 생성.
+5.	**요청 메시지 객체 생성** : `인증번호`와 `MessageDto`를 포함한 `SmsRequestDto` 생성.
+6.	**JSON 변환** : `ObjectMapper`로 `SmsRequestDto`를 JSON 문자열로 변환.
+7.	**HTTP 요청 준비** : JSON 문자열과 헤더를 합쳐 `HttpEntity<String>` 생성.
+8.	**외부 SMS API 요청** : RestTemplate으로 외부 SMS API에 POST 요청.
+9.	**응답 처리** : 외부 API 응답을 `SmsResponseDto`로 처리.
+10. **데이터베이스 저장** : `SmsRepository`로 `Sms` 객체 저장.
+11. **클라이언트 응답 반환** : 클라이언트에 SMS 발송 결과 응답.
 
+# 5. 코드 작성
+
+## 5-1. 클라이언트 요청
+
+
+
+```js
+
+```

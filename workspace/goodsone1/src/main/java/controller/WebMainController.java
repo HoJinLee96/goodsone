@@ -1,9 +1,12 @@
 package controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -26,8 +29,38 @@ public class WebMainController {
 	}
 
 	@RequestMapping("/login")
-	public String showLogin() {
-		return "login";
+	public String showLogin(@ModelAttribute("user")String user) {
+	    if (user != null) {
+	        return "redirect:/home"; // 이미 로그인된 경우 홈 페이지로 리다이렉트
+	    }
+	    return "login"; // 로그인되지 않은 경우 로그인 페이지 제공
+	}
+	
+	@RequestMapping("/login")
+	public String login(@RequestParam String email, 
+	                    @RequestParam String password, 
+	                    HttpServletRequest request, 
+	                    Model model) {
+		
+//		String userSeq = userService.getUserByEmail(email);
+		
+	    // 예시: 사용자를 인증하는 로직
+	    if ("email".equals(email) && "password".equals(password)) {
+	        HttpSession session = request.getSession();
+	        session.setAttribute("user", email);
+	        session.setMaxInactiveInterval(30 * 60); // 세션 만료 시간: 30분
+	        
+	        // 원래 요청 URL로 리다이렉트
+	        String redirectURI = (String) session.getAttribute("redirectURI");
+	        if (redirectURI != null) {
+	            session.removeAttribute("redirectURI");
+	            return "redirect:" + redirectURI;
+	        }
+	        return "redirect:/home";
+	    } else {
+	        model.addAttribute("error", "Invalid username or password");
+	        return "login";
+	    }
 	}
 
 	@RequestMapping("/join")
