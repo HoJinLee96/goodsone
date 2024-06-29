@@ -18,8 +18,7 @@ public class AuthInterceptor implements HandlerInterceptor{
             return true; // 세션이 유효하면 요청을 계속 처리
         }
         // 세션이 유효하지 않으면 원래 요청 URL을 세션에 저장하고 로그인 페이지로 리다이렉트
-        session.setAttribute("redirectURI", request.getRequestURI());
-        response.sendRedirect("/login");
+        response.sendRedirect("/login?redirectURI=" + request.getRequestURI());
         return false;
 	}
 }

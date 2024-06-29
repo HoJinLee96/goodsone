@@ -42,12 +42,13 @@ public class WebMainController {
 	                    HttpServletRequest request, 
 	                    Model model) {
 		
-//		String userSeq = userService.getUserByEmail(email);
+		User user = userService.getUserByEmail(email).get();
 		
-	    // 예시: 사용자를 인증하는 로직
-	    if ("email".equals(email) && "password".equals(password)) {
+	    if (user.getUserEmail().equals(email) && user.getUserPassword().equals(password)) {
+	    	
+	    	//세션에 유저 아이디 시퀀스 등록
 	        HttpSession session = request.getSession();
-	        session.setAttribute("user", email);
+	        session.setAttribute("user", user.getUserSeq());
 	        session.setMaxInactiveInterval(30 * 60); // 세션 만료 시간: 30분
 	        
 	        // 원래 요청 URL로 리다이렉트
@@ -58,7 +59,7 @@ public class WebMainController {
 	        }
 	        return "redirect:/home";
 	    } else {
-	        model.addAttribute("error", "Invalid username or password");
+	        model.addAttribute("error", "");
 	        return "login";
 	    }
 	}
