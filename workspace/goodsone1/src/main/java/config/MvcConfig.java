@@ -32,7 +32,8 @@ public class MvcConfig implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(authInterceptor)
-		.addPathPatterns("/**")
-		.excludePathPatterns("/login", "/join");
+		.addPathPatterns("/my")
+//		.excludePathPatterns("/login", "/join","/home")
+		;
 	}
 }

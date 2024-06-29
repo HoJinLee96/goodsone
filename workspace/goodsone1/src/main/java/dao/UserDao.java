@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import dto.User;
+import exception.UserNotFoundException;
 
 @Repository
 public class UserDao  {
@@ -48,7 +49,7 @@ public class UserDao  {
     }
 
     // Read (Get User by ID)
-    public Optional<User> getUser(int userSeq) throws SQLException {
+    public Optional<User> getUser(int userSeq) throws UserNotFoundException, SQLException {
         String sql = "SELECT * FROM user WHERE user_seq = ?";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {

@@ -1,7 +1,7 @@
 package service;
 
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import dao.UserDao;
 import dto.User;
+import exception.UserNotFoundException;
 
 @Service
 public class UserService {
@@ -30,34 +31,17 @@ public class UserService {
         }
     }
     
-    public Optional<User> getUser(int userSeq) {
-        try {
-            return userDAO.getUser(userSeq);
-        } catch (Exception e) {
-            // 예외 처리 로직 추가 (예: 로그 출력)
-            e.printStackTrace();
-            throw new RuntimeException("Failed to get user", e);
-        }
+    public User getUserBySeq(int userSeq) throws UserNotFoundException, SQLException {
+    	return userDAO.getUser(userSeq).orElseThrow(()-> new UserNotFoundException("일치하는 회원이 없습니다."));
     }
 
-    public Optional<User> getUserByEmail(String email) {
-        try {
-            return userDAO.getUserByEmail(email);
-        } catch (Exception e) {
-            // 예외 처리 로직 추가 (예: 로그 출력)
-            e.printStackTrace();
-            throw new RuntimeException("Failed to get user", e);
-        }
+    public User getUserByEmail(String email) throws UserNotFoundException, SQLException {
+        return userDAO.getUserByEmail(email).orElseThrow(()-> new UserNotFoundException("일치하는 회원이 없습니다."));
+
     }
 
-    public List<User> getAllUsers() {
-        try {
+    public List<User> getAllUsers() throws SQLException{
             return userDAO.getAllUsers();
-        } catch (Exception e) {
-            // 예외 처리 로직 추가 (예: 로그 출력)
-            e.printStackTrace();
-            throw new RuntimeException("Failed to get all users", e);
-        }
     }
    
 

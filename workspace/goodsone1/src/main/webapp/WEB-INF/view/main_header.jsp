@@ -15,7 +15,7 @@
 			<a href="/goodsone1/home">Home</a>
 			<a href="/goodsone1/Search">Shop</a>
 			<c:choose>
-				<c:when test="${not empty sessionScope.user}">
+				<c:when test="${not empty sessionScope.userSeq}">
 					<!-- 로그인 상태 -->
 					<a href="/goodsone1/my">My Page</a>
 					<a href="/goodsone1/logout">Logout</a>
@@ -29,6 +29,7 @@
 			
 		</nav>
 	</div>
-
+<script type="text/javascript">
+</script>
 </body>
 </html>

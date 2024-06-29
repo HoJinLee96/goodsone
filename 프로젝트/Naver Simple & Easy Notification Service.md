@@ -7,7 +7,7 @@ status: 일시정지
 reference:
 update_at: 2024-06-29
 기획: false
-Importance: ""
+중요도: "1"
 ---
 
 [SMS API 가이드](https://api.ncloud-docs.com/docs/ai-application-service-sens-smsv2)
