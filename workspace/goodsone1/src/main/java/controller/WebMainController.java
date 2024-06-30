@@ -34,4 +34,10 @@ System.out.println("WebMainController.logout() 실행");
 		return "redirect:/home";
 	}
 	
+	@GetMapping("/my")
+	public String showMy(HttpSession session) {
+System.out.println("WebMainController.showMy() 실행");
+		return "my";
+	}
+	
 }

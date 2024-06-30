@@ -26,12 +26,12 @@ System.out.println("세션 userSeq 비어있어서 정상적으로 진행");
 			return true;
 		}
 		
-	    // 그 외의 경우 세션에서 userSeq 확인
-//	    if (session.getAttribute("userSeq") == null) {
-//	        response.sendRedirect("/login");
-//	        return false;
-//	    }
-//		
+//	     그 외의 경우 세션에서 userSeq 확인
+	    if (session.getAttribute("userSeq") == null) {
+	        response.sendRedirect("/goodsone1/login");
+	        return false;
+	    }
+		
 	return true;
 	}
 }

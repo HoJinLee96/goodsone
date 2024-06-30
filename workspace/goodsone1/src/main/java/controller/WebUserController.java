@@ -20,16 +20,6 @@ public class WebUserController {
 		this.userService = userService;
 	}
 
-	@PostMapping("/my")
-	public String showMyPage(HttpSession session) {
-		if (session.getAttribute("userSeq") != null) {
-			// 로그인 상태
-			return "my"; // myPage.jsp로 이동
-		} else {
-			// 비로그인 상태, 로그인 페이지로 리디렉션
-			return "redirect:/login"; // login.jsp로 리디렉션
-		}
-	}
 	
 	
 }

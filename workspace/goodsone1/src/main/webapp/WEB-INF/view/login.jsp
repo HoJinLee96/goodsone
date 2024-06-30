@@ -25,7 +25,6 @@
             var email = $('#email').val();
             var password = $('#password').val();
             var previousURI = document.referrer;
-            var redirectURI = new URLSearchParams(window.location.search).get('redirectURI') || '/home';
             $.ajax({
                 url: '/goodsone1/api/login',
                 type: 'POST',
@@ -36,10 +35,22 @@
                 },
                 success: function(response) {
                 	console.log("로그인 성공");
-                    if (redirectURI === '/home' || redirectURI == null) {
-                        window.location.href = 'home';
+                	// 현재 사이트의 도메인
+                    var currentDomain = window.location.origin;
+
+                    var previousDomain = "";
+                    try {
+                        // 이전 페이지의 도메인이 유효한지 확인
+                        previousDomain = new URL(previousURI).origin;
+                    } catch (e) {
+                        console.log("이전페이지 이상 Invalid previous URI:", previousURI);
+                    }
+
+                    // 이전 페이지의 도메인이 현재 사이트와 같은지 확인
+                    if (previousDomain && previousDomain === currentDomain) {
+                        window.location.href = previousURI;
                     } else {
-                        window.location.href = redirectURI;
+                        window.location.href = "/goodsone1/home";
                     }
                 },
                 error: function(xhr) {
