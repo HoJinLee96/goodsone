@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -31,7 +32,10 @@ public class LoginController {
 
 	@PostMapping("/login")
 	public ResponseEntity<String> login(@RequestParam String email, @RequestParam String password, HttpSession session) {
-System.out.println("login() 시작");
+System.out.println("LoginController.login() 시작");
+HttpHeaders headers = new HttpHeaders();
+headers.add("Content-Type", "text/plain; charset=UTF-8");
+
 		User user;
 		try {
 			user = userService.getUserByEmail(email);
@@ -41,13 +45,15 @@ System.out.println("login() 시작");
 				session.setMaxInactiveInterval(30 * 60); // 세션 만료 시간: 30분
                 return ResponseEntity.ok("Login successful");
 			}else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body("비밀번호가 일치하지 않습니다.");
 			}
-		} catch (UserNotFoundException | SQLException e) {
+		} catch (UserNotFoundException e) {
 			//@ControllerAdvice 처리
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-		}
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body("일치하는 회원정보가 없습니다.");
+		} catch (SQLException e) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).body("현재 접속할 수 없습니다.");
 
+		}
 
 	}
 }

@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import dto.User;
-import exception.UserNotFoundException;
 
 @Repository
 public class UserDao  {
@@ -49,7 +48,7 @@ public class UserDao  {
     }
 
     // Read (Get User by ID)
-    public Optional<User> getUser(int userSeq) throws UserNotFoundException, SQLException {
+    public Optional<User> getUser(int userSeq) throws SQLException {
         String sql = "SELECT * FROM user WHERE user_seq = ?";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -80,14 +79,13 @@ public class UserDao  {
         return Optional.empty();
     }
     
-    // Read (Get User by ID)
     public Optional<User> getUserByEmail(String email) throws SQLException {
         String sql = "SELECT * FROM user WHERE user_email = ?";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, email);
             try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
+                if (resultSet.next()) { //일지하는 정보가 있으면 true로 진행
                     User user = new User.Builder()
                         .userSeq(resultSet.getInt("user_seq"))
                         .userEmail(resultSet.getString("user_email"))
@@ -109,7 +107,7 @@ public class UserDao  {
                 }
             }
         }
-        return Optional.empty();
+        return Optional.empty(); //일치하는 정보가 없으면 false로 빈 옵셔널 반환
     }
 
     // Read (Get all Users)

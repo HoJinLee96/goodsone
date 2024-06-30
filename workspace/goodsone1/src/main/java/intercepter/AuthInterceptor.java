@@ -10,19 +10,28 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 public class AuthInterceptor implements HandlerInterceptor {
 	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object Handler)
 			throws Exception {
-
+System.out.println("AuthInterceptor.preHandle() 실행");
 		HttpSession session = request.getSession();
-		if (session.getAttribute("userSeq") != null) {
-			return true; // 세션이 유효하면 요청을 계속 처리
+		String uri = request.getRequestURI();
+
+		if ("/goodsone1/login".equals(uri)) {
+			if (session.getAttribute("userSeq") != null) {
+System.out.println("세션에 userSeq 있어서 /home 리다이렉트 ");
+	            response.sendRedirect("/goodsone1/home"); // 또는 적절한 페이지로 리다이렉트
+				return false; // 세션이 비어있으면 로그인 창으로
+			}
+System.out.println("세션 userSeq 비어있어서 정상적으로 진행");
+			return true;
 		}
-		// 세션이 유효하지 않으면 원래 요청 URL을 세션에 저장하고 로그인 페이지로 리다이렉트
-		if (request.getRequestURI() != null) {
-			response.sendRedirect("/login?redirectURI=" + request.getRequestURI());
-			return false;
-		} else {
-			return false;
-		}
+		
+	    // 그 외의 경우 세션에서 userSeq 확인
+//	    if (session.getAttribute("userSeq") == null) {
+//	        response.sendRedirect("/login");
+//	        return false;
+//	    }
+//		
+	return true;
 	}
 }

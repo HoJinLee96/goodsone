@@ -24,10 +24,12 @@
             event.preventDefault();
             var email = $('#email').val();
             var password = $('#password').val();
+            var previousURI = document.referrer;
             var redirectURI = new URLSearchParams(window.location.search).get('redirectURI') || '/home';
             $.ajax({
                 url: '/goodsone1/api/login',
                 type: 'POST',
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 data: {
                     email: email,
                     password: password
@@ -42,7 +44,7 @@
                 },
                 error: function(xhr) {
                     $('#error').text(xhr.responseText);
-                    alert("회원정보가 일치하지 않습니다.");
+                    /* alert("회원정보가 일치하지 않습니다."); */
                 }
             });
         });
