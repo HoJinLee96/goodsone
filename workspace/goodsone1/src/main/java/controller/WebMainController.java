@@ -1,7 +1,7 @@
 package controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -30,14 +30,16 @@ public class WebMainController {
 	public String logout(HttpSession session) {
 		System.out.println("WebMainController.logout() 실행");
 // 		세션에서 사용자 정보를 제거하여 로그아웃 처리
+		
 		if (session != null) {
 			session.removeAttribute("userSeq");
+			session.removeAttribute("loginBySeq");
 			}
 		return "redirect:/home";
 	}
 
 	@GetMapping("/my")
-	public String showMy(HttpSession session) {
+	public String showMy() {
 		System.out.println("WebMainController.showMy() 실행");
 		return "my";
 	}

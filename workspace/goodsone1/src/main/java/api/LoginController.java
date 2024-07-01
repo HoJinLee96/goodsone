@@ -24,36 +24,64 @@ import service.UserService;
 public class LoginController {
 
 	private UserService userService;
-	
+
 	@Autowired
 	public LoginController(UserService userService) {
 		this.userService = userService;
 	}
 
-	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestParam String email, @RequestParam String password, HttpSession session) {
-System.out.println("LoginController.login() 시작");
-HttpHeaders headers = new HttpHeaders();
-headers.add("Content-Type", "text/plain; charset=UTF-8");
+	@PostMapping("/loginByEmail")
+	public ResponseEntity<String> loginByEmail(@RequestParam String email, @RequestParam String password,
+			HttpSession session) {
+		System.out.println("LoginController.loginByEmail() 시작");
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Type", "text/plain; charset=UTF-8");
 
 		User user;
 		try {
 			user = userService.getUserByEmail(email);
 			if (user.getUserEmail().equals(email) && user.getUserPassword().equals(password)) {
 				System.out.println("로그인 성공");
-				session.setAttribute("userSeq", Long.valueOf(user.getUserSeq()));
+				System.out.println(user.getUserSeq() + "세션에 저장");
+				session.setAttribute("userSeq", user.getUserSeq()+"");
 				session.setMaxInactiveInterval(30 * 60); // 세션 만료 시간: 30분
-                return ResponseEntity.ok("Login successful");
-			}else {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body("비밀번호가 일치하지 않습니다.");
+				return ResponseEntity.ok("Login successful");
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).body("비밀번호가 일치하지 않습니다.");
 			}
 		} catch (UserNotFoundException e) {
-			//@ControllerAdvice 처리
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body("일치하는 회원정보가 없습니다.");
+			// @ControllerAdvice 처리
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).body("일치하는 회원정보가 없습니다.");
 		} catch (SQLException e) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).body("현재 접속할 수 없습니다.");
-
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 접속할 수 없습니다.");
 		}
+	}
 
+	@PostMapping("/loginBySeq")
+	public ResponseEntity<String> loginBySeq(@RequestParam String reqPassword, HttpSession session) {
+		System.out.println("LoginController.loginBySeq() 시작");
+		HttpHeaders headers = new HttpHeaders();
+		headers.add("Content-Type", "text/plain; charset=UTF-8");
+
+		int seq = Integer.valueOf((String) session.getAttribute("userSeq")); 
+		System.out.println(seq+" / ");
+		String password;
+		try {
+			password = userService.getPasswordBySeq(seq);
+			if (password.equals(reqPassword)) {
+				System.out.println("로그인 성공");
+				session.setAttribute("loginBySeq", seq+"");
+				session.setMaxInactiveInterval(30 * 60); // 세션 만료 시간: 30분
+				return ResponseEntity.ok("Login successful");
+			} else {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).body("비밀번호가 일치하지 않습니다.");
+			}
+		} catch (UserNotFoundException e) {
+			// @ControllerAdvice 처리
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).body("일치하는 회원정보가 없습니다.");
+		} catch (SQLException e) {
+		  e.printStackTrace();
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 접속할 수 없습니다.");
+		}
 	}
 }

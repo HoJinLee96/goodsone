@@ -31,8 +31,16 @@ public class UserService {
         }
     }
     
+    public String getPasswordBySeq(int userSeq) throws UserNotFoundException, SQLException {
+      return userDAO.getPasswordBySeq(userSeq).orElseThrow(()-> new UserNotFoundException("일치하는 회원이 없습니다."));
+    }
+    
+    public String getPasswordByEmail(String email) throws UserNotFoundException, SQLException {
+      return userDAO.getPasswordByEmail(email).orElseThrow(()-> new UserNotFoundException("일치하는 회원이 없습니다."));
+    }
+    
     public User getUserBySeq(int userSeq) throws UserNotFoundException, SQLException {
-    	return userDAO.getUser(userSeq).orElseThrow(()-> new UserNotFoundException("일치하는 회원이 없습니다."));
+    	return userDAO.getUserBySeq(userSeq).orElseThrow(()-> new UserNotFoundException("일치하는 회원이 없습니다."));
     }
 
     public User getUserByEmail(String email) throws UserNotFoundException, SQLException {

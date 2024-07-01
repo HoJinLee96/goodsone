@@ -7,6 +7,8 @@
     <title>로그인</title>
 
 </head>
+<%@ include file = "main_header.jsp" %>
+
 <body>
     <h2>로그인</h2>
     <form id = "loginForm">
@@ -26,7 +28,7 @@
             var password = $('#password').val();
             var previousURI = document.referrer;
             $.ajax({
-                url: '/goodsone1/api/login',
+                url: '/goodsone1/api/loginByEmail',
                 type: 'POST',
                 contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 data: {
@@ -61,5 +63,7 @@
         });
     });
 </script>
+
 </body>
+<%@ include file = "main_footer.jsp" %>
 </html>

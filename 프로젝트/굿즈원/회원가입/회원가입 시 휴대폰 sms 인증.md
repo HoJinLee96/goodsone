@@ -1,5 +1,5 @@
 ---
-status:
+status: 일시정지
 reference:
 기획: false
 진행중: true

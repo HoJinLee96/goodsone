@@ -25,7 +25,6 @@ public class UserDao  {
         this.dataSource = dataSource;
     }
 
-    // Create
     public void addUser(User user) throws SQLException {
         String sql = "INSERT INTO user (user_emil, user_password, user_oldpassword, user_name, user_nickname, user_birth, user_phone_agency, user_phone_number, user_address, created_at, user_status, user_signtype) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = dataSource.getConnection();
@@ -47,8 +46,7 @@ public class UserDao  {
         }
     }
 
-    // Read (Get User by ID)
-    public Optional<User> getUser(int userSeq) throws SQLException {
+    public Optional<User> getUserBySeq(int userSeq) throws SQLException {
         String sql = "SELECT * FROM user WHERE user_seq = ?";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -109,8 +107,33 @@ public class UserDao  {
         }
         return Optional.empty(); //일치하는 정보가 없으면 false로 빈 옵셔널 반환
     }
-
-    // Read (Get all Users)
+    public Optional<String> getPasswordBySeq(int seq) throws SQLException {
+      String sql = "SELECT user_password FROM user WHERE user_seq = ?";
+      try (Connection connection = dataSource.getConnection();
+           PreparedStatement statement = connection.prepareStatement(sql)) {
+          statement.setInt(1, seq);
+          try (ResultSet resultSet = statement.executeQuery()) {
+              if (resultSet.next()) {
+                  return Optional.of(resultSet.getString("user_password"));
+              }
+          }
+      }
+      return Optional.empty();
+  }
+    public Optional<String> getPasswordByEmail(String email) throws SQLException {
+      String sql = "SELECT user_password FROM user WHERE user_email = ?";
+      try (Connection connection = dataSource.getConnection();
+           PreparedStatement statement = connection.prepareStatement(sql)) {
+          statement.setString(1, email);
+          try (ResultSet resultSet = statement.executeQuery()) {
+              if (resultSet.next()) {
+                  return Optional.of(resultSet.getString("user_password"));
+              }
+          }
+      }
+      return Optional.empty();
+  }
+    
     public List<User> getAllUsers() throws SQLException {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM user";
@@ -164,7 +187,6 @@ public class UserDao  {
         }
     }
 
-    // Delete
     public void deleteUser(int userSeq) throws SQLException {
         String sql = "DELETE FROM user WHERE user_seq = ?";
         try (Connection connection = dataSource.getConnection();

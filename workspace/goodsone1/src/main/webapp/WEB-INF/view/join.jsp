@@ -134,6 +134,8 @@ input[type="submit"]:hover {
 }
 </style>
 </head>
+<%@ include file = "main_header.jsp" %>
+
 <body>
 <form id="registrationForm" action="/goodsone1/register" method="post" onsubmit="return validateForm()">
     <!-- 각 단계의 div 요소들... -->
@@ -188,7 +190,7 @@ input[type="submit"]:hover {
         <input type="submit" id="submitButton" value="가입하기" style="display: none;">
     </div>
 </form>
-</body>
+
 
 <script>
 var currentStep = 1;
@@ -378,4 +380,7 @@ function validateForm() {
 
 
 </script>
+</body>
+<%@ include file = "main_footer.jsp" %>
+
 </html>
