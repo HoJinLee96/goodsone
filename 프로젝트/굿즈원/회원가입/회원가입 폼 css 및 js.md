@@ -3,10 +3,10 @@ status: 진행중
 reference:
 기획: false
 진행중: true
-일시정지: false
+일시정지: true
 완료: false
 create_at: 2024-06-29
-update_at:
+update_at: 2024-06-30
 중요도: "3"
 ---
 
