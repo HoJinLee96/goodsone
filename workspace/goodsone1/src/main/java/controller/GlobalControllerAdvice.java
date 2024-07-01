@@ -1,26 +1,23 @@
 package controller;
 
-import java.sql.SQLException;
-
 import javax.servlet.http.HttpSession;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-import exception.UserNotFoundException;
 
 @ControllerAdvice
 public class GlobalControllerAdvice {
 	
-	@ModelAttribute("userSeq")
-	public Long addUserToModel(HttpSession session) {
-		return  (Long) session.getAttribute("userSeq");
-	}
+//	@ModelAttribute("userSeq")
+//	public Long addUserToModel(HttpSession session) {
+//	       if (session != null) {
+//	            Long userSeq = (Long) session.getAttribute("userSeq");
+//	            if (userSeq != null) {
+//	                return userSeq;
+//	            }
+//	        }
+//	        return null;  // null 값을 반환하지 않도록 변경
+//	}
 	
 //    // UserNotFoundException이 발생했을 때 이 메서드가 호출됩니다.
 //    @ExceptionHandler(UserNotFoundException.class)

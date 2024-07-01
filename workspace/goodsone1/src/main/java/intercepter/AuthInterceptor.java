@@ -16,6 +16,7 @@ System.out.println("AuthInterceptor.preHandle() 실행");
 		HttpSession session = request.getSession();
 		String uri = request.getRequestURI();
 
+		// /goodsone1/login 요청시
 		if ("/goodsone1/login".equals(uri)) {
 			if (session.getAttribute("userSeq") != null) {
 System.out.println("세션에 userSeq 있어서 /home 리다이렉트 ");
@@ -26,7 +27,7 @@ System.out.println("세션 userSeq 비어있어서 정상적으로 진행");
 			return true;
 		}
 		
-//	     그 외의 경우 세션에서 userSeq 확인
+	     // 그 외의 경우 세션에서 userSeq 확인
 	    if (session.getAttribute("userSeq") == null) {
 	        response.sendRedirect("/goodsone1/login");
 	        return false;

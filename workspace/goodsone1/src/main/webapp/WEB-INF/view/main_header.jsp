@@ -10,7 +10,7 @@
 <body>
 <body>
 	<div>
-		<h1>Welcome to My Web App</h1>
+		<h1>GoodsOne</h1>
 		<nav>
 			<a href="/goodsone1/home">Home</a>
 			<a href="/goodsone1/Search">Shop</a>
@@ -26,7 +26,6 @@
 					<a href="/goodsone1/join">Join</a>
 				</c:otherwise>
 			</c:choose>
-			
 		</nav>
 	</div>
 <script type="text/javascript">
