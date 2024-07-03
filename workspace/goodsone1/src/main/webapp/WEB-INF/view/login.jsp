@@ -28,12 +28,12 @@
             var password = $('#password').val();
             var previousURI = document.referrer;
             $.ajax({
-                url: '/goodsone1/api/loginByEmail',
+                url: '/api/loginByEmail',
                 type: 'POST',
                 contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 data: {
-                    email: email,
-                    password: password
+                	reqEmail: email,
+                	reqPassword: password
                 },
                 success: function(response) {
                 	console.log("로그인 성공");
@@ -49,10 +49,10 @@
                     }
 
                     // 이전 페이지의 도메인이 현재 사이트와 같은지 확인
-                    if (previousDomain && previousDomain === currentDomain) {
+                    if (previousDomain === currentDomain) {
                         window.location.href = previousURI;
                     } else {
-                        window.location.href = "/goodsone1/home";
+                        window.location.href = "/home";
                     }
                 },
                 error: function(xhr) {

@@ -14,22 +14,17 @@
 
 
 
-	<c:choose>
-		<c:when test="${empty sessionScope.loginBySeq}">
-			<!-- 비로그인 상태 -->
+			<!-- 인증 전 -->
 			<form id="loginForm">
 				<label for="password">비밀번호:</label> <input type="password"
 					id="password" name="password" required><br>
 				<dir id="error"></dir>
 				<button type="submit">로그인</button>
 			</form>
-		</c:when>
-		<c:otherwise>
-			<!-- 로그인 상태 -->
+			
+			<!-- 인증 후 -->
 			<a href="/goodsone1/my">My Page</a>
 			<a href="/goodsone1/logout">Logout</a>
-		</c:otherwise>
-	</c:choose>
 
 	<script type="text/javascript">
     $(document).ready(function() {
@@ -37,7 +32,7 @@
             event.preventDefault();
             var password = $('#password').val();
             $.ajax({
-                url: '/goodsone1/api/loginBySeq',
+                url: '/api/loginByUserCredentials',
                 type: 'POST',
                 contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
                 data: {
@@ -45,11 +40,9 @@
                 },
                 success: function(response) {
                 	console.log("로그인 성공");
-                	window.location.reload();  // 페이지 새로고침
                 },
                 error: function(xhr) {
                     $('#error').text(xhr.responseText);
-                    /* alert("회원정보가 일치하지 않습니다."); */
                 }
             });
         });

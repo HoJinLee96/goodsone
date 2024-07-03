@@ -378,7 +378,29 @@ function validateForm() {
     return true;
 }
 
-
+$(document).ready(function() {
+    $('#loginForm').on('submit', function(event) {
+        event.preventDefault();
+        var email = $('#email').val();
+        var password = $('#password').val();
+        
+        $.ajax({
+            url: '/goodsone1/api/joinNormal',
+            type: 'POST',
+            contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+            data: {
+                email: email,
+                password: password
+            },
+            success: function(response) {
+            	
+            }
+            },
+            error: function(xhr) {
+                $('#error').text(xhr.responseText);
+            }
+        });
+    });
 </script>
 </body>
 <%@ include file = "main_footer.jsp" %>

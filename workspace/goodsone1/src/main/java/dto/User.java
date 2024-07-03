@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 public class User {
     private final int userSeq;
     private final String userEmail;
-    private final String userPassword;
+//    private final String userPassword;
     private final String userOldPassword;
     private final String userName;
     private final String userNickname;
@@ -20,7 +20,7 @@ public class User {
     private User(Builder builder) {
         this.userSeq = builder.userSeq;
         this.userEmail = builder.userEmail;
-        this.userPassword = builder.userPassword;
+//        this.userPassword = builder.userPassword;
         this.userOldPassword = builder.userOldPassword;
         this.userName = builder.userName;
         this.userNickname = builder.userNickname;
@@ -38,9 +38,9 @@ public class User {
         return userSeq;
     }
 
-    public String getUserPassword() {
-        return userPassword;
-    }
+//    public String getUserPassword() {
+//        return userPassword;
+//    }
 
     public String getUserOldPassword() {
         return userOldPassword;
@@ -93,7 +93,7 @@ public class User {
     public static class Builder {
         private int userSeq;
         private String userEmail;
-        private String userPassword;
+//        private String userPassword;
         private String userOldPassword;
         private String userName;
         private String userNickname;
@@ -111,10 +111,10 @@ public class User {
             return this;
         }
 
-        public Builder userPassword(String userPassword) {
-            this.userPassword = userPassword;
-            return this;
-        }
+//        public Builder userPassword(String userPassword) {
+//            this.userPassword = userPassword;
+//            return this;
+//        }
 
         public Builder userOldPassword(String userOldPassword) {
             this.userOldPassword = userOldPassword;

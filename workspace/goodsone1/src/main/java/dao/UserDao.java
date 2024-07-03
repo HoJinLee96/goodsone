@@ -5,16 +5,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-
 import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import dto.User;
+import dto.UserRegister;
 
 @Repository
 public class UserDao  {
@@ -25,24 +25,22 @@ public class UserDao  {
         this.dataSource = dataSource;
     }
 
-    public void addUser(User user) throws SQLException {
-        String sql = "INSERT INTO user (user_emil, user_password, user_oldpassword, user_name, user_nickname, user_birth, user_phone_agency, user_phone_number, user_address, created_at, user_status, user_signtype) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    public int registerUser(UserRegister userRegister) throws SQLException {
+        String sql = "INSERT INTO user (user_emil, user_password, user_name, user_nickname, user_birth, user_phone_agency, user_phone_number, user_address, created_at, user_status, user_signtype) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, user.getUserEmail());
-            statement.setString(2, user.getUserPassword());
-            statement.setString(3, user.getUserOldPassword());
-            statement.setString(4, user.getUserName());
-            statement.setString(5, user.getUserNickname());
-            statement.setString(6, user.getUserBirth());
-            statement.setString(7, user.getUserPhoneAgency());
-            statement.setString(8, user.getUserPhoneNumber());
-            statement.setString(9, user.getUserAddress());
-            statement.setTimestamp(10, Timestamp.valueOf(user.getCreatedAt()));
-            statement.setString(11, user.getUserStatus());
-            statement.setString(12, user.getUserSignType());
+            statement.setString(1, userRegister.getUserEmail());
+            statement.setString(2, userRegister.getUserPassword());
+            statement.setString(4, userRegister.getUserName());
+            statement.setString(5, userRegister.getUserName());
+            statement.setString(6, userRegister.getUserBirth());
+            statement.setString(8, userRegister.getUserPhoneNumber());
+            statement.setString(9, userRegister.getUserAddress());
+            statement.setTimestamp(10, Timestamp.valueOf(userRegister.getCreatedAt()));
+            statement.setString(11,"normal");
+            statement.setString(12,"normal");
 
-            statement.executeUpdate();
+            return statement.executeUpdate();
         }
     }
 
@@ -56,7 +54,7 @@ public class UserDao  {
                     User user = new User.Builder()
                         .userSeq(resultSet.getInt("user_seq"))
                         .userEmail(resultSet.getString("user_email"))
-                        .userPassword(resultSet.getString("user_password"))
+//                        .userPassword(resultSet.getString("user_password"))
                         .userOldPassword(resultSet.getString("user_oldpassword"))
                         .userName(resultSet.getString("user_name"))
                         .userNickname(resultSet.getString("user_nickname"))
@@ -87,7 +85,7 @@ public class UserDao  {
                     User user = new User.Builder()
                         .userSeq(resultSet.getInt("user_seq"))
                         .userEmail(resultSet.getString("user_email"))
-                        .userPassword(resultSet.getString("user_password"))
+//                        .userPassword(resultSet.getString("user_password"))
                         .userOldPassword(resultSet.getString("user_oldpassword"))
                         .userName(resultSet.getString("user_name"))
                         .userNickname(resultSet.getString("user_nickname"))
@@ -120,14 +118,16 @@ public class UserDao  {
       }
       return Optional.empty();
   }
-    public Optional<String> getPasswordByEmail(String email) throws SQLException {
-      String sql = "SELECT user_password FROM user WHERE user_email = ?";
+    public Optional<Map.Entry<Integer, String>> getPasswordByEmail(String email) throws SQLException {
+      String sql = "SELECT user_seq, user_password FROM user WHERE user_email = ?";
       try (Connection connection = dataSource.getConnection();
            PreparedStatement statement = connection.prepareStatement(sql)) {
           statement.setString(1, email);
           try (ResultSet resultSet = statement.executeQuery()) {
               if (resultSet.next()) {
-                  return Optional.of(resultSet.getString("user_password"));
+                int userSeq = resultSet.getInt("user_seq");
+                String userPassword = resultSet.getString("user_password");
+                return Optional.of(new AbstractMap.SimpleEntry<>(userSeq, userPassword));
               }
           }
       }
@@ -145,7 +145,7 @@ public class UserDao  {
                 User user = new User.Builder()
                     .userSeq(resultSet.getInt("user_seq"))
                     .userEmail(resultSet.getString("user_email"))
-                    .userPassword(resultSet.getString("user_password"))
+//                    .userPassword(resultSet.getString("user_password"))
                     .userOldPassword(resultSet.getString("user_oldpassword"))
                     .userName(resultSet.getString("user_name"))
                     .userNickname(resultSet.getString("user_nickname"))
@@ -166,11 +166,11 @@ public class UserDao  {
 
     // Update
     public void updateUser(User user) throws SQLException {
-        String sql = "UPDATE user SET user_email = ?, user_password = ?, user_oldpassword = ?, user_name = ?, user_nickname = ?, user_birth = ?, user_phone_agency = ?, user_phone_number = ?, user_address = ?, updated_at = ?, user_status = ?, user_signtype = ? WHERE user_seq = ?";
+        String sql = "UPDATE user SET user_email = ?, user_oldpassword = ?, user_name = ?, user_nickname = ?, user_birth = ?, user_phone_agency = ?, user_phone_number = ?, user_address = ?, updated_at = ?, user_status = ?, user_signtype = ? WHERE user_seq = ?";
         try (Connection connection = dataSource.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, user.getUserEmail());
-            statement.setString(2, user.getUserPassword());
+//            statement.setString(2, user.getUserPassword());
             statement.setString(3, user.getUserOldPassword());
             statement.setString(4, user.getUserName());
             statement.setString(5, user.getUserNickname());

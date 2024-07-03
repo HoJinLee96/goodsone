@@ -7,16 +7,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import service.UserService;
+import service.UserServices;
 
 @Controller
 @RequestMapping
 public class WebUserController {
 	
-	private UserService userService;
+	private UserServices userService;
 	
 	@Autowired
-	public WebUserController(UserService userService) {
+	public WebUserController(UserServices userService) {
 		this.userService = userService;
 	}
 
