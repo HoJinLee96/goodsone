@@ -18,125 +18,52 @@ input[type="number"] {
     appearance: textfield;
 }
 
-/* 전체 페이지 스타일 */
-body {
-    background-color: #ffffff;
-    font-family: Arial, sans-serif;
-    color: #000000;
-    margin: 0;
-    padding: 20px;
+.container{
+	max-width: 1200px;
+	margin: 0 auto;
+	padding-top: 50px;
+	min-height: 1080px;
 }
 
 /* 폼 스타일 */
-form {
-    max-width: 500px;
+.container form {
+    max-width: 400px;
     margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #000000;
+    padding: 0px 200px;
+    border: 1px solid #efefef;
     border-radius: 10px;
-    background-color: #f9f9f9;
 }
-
-/* 입력 필드와 레이블 스타일 */
-label {
-    display: block;
-    margin-bottom: 8px;
+.container form label{
+text-align: left;
+	display: block;
+	margin :0px;
+	padding :0px;
+    margin-top: 15px; /* input과의 간격을 조정 */
+    font-size: 15px;
     font-weight: bold;
 }
-
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"] {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #cccccc;
-    border-radius: 5px;
-    font-size: 16px;
-}
-
-input[type="number"] {
-    width: calc(33% - 14px);
-    margin-right: 10px;
-}
-
-input[type="number"]:last-child {
-    margin-right: 0;
-}
-
-/* 버튼 스타일 */
-button {
-    background-color: #000000;
-    color: #ffffff;
+.container form input{
+    width: 400px;
+    height: 40px;
     border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
+    border-bottom: 1px solid #ccc;
+    outline: none;
+    transition: border-bottom-color 0.3s;
 }
 
-button:hover {
-    background-color: #444444;
-}
-
-/* 인증번호 발송 메시지 스타일 */
-#responseMessage {
-    color: #ff0000;
-    font-weight: bold;
-    margin-top: 10px;
-}
-
-/* 인증번호 입력 필드 스타일 */
-#verificationCode {
-    width: calc(100% - 20px);
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #cccccc;
-    border-radius: 5px;
-    font-size: 16px;
-}
-
-/* 비밀번호 일치 메시지 스타일 */
-#passwordMessage, #emailMessage, #passwordConfirmMessage  {
-    color: #ff0000;
-    font-weight: bold;
-}
-
-/* 이메일 검증 메시지 스타일 */
-#emailMessage {
-    color: #ff0000;
-    font-weight: bold;
-}
-
-/* 제출 버튼 스타일 */
-input[type="submit"] {
-    width: 100%;
-    padding: 10px;
-    background-color: #000000;
-    color: #ffffff;
-    border: none;
-    border-radius: 5px;
-    font-size: 18px;
-    cursor: pointer;
-}
-
-input[type="submit"]:hover {
-    background-color: #444444;
-}
-
-.step {
+/* .step {
     display: none;
 }
 
 .step.active {
     display: block;
-}
+} */
 </style>
 </head>
+<body>
 <%@ include file = "main_header.jsp" %>
 
-<body>
+<div class="container">
 <form id="registrationForm" action="/goodsone1/register" method="post" onsubmit="return validateForm()">
     <!-- 각 단계의 div 요소들... -->
     <div class="step active" id="step1">
@@ -190,7 +117,9 @@ input[type="submit"]:hover {
         <input type="submit" id="submitButton" value="가입하기" style="display: none;">
     </div>
 </form>
-
+</div>
+<%@ include file = "main_footer.jsp" %>
+</body>
 
 <script>
 var currentStep = 1;
@@ -402,7 +331,4 @@ $(document).ready(function() {
         });
     });
 </script>
-</body>
-<%@ include file = "main_footer.jsp" %>
-
 </html>
