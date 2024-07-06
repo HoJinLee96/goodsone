@@ -44,7 +44,9 @@ DROP TABLE IF EXISTS `category`;
 DROP TABLE IF EXISTS `affiliation`;
 
 -- User 테이블 삭제
-DROP TABLE IF EXISTS `user`;
+DROP TABLE IF EXISTS `verification`;
+
+
 
 
 

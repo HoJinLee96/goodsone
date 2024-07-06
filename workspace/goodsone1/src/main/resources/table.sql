@@ -97,12 +97,15 @@ CREATE TABLE sale_post (
 	updated_at DATETIME NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP
 );
 
-create table sms(
-sms_seq INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-phone INT NOT NULL,
-athu INT NOT NULL,
-create_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+create table `verification`(
+`ver_seq` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+`to` VARCHAR(30) NOT NULL,
+`confirm_num` VARCHAR(30) NOT NULL,
+`status` VARCHAR(30) NOT NULL,
+`create_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+select * from verification;
 
 -- 외래 키 제약 조건 추가
 ALTER TABLE wishlist 

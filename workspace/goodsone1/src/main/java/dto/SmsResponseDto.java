@@ -7,7 +7,9 @@ public class SmsResponseDto {
     private LocalDateTime requestTime;
     private String statusCode;
     private String statusName;
+    
     private String smsConfirmNum;
+    private String to;
 
     // 기본 생성자
     public SmsResponseDto() {}
@@ -18,11 +20,6 @@ public class SmsResponseDto {
         this.requestTime = requestTime;
         this.statusCode = statusCode;
         this.statusName = statusName;
-    }
-
-    // 특정 필드만 포함하는 생성자
-    public SmsResponseDto(String smsConfirmNum) {
-        this.smsConfirmNum = smsConfirmNum;
     }
 
     // Getter 메서드들
@@ -46,41 +43,18 @@ public class SmsResponseDto {
         return smsConfirmNum;
     }
 
-    // 빌더 패턴 구현
-    public static class SmsResponseDtoBuilder {
-        private String requestId;
-        private LocalDateTime requestTime;
-        private String statusCode;
-        private String statusName;
+    public String getTo() {
+      return to;
+  }
 
-        public SmsResponseDtoBuilder() {}
-
-        public SmsResponseDtoBuilder requestId(String requestId) {
-            this.requestId = requestId;
-            return this;
-        }
-
-        public SmsResponseDtoBuilder requestTime(LocalDateTime requestTime) {
-            this.requestTime = requestTime;
-            return this;
-        }
-
-        public SmsResponseDtoBuilder statusCode(String statusCode) {
-            this.statusCode = statusCode;
-            return this;
-        }
-
-        public SmsResponseDtoBuilder statusName(String statusName) {
-            this.statusName = statusName;
-            return this;
-        }
-
-        public SmsResponseDto build() {
-            return new SmsResponseDto(requestId, requestTime, statusCode, statusName);
-        }
+    public void setSmsConfirmNum(String smsConfirmNum) {
+      this.smsConfirmNum = smsConfirmNum;
     }
 
-    public static SmsResponseDtoBuilder builder() {
-        return new SmsResponseDtoBuilder();
+    public void setTo(String to) {
+      this.to = to;
     }
+    
+    
+   
 }

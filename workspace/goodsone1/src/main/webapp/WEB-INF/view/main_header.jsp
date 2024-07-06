@@ -37,25 +37,27 @@ padding-left: 10px;
 
 .top_main {
 	display: flex;
-	justify-content: space-between;
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 2px 40px;
 }
 .logo {
-
+    margin-right: auto;
+	list-style: none;
+	display:flex;
+	padding: 0px;
 }
-
+.logo li h1{
+	margin: 0px;
+}
 .logo a {
     margin: 0px auto;
     padding: 0px;
-    margin-right: auto;
     text-decoration: none;
     color: black;
 }
 .main_nav{
 	display:flex;
-	margin: 0px auto;
     margin-left: auto;
 	list-style: none;
 }
@@ -67,6 +69,8 @@ padding-left: 20px;
 }
 </style>
 </head>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 	<div class = "top_inner">
 		<nav class = "top_nav">
 			<ul>

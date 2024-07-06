@@ -3,16 +3,17 @@ package service;
 import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
-
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.management.openmbean.InvalidKeyException;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpEntity;
@@ -22,12 +23,10 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
+import dao.VerificationRepositoryDao;
 import dto.MessageDto;
-import dto.Sms;
 import dto.SmsRequestDto;
 import dto.SmsResponseDto;
 
@@ -35,8 +34,8 @@ import dto.SmsResponseDto;
 @PropertySource("classpath:application.yml")
 @Service
 public class SmsService {
-	private final String smsConfirmNum = createSmsKey();
-	private final SmsRepository smsRepository;
+	
+	private final VerificationRepositoryDao verificationRepositoryDao;
 
 	@Value("${naver-cloud-sms.accessKey}")
 	private String accessKey;
@@ -50,13 +49,18 @@ public class SmsService {
 	@Value("${naver-cloud-sms.senderPhone}")
 	private String phone;
 
-	public SmsService(SmsRepository smsRepository) {
-		this.smsRepository = smsRepository;
+	@Autowired
+	public SmsService(VerificationRepositoryDao verificationRepositoryDao) {
+		this.verificationRepositoryDao = verificationRepositoryDao;
 	}
 
-	public SmsResponseDto sendSms(MessageDto messageDto) throws JsonProcessingException, RestClientException,
-			URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException, java.security.InvalidKeyException {
-
+	public int sendSms(String phoneNumber) throws JsonProcessingException, RestClientException,
+			URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException, java.security.InvalidKeyException, SQLException {
+	    System.out.println("인증번호 발생 시도 : "+phoneNumber);
+	    //인증번호
+	    String smsConfirmNum = createSmsKey();
+	    System.out.println("인증번호 발생 : "+ smsConfirmNum);
+	    
 		// 현재시간
 		String time = Long.toString(System.currentTimeMillis());
 
@@ -66,9 +70,9 @@ public class SmsService {
 		headers.set("x-ncp-apigw-timestamp", time);
 		headers.set("x-ncp-iam-access-key", accessKey);
 		headers.set("x-ncp-apigw-signature-v2", getSignature(time)); // signature 서명
-		
-		System.out.println("시그니처 생성완료");
 
+		
+		MessageDto messageDto = new MessageDto(phoneNumber);
 		List<MessageDto> messages = new ArrayList<>();
 		messages.add(messageDto);
 
@@ -90,21 +94,21 @@ public class SmsService {
 //		SmsResponseDto smsResponseDto = restTemplate.postForObject(
 //				new URI("https://sens.apigw.ntruss.com/sms/v2/services/" + serviceId + "/messages"), httpBody,
 //				SmsResponseDto.class);
-		SmsResponseDto smsResponseDto = new SmsResponseDto(
+		
+		SmsResponseDto responseDto = new SmsResponseDto(
 				serviceId,
 				new Timestamp(Long.parseLong(time)).toLocalDateTime(),
-                "202",
-                "성공");
-		SmsResponseDto responseDto = new SmsResponseDto(smsConfirmNum);
-
-		Sms sms = new Sms(messageDto.getTo(), responseDto.getSmsConfirmNum());
-		smsRepository.save(sms);
-
-		return smsResponseDto;
+                "200",
+                "success");
+		
+		responseDto.setSmsConfirmNum(smsConfirmNum);
+		responseDto.setTo(phoneNumber);
+		
+		return verificationRepositoryDao.sendSmsSave(responseDto);
 	}
 
 // 전달하고자 하는 데이터를 암호화해주는 작업
-	public String getSignature(String time)
+	private String getSignature(String time)
 			throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, java.security.InvalidKeyException {
 		String space = " ";
 		String newLine = "\n";
@@ -123,11 +127,12 @@ public class SmsService {
 		byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
 		String encodeBase64String = Base64.getEncoder().encodeToString(rawHmac);
 		
+	    System.out.println("시그니처 생성완료");
 		return encodeBase64String;
 	}
 
 //5자리의 난수를 조합을 통해 인증코드 만들기
-	public static String createSmsKey() {
+	private String createSmsKey() {
 		StringBuffer key = new StringBuffer();
 		Random rnd = new Random();
 
@@ -135,5 +140,9 @@ public class SmsService {
 			key.append((rnd.nextInt(10)));
 		}
 		return key.toString();
+	}
+	
+	public String confirmSms(String verSeq) throws SQLException, Exception {
+	  return verificationRepositoryDao.getConfirmNumber(Integer.valueOf(verSeq)).orElseThrow(()->new Exception("잠시후 시도 해주세요."));
 	}
 }

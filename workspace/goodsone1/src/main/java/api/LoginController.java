@@ -48,7 +48,6 @@ public class LoginController {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).body("비밀번호가 일치하지 않습니다.");
 			}
 		} catch (UserNotFoundException e) {
-			// @ControllerAdvice 처리
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).body("일치하는 회원정보가 없습니다.");
 		} catch (SQLException e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 접속할 수 없습니다.");

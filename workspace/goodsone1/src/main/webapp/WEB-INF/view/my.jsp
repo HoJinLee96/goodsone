@@ -1,11 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html>
 <head>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
 <title>마이페이지</title>
 <style type="text/css">

@@ -9,18 +9,33 @@
 
 .footer{
 	display : flex;
-	max-width: 1200px;
-	margin: 0 auto;
-	padding-top: 50px;
-	min-height: 500px;
+	width: 100%;
+	padding-top: 20px;
+	min-height: 300px;
 	border-top: 1px solid #efefef;
 }
 .footer ul{
+margin:5px 10px;
+padding:0px;
 list-style: none;
+}
+.footer ul li a{
+text-decoration: none;
+color:#bababa;
+
+}
+.footer ul li a:hover{
+color:black;
 }
 .info{
 margin-right: auto;
 
+}
+.line1{
+display:flex;
+}
+.line1 li{
+margin-right: 10px;
 }
 .sns{
 margin-left: auto;

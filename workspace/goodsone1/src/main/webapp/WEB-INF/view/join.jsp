@@ -21,19 +21,19 @@ input[type="number"] {
 .container{
 	max-width: 1200px;
 	margin: 0 auto;
-	padding-top: 50px;
-	min-height: 1080px;
+	padding-top: 70px;
+	min-height: 1600px;
 }
 
 /* 폼 스타일 */
-.container form {
+#registrationForm {
     max-width: 400px;
     margin: 0 auto;
-    padding: 0px 200px;
+    padding: 60px 200px;
     border: 1px solid #efefef;
     border-radius: 10px;
 }
-.container form label{
+#registrationForm label{
 text-align: left;
 	display: block;
 	margin :0px;
@@ -42,16 +42,45 @@ text-align: left;
     font-size: 15px;
     font-weight: bold;
 }
-.container form input{
+#birthYear, #birthMonth, #birthDay {
+	width: 108px !important; 
+}
+#verificationSmsCode, #userPhoneNumber{
+	width: 192px !important;
+}
+#registrationForm input{
     width: 400px;
     height: 40px;
     border: none;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 2px solid #ccc;
     outline: none;
     transition: border-bottom-color 0.3s;
+    margin-bottom: 10px;
 }
-
-/* .step {
+#registrationForm input:focus{
+    border-bottom: 2px solid black;
+}
+#registrationForm span{
+margin: 10px 0px;
+}
+#registrationForm button{
+	border:none;
+	background-color: black;
+	color:white;
+	width: 190px;
+	height: 30px;
+	margin: 0px 3px;
+}
+#registrationForm button:hover{
+	border:1px solid #efefef;
+	background-color: white;
+	color:black;
+}
+#buttonContainer{
+	margin-top:20px;
+}
+/* 
+.step {
     display: none;
 }
 
@@ -64,70 +93,94 @@ text-align: left;
 <%@ include file = "main_header.jsp" %>
 
 <div class="container">
-<form id="registrationForm" action="/goodsone1/register" method="post" onsubmit="return validateForm()">
+<form id="registrationForm">
     <!-- 각 단계의 div 요소들... -->
     <div class="step active" id="step1">
         <label for="userEmail">이메일</label>
-        <input type="email" id="userEmail" name="userEmail" required><br>
-        <span id="emailMessage"></span><br>
+        <input type="email" id="userEmail" name="userEmail" required autofocus oninput="validateEmail()">
+        <span id="emailMessage">적합니다!</span>
     </div>
     <div class="step" id="step2">
         <label for="userPassword">비밀번호</label>
-        <input type="password" id="userPassword" name="userPassword" required><br>
-        <span id="passwordMessage"></span><br>
+        <input type="password" id="userPassword" name="userPassword" required oninput="validatePasswords();">
+        <span id="passwordMessage">적합니다</span>
+        <label for="userConfirmPassword">비밀번호 확인</label>
+        <input type="password" id="userConfirmPassword" name="userConfirmPassword" required oninput="validateConfirmPasswords()">
+        <span id="passwordConfirmMessage">적합니다</span>
     </div>
     <div class="step" id="step3">
-        <label for="userConfirmPassword">비밀번호 확인</label>
-        <input type="password" id="userConfirmPassword" name="userConfirmPassword" required oninput="validatePasswords()"><br>
-        <span id="passwordConfirmMessage"></span><br>
-    </div>
-    <div class="step" id="step4">
-        <label for="userNickname">닉네임</label>
-        <input type="text" id="userNickname" name="userNickname" required><br>
-        <label for="userName">이름:</label>
-        <input type="text" id="userName" name="userName" required><br>
-        <label for="userBirth">생년월일</label><br>
+<!--         <label for="userNickname">닉네임</label>
+        <input type="text" id="userNickname" name="userNickname" required> -->
+        <label for="userName">이름</label>
+        <input type="text" id="userName" name="userName" required>
+        
+        <label for="userBirth">생년월일</label>
         <input type="number" id="birthYear" name="birthYear" placeholder="년도" min="1900" max="2024" maxlength="4" required oninput="if(this.value.length > 4) this.value = this.value.slice(0, 4);" onkeydown="return event.keyCode !== 69 && event.keyCode !== 189 && event.keyCode !== 187;">년
         <input type="number" id="birthMonth" name="birthMonth" placeholder="월" min="1" max="12" required oninput="if(this.value > 12) this.value = 12; if(this.value < 1 && this.value !== '') this.value = 1;" onkeydown="return event.keyCode !== 69 && event.keyCode !== 189 && event.keyCode !== 187;">월
         <input type="number" id="birthDay" name="birthDay" placeholder="일" min="1" max="31" required oninput="if(this.value > 31) this.value = 31; if(this.value < 1 && this.value !== '') this.value = 1;" onkeydown="return event.keyCode !== 69 && event.keyCode !== 189 && event.keyCode !== 187;">일
-        <br>
+        
+        <label for="userPhoneNumber">전화번호</label>    
+        <input type="text" id="userPhoneNumber" name="userPhoneNumber" required oninput="formatPhoneNumber(this)" maxlength="13">
+        <button class = "sendSmsButton" type="button" onclick="sendSms()">인증번호 발송</button>
+        <!-- <button class = "reVerifyButton" id="resendButton" onclick="resendSms()" disabled>재전송</button> -->
+        <span id="sendSmsMessage">적합니다</span>
+        
+        <label for="verificationCode">인증번호</label>
+        <input type="text" id="verificationSmsCode" name="verificationSmsCode" required oninput="formatSmsCode(this)" maxlength="5" readonly disabled>
+        <button class = "verifySmsCodeButton" type="button" onclick="verifySms()" disabled>인증번호 확인</button>
+        <span id="verificationSmsMessage">적합니다</span>
     </div>
     <div class="step" id="step5">
-        <label for="userPhoneNumber">전화번호</label>    
-        <input type="text" id="userPhoneNumber" name="userPhoneNumber" required oninput="formatPhoneNumber(this)" maxlength="13"><br>
-        <button type="button" onclick="sendSms()">인증번호 발송</button><br>
-        <p id="responseMessage"></p>
-        <button id="resendButton" onclick="resendSms()" disabled>재전송</button>
-        <label for="verificationCode">인증번호</label>
-        <input type="text" id="verificationCode" name="verificationCode" readonly><br>
-        <button type="button" onclick="verifyCode()">인증번호 확인</button><br>
+        <label for="userAddress">주소</label>
+        <input type="text" id="userAddress" name="userAddress" autocomplete="off" required readonly >
+        <label for="userAddress">상세 주소</label>
+        <input type="text" id="userAddress" name="userAddress2" autocomplete="off" required>
+        <span id="userAddressConfirmMessage">적합니다</span>
     </div>
     <div class="step" id="step6">
-        <label for="userAddress">주소</label>
-        <input type="text" id="userAddress" name="userAddress" required><br>
-    </div>
-    <div class="step" id="step7">
         <label for="emailVerificationCode">이메일 인증번호</label>
-        <input type="text" id="emailVerificationCode" name="emailVerificationCode" required><br>
+        <input type="text" id="emailVerificationCode" name="emailVerificationCode" required>
     </div>
     
     <div id="buttonContainer">
-        <button type="button" id="previousButton" onclick="previousStep()" style="display: none;">이전</button>
-        <button type="button" id="nextButton" onclick="nextStep()">다음</button>
+        <button type="button" class="previousButton" id="previousButton" onclick="previousStep()" style="display: none;">이전</button>
+        <button type="button" class="nextButton" id="nextButton" onclick="nextStep()">다음</button>
         <input type="submit" id="submitButton" value="가입하기" style="display: none;">
+    </div>
+    <div id="error">
+    
     </div>
 </form>
 </div>
 <%@ include file = "main_footer.jsp" %>
 </body>
+<script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=ehdjldyrx2&submodules=geocoder"></script>
+<script type="text/javascript">
+naver.maps.Service.geocode({
+    query: '불정로 6'
+}, function(status, response) {
+    if (status !== naver.maps.Service.Status.OK) {
+        return alert('Something wrong!');
+    }
+	
+    var result = response.v2, // 검색 결과의 컨테이너
+        items = result.addresses; // 검색 결과의 배열	
+        console.log(items);
+    // do Something
+});
 
-<script>
+
+</script>
+<script type="text/javascript">
+
 var currentStep = 1;
 var totalSteps = 7;
 var generatedCode = ""; // SMS 인증번호
 var emailVerificationCode = ""; // 이메일 인증번호
+var seq = 0;
 
 function nextStep() {
+	console.log("1");
     if (validateStep(currentStep)) {
         setStepReadonly(currentStep, true);
         currentStep++;
@@ -141,6 +194,7 @@ function previousStep() {
         document.getElementById('step' + currentStep).classList.remove('active');
         currentStep--;
         setStepReadonly(currentStep, false);
+        setSpan(currentStep);
         updateButtons();
     }
 }
@@ -171,6 +225,14 @@ function setStepReadonly(step, readonly) {
         input.readOnly = readonly;
     });
 }
+function setSpan(step) {
+	console.log("2");
+    var spans = document.querySelectorAll('#step' + step + ' span');
+    spans.forEach(function(span){
+    	span.textContent=' ';	
+    })
+    
+}
 
 function validateEmail() {
     var email = document.getElementById("userEmail").value;
@@ -193,7 +255,9 @@ function validateEmail() {
 function validatePasswords() {
     var password = document.getElementById("userPassword").value;
     var message = document.getElementById("passwordMessage");
-
+    var confirmMessage = document.getElementById("passwordConfirmMessage");
+    confirmMessage.innerText =' ';
+    
     var passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
 
     if (!passwordPattern.test(password)) {
@@ -209,7 +273,6 @@ function validatePasswords() {
 
 function validateConfirmPasswords(){
     var password = document.getElementById("userPassword").value;
-
     var confirmPassword = document.getElementById("userConfirmPassword").value;
     var message = document.getElementById("passwordConfirmMessage");
 
@@ -226,47 +289,86 @@ function validateConfirmPasswords(){
 }
 
 function formatPhoneNumber(input) {
-    let value = input.value.replace(/[^0-9]/g, '');
+    let value = input.value.replace(/[^0-9]/g, '');  // 숫자 이외의 문자를 제거합니다.
     let formattedValue = value;
 
-    if (value.length > 3 && value.length <= 7) {
-        formattedValue = value.slice(0, 3) + '-' + value.slice(3);
-    } else if (value.length > 7) {
-        formattedValue = value.slice(0, 3) + '-' + value.slice(3, 7) + '-' + value.slice(7);
+    // 앞 세 자리를 "010"으로 고정합니다.
+    if (value.startsWith('010')) {
+        value = value.slice(3);  // 앞 세 자리("010")를 잘라냅니다.
+    }
+
+    if (value.length <= 4) {
+        formattedValue = '010-' + value;  // 4자리 이하의 숫자만 있을 경우
+    } else if (value.length <= 7) {
+        formattedValue = '010-' + value.slice(0, 4) + '-' + value.slice(4);  // 5~7자리의 경우
+    } else {
+        formattedValue = '010-' + value.slice(0, 4) + '-' + value.slice(4, 8); // 8자리 이상의 경우
     }
 
     input.value = formattedValue;
 }
-
-function sendSms() {
-    var phone = document.getElementById("userPhoneNumber").value.replace(/[^0-9]/g, '');
-    var messageDto = {
-        to: phone
-    };
-    console.log(messageDto);
-
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "sms/send", true);
-    xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-    xhr.send(JSON.stringify(messageDto));
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 202) {
-            var response = JSON.parse(xhr.responseText);
-            generatedCode = response.smsConfirmNum;
-            document.getElementById("responseMessage").innerText = "인증번호가 발송되었습니다.";
-            document.getElementById("verificationCode").readOnly = false;
-        } else if (xhr.readyState === 4) {
-            alert("인증번호 발송에 실패하였습니다.");
-        }
-    };
+function formatSmsCode(input){
+	input.value = input.value.replace(/[^0-9]/g, ''); 
 }
 
-function verifyCode() {
-    var enteredCode = document.getElementById("verificationCode").value;
-    if (enteredCode === generatedCode) {
-        alert("인증 성공");
-    } else {
-        alert("인증 실패. 인증번호를 다시 확인해주세요.");
+function sendSms() {
+    var message = document.getElementById("sendSmsMessage");
+    var phoneNumber = document.getElementById("userPhoneNumber").value.replace(/[^0-9]/g, '');
+    console.log(phoneNumber);
+    if (phoneNumber.length < 11) {
+        // 여기서 원하는 작업을 수행합니다.
+        message.style.color = 'red';
+    	message.innerText="전화번호를 확인해 주세요.";
+    }else{
+     $.ajax({
+         url: '/api/verify/sendsms',
+         type: 'POST',
+         contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+         data: {
+        	 phoneNumber: phoneNumber
+         },
+         success: function(response) {
+        	 message.style.color = 'green';
+        	 message.innerText="인증번호 발송 완료";
+         	console.log("Response DTO 는 ", response);
+         	seq = response;
+            document.getElementById("verificationSmsCode").removeAttribute("readonly");
+            document.getElementById("verificationSmsCode").removeAttribute("disabled");
+            document.querySelector(".verifySmsCodeButton").removeAttribute("disabled");
+         },
+         error: function(xhr) {
+        	 message.style.color = 'red';
+        	 message.innerText=xhr.responseText;
+         }
+     });
+    }
+}
+
+function verifySms() {
+    var enteredCode = document.getElementById("verificationSmsCode").value;
+    var message = document.getElementById("verificationSmsMessage");
+    if(enteredCode<5){
+    	message.style.color = 'red';
+	 	message.innerText="인증번호를 다시 확인해주세요.";
+    }else{
+	    $.ajax({
+	        url: '/api/verify/confirmsms',
+	        type: 'POST',
+	        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+	        data: {
+	        	reqCode : enteredCode,
+	        	seq : seq
+	        },
+	        success: function(response) {
+	        	message.style.color = 'green';
+	        	message.innerText="인증 성공";
+	       	 
+	        },
+	        error: function(xhr) {
+				message.style.color = 'red';
+	    	 	message.innerText=xhr.responseText;
+	        }
+	    });
     }
 }
 
@@ -275,16 +377,15 @@ function validateStep(step) {
         case 1:
             return validateEmail();
         case 2:
-            return validatePasswords();
+            return validatePasswords()&&validateConfirmPasswords();
         case 3:
-            return validateConfirmPasswords(); //document.getElementById("userConfirmPassword").value === document.getElementById("userPassword").value; 
+            return true;
         case 4:
-            return true; // Step 4의 추가 검증 로직을 여기에 추가
+            return true; 
         case 5:
-            // 전화번호 인증 검증 로직을 여기에 추가
             return true;
         case 6:
-            return true; // 주소 입력 검증 로직을 여기에 추가
+            return true;
         case 7:
             var enteredEmailCode = document.getElementById("emailVerificationCode").value;
             if (enteredEmailCode !== emailVerificationCode) {
@@ -306,29 +407,28 @@ function validateForm() {
     }
     return true;
 }
-
 $(document).ready(function() {
-    $('#loginForm').on('submit', function(event) {
-        event.preventDefault();
+    $('#registrationForm').on('submit', function(event) {
         var email = $('#email').val();
         var password = $('#password').val();
-        
         $.ajax({
-            url: '/goodsone1/api/joinNormal',
+            url: '/api/joinNormal',
             type: 'POST',
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
             data: {
-                email: email,
-                password: password
+            	reqEmail: email,
+            	reqPassword: password
             },
             success: function(response) {
-            	
-            }
+            	console.log("로그인 성공");
             },
             error: function(xhr) {
                 $('#error').text(xhr.responseText);
+                /* alert("회원정보가 일치하지 않습니다."); */
             }
         });
     });
+});
+
 </script>
 </html>

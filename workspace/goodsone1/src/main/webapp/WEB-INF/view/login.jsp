@@ -38,12 +38,12 @@ text-align: left;
     width: 400px;
     height: 40px;
     border: none;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 2px solid #ccc;
     outline: none;
     transition: border-bottom-color 0.3s;
 }
 #loginForm input:focus{
-    border-bottom: 1px solid black;
+    border-bottom: 2px solid black;
 }
 #loginForm button{
     width: 400px;
