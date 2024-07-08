@@ -48,6 +48,9 @@ text-align: left;
 #verificationSmsCode, #userPhoneNumber{
 	width: 192px !important;
 }
+#postcode{
+	width: 108px !important;
+}
 #registrationForm input{
     width: 400px;
     height: 40px;
@@ -70,6 +73,7 @@ margin: 10px 0px;
 	width: 190px;
 	height: 30px;
 	margin: 0px 3px;
+	border-radius: 8px;
 }
 #registrationForm button:hover{
 	border:1px solid #efefef;
@@ -120,7 +124,7 @@ margin: 10px 0px;
         <input type="number" id="birthDay" name="birthDay" placeholder="일" min="1" max="31" required oninput="if(this.value > 31) this.value = 31; if(this.value < 1 && this.value !== '') this.value = 1;" onkeydown="return event.keyCode !== 69 && event.keyCode !== 189 && event.keyCode !== 187;">일
         
         <label for="userPhoneNumber">전화번호</label>    
-        <input type="text" id="userPhoneNumber" name="userPhoneNumber" required oninput="formatPhoneNumber(this)" maxlength="13">
+        <input type="text" id="userPhoneNumber" name="userPhoneNumber" required oninput="formatPhoneNumber(this)" maxlength="13" value="010-">
         <button class = "sendSmsButton" type="button" onclick="sendSms()">인증번호 발송</button>
         <!-- <button class = "reVerifyButton" id="resendButton" onclick="resendSms()" disabled>재전송</button> -->
         <span id="sendSmsMessage">적합니다</span>
@@ -132,10 +136,9 @@ margin: 10px 0px;
     </div>
     <div class="step" id="step5">
         <label for="userAddress">주소</label>
-        <input type="text" id="userAddress" name="userAddress" autocomplete="off" required readonly >
-        <label for="userAddress">상세 주소</label>
-        <input type="text" id="userAddress" name="userAddress2" autocomplete="off" required>
-        <span id="userAddressConfirmMessage">적합니다</span>
+        <input type="text" id="postcode" name="postcode" autocomplete="off" onclick="searchAddress()" required readonly placeholder="우편번호">
+        <input type="text" id="userAddress" name="userAddress" autocomplete="off" onclick="searchAddress()" required readonly placeholder="주소">
+        <input type="text" id="userDetailAddress" name="userDetailAddress" autocomplete="off" required placeholder="상세주소">
     </div>
     <div class="step" id="step6">
         <label for="emailVerificationCode">이메일 인증번호</label>
@@ -154,25 +157,71 @@ margin: 10px 0px;
 </div>
 <%@ include file = "main_footer.jsp" %>
 </body>
-<script type="text/javascript" src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=ehdjldyrx2&submodules=geocoder"></script>
+
+<!-- 주소 input 클릭시 다음 api -->
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script type="text/javascript">
-naver.maps.Service.geocode({
-    query: '불정로 6'
-}, function(status, response) {
-    if (status !== naver.maps.Service.Status.OK) {
-        return alert('Something wrong!');
-    }
-	
-    var result = response.v2, // 검색 결과의 컨테이너
-        items = result.addresses; // 검색 결과의 배열	
-        console.log(items);
-    // do Something
+function searchAddress(){
+ new daum.Postcode({
+        oncomplete: function(data) {
+        	
+            var addr = ''; // 주소 변수
+            var extraAddr = ''; // 참고항목 변수
+
+            if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+                addr = data.roadAddress;
+            } else { // 사용자가 지번 주소를 선택했을 경우(J)
+                addr = data.jibunAddress;
+            }
+
+            // 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합한다.
+            if(data.userSelectedType === 'R'){
+                // 법정동명이 있을 경우 추가한다. (법정리는 제외)
+                // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
+                if(data.bname !== '' && /[동|로|가]$/g.test(data.bname)){
+                    extraAddr += data.bname;
+                }
+                // 건물명이 있고, 공동주택일 경우 추가한다.
+                if(data.buildingName !== '' && data.apartment === 'Y'){
+                    extraAddr += (extraAddr !== '' ? ', ' + data.buildingName : data.buildingName);
+                }
+                // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
+                if(extraAddr !== ''){
+                    extraAddr = ' (' + extraAddr + ')';
+                }
+                // 조합된 참고항목을 지번 주소 뒤에 붙인다.
+                addr = addr + extraAddr;
+            
+            }
+
+            // 우편번호와 주소 정보를 해당 필드에 넣는다.
+            document.getElementById('postcode').value = data.zonecode;
+            document.getElementById("userAddress").value = addr;
+            // 커서를 상세주소 필드로 이동한다.
+            document.getElementById("userDetailAddress").focus();
+        }
+    }).open();
+}
+</script>
+
+<!-- 주소 input 클릭시 새로운 윈도우 "/addressSearch" GET 요청-->
+<!-- <script type="text/javascript">
+
+document.getElementById('userAddress').addEventListener('click', function() {
+    window.open('/addressSearch', 'Address Search', 'width=600,height=400');
 });
 
+function openAddressSearch() {
+    // 새로운 윈도우 창 열기
+    window.open("addressSearch.jsp", "Address Search", "width=600,height=400");
+}
 
-</script>
+function setAddress(address) {
+    document.getElementById("userAddress").value = address;
+}
+</script> -->
+
 <script type="text/javascript">
-
 var currentStep = 1;
 var totalSteps = 7;
 var generatedCode = ""; // SMS 인증번호

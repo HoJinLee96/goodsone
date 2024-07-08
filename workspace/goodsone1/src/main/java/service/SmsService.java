@@ -1,15 +1,16 @@
 package service;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
+import javax.annotation.PostConstruct;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.management.openmbean.InvalidKeyException;
@@ -20,9 +21,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dao.VerificationRepositoryDao;
@@ -30,8 +33,7 @@ import dto.MessageDto;
 import dto.SmsRequestDto;
 import dto.SmsResponseDto;
 
-//application.yml의 값을 @Value로 전달받는다.
-@PropertySource("classpath:application.yml")
+@PropertySource("classpath:application.properties")
 @Service
 public class SmsService {
 	
@@ -53,10 +55,19 @@ public class SmsService {
 	public SmsService(VerificationRepositoryDao verificationRepositoryDao) {
 		this.verificationRepositoryDao = verificationRepositoryDao;
 	}
+	
+	@PostConstruct
+    private void init() {
+        System.out.println("accessKey: " + accessKey);
+        System.out.println("secretKey: " + secretKey);
+        System.out.println("serviceId: " + serviceId);
+        System.out.println("phone: " + phone);
+    }
 
 	public int sendSms(String phoneNumber) throws JsonProcessingException, RestClientException,
 			URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException, java.security.InvalidKeyException, SQLException {
-	    System.out.println("인증번호 발생 시도 : "+phoneNumber);
+	 init();
+	  System.out.println("인증번호 발생 시도 : "+phoneNumber);
 	    //인증번호
 	    String smsConfirmNum = createSmsKey();
 	    System.out.println("인증번호 발생 : "+ smsConfirmNum);
@@ -70,6 +81,8 @@ public class SmsService {
 		headers.set("x-ncp-apigw-timestamp", time);
 		headers.set("x-ncp-iam-access-key", accessKey);
 		headers.set("x-ncp-apigw-signature-v2", getSignature(time)); // signature 서명
+		headers.add("Content-Type", "application/json; charset=UTF-8");
+
 
 		
 		MessageDto messageDto = new MessageDto(phoneNumber);
@@ -82,6 +95,7 @@ public class SmsService {
 
 		// request를 json형태로 body로 변환
 		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
 		String body = objectMapper.writeValueAsString(request);
 		
 		// body와 header을 합친다
@@ -89,17 +103,19 @@ public class SmsService {
 
 		// restTemplate를 통해 외부 api와 통신
 		RestTemplate restTemplate = new RestTemplate();
+		restTemplate.getMessageConverters()
+	    .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
 		restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
-//		SmsResponseDto smsResponseDto = restTemplate.postForObject(
-//				new URI("https://sens.apigw.ntruss.com/sms/v2/services/" + serviceId + "/messages"), httpBody,
-//				SmsResponseDto.class);
+		SmsResponseDto responseDto = restTemplate.postForObject(
+				new URI("https://sens.apigw.ntruss.com/sms/v2/services/" + serviceId + "/messages"), httpBody,
+				SmsResponseDto.class);
 		
-		SmsResponseDto responseDto = new SmsResponseDto(
-				serviceId,
-				new Timestamp(Long.parseLong(time)).toLocalDateTime(),
-                "200",
-                "success");
+//		SmsResponseDto responseDto = new SmsResponseDto(
+//				serviceId,
+//				new Timestamp(Long.parseLong(time)).toLocalDateTime(),
+//                "200",
+//                "success");
 		
 		responseDto.setSmsConfirmNum(smsConfirmNum);
 		responseDto.setTo(phoneNumber);

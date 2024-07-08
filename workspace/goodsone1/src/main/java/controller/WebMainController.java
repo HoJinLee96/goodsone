@@ -1,5 +1,7 @@
 package controller;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +23,9 @@ public class WebMainController {
 	}
 
 	@GetMapping("/join")
-	public String showJoin() {
+	public String showJoin(HttpServletRequest req, HttpServletResponse res) {
 		System.out.println("WebMainController.showJoin() 실행");
+	    req.setAttribute("key","ehdjldyrx2");
 		return "join";
 	}
 
@@ -42,6 +45,12 @@ public class WebMainController {
 	public String showMy() {
 		System.out.println("WebMainController.showMy() 실행");
 		return "my";
+	}
+	
+	@GetMapping("/addressSearch")
+	public String showAddressSearch(HttpServletRequest req, HttpServletResponse res) {
+	  req.setAttribute("key","ehdjldyrx2");
+	  return "addressSearch";
 	}
 
 }
