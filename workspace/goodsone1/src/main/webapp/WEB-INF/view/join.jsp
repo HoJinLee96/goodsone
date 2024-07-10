@@ -158,7 +158,7 @@ margin: 10px 0px;
 <%@ include file = "main_footer.jsp" %>
 </body>
 
-<!-- 주소 input 클릭시 다음 api -->
+<!-- 주소 검색 api -->
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script type="text/javascript">
 function searchAddress(){
@@ -204,162 +204,8 @@ function searchAddress(){
 }
 </script>
 
-<!-- 주소 input 클릭시 새로운 윈도우 "/addressSearch" GET 요청-->
-<!-- <script type="text/javascript">
-
-document.getElementById('userAddress').addEventListener('click', function() {
-    window.open('/addressSearch', 'Address Search', 'width=600,height=400');
-});
-
-function openAddressSearch() {
-    // 새로운 윈도우 창 열기
-    window.open("addressSearch.jsp", "Address Search", "width=600,height=400");
-}
-
-function setAddress(address) {
-    document.getElementById("userAddress").value = address;
-}
-</script> -->
-
+<!-- sms 인증 api -->
 <script type="text/javascript">
-var currentStep = 1;
-var totalSteps = 7;
-var generatedCode = ""; // SMS 인증번호
-var emailVerificationCode = ""; // 이메일 인증번호
-var seq = 0;
-
-function nextStep() {
-	console.log("1");
-    if (validateStep(currentStep)) {
-        setStepReadonly(currentStep, true);
-        currentStep++;
-        document.getElementById('step' + currentStep).classList.add('active');
-        updateButtons();
-    }
-}
-
-function previousStep() {
-    if (currentStep > 1) {
-        document.getElementById('step' + currentStep).classList.remove('active');
-        currentStep--;
-        setStepReadonly(currentStep, false);
-        setSpan(currentStep);
-        updateButtons();
-    }
-}
-
-function updateButtons() {
-    var previousButton = document.getElementById("previousButton");
-    var nextButton = document.getElementById("nextButton");
-    var submitButton = document.getElementById("submitButton");
-
-    if (currentStep === 1) {
-        previousButton.style.display = "none";
-        nextButton.style.display = "inline-block";
-        submitButton.style.display = "none";
-    } else if (currentStep === totalSteps) {
-        previousButton.style.display = "inline-block";
-        nextButton.style.display = "none";
-        submitButton.style.display = "inline-block";
-    } else {
-        previousButton.style.display = "inline-block";
-        nextButton.style.display = "inline-block";
-        submitButton.style.display = "none";
-    }
-}
-
-function setStepReadonly(step, readonly) {
-    var inputs = document.querySelectorAll('#step' + step + ' input');
-    inputs.forEach(function(input) {
-        input.readOnly = readonly;
-    });
-}
-function setSpan(step) {
-	console.log("2");
-    var spans = document.querySelectorAll('#step' + step + ' span');
-    spans.forEach(function(span){
-    	span.textContent=' ';	
-    })
-    
-}
-
-function validateEmail() {
-    var email = document.getElementById("userEmail").value;
-    var message = document.getElementById("emailMessage");
-
-    var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(email)) {
-        message.style.color = 'red';
-        message.innerText = "유효한 이메일 주소를 입력해주세요.";
-        return false;
-    } else {
-        message.style.color = 'green';
-        message.innerText = "유효한 이메일 주소입니다.";
-        // 여기에 이메일 인증 코드를 보내는 로직을 추가할 수 있습니다.
-        emailVerificationCode = "123456"; // 예시로 하드코딩된 인증 코드
-        return true;
-    }
-}
-
-function validatePasswords() {
-    var password = document.getElementById("userPassword").value;
-    var message = document.getElementById("passwordMessage");
-    var confirmMessage = document.getElementById("passwordConfirmMessage");
-    confirmMessage.innerText =' ';
-    
-    var passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-
-    if (!passwordPattern.test(password)) {
-        message.style.color = 'red';
-        message.innerText = "비밀번호는 최소 8자 이상이며, 영어, 숫자, 특수기호를 포함해야 합니다.";
-        return false;
-    }else {
-        message.style.color = 'green';
-        message.innerText = "유효한 비밀번호 입니다.";
-        return true;
-    }
-}
-
-function validateConfirmPasswords(){
-    var password = document.getElementById("userPassword").value;
-    var confirmPassword = document.getElementById("userConfirmPassword").value;
-    var message = document.getElementById("passwordConfirmMessage");
-
-
-	 if (password !== confirmPassword) {
-	        message.style.color = 'red';
-	        message.innerText = "비밀번호가 일치하지 않습니다.";
-	        return false;
-	    } else {
-	        message.style.color = 'green';
-	        message.innerText = "비밀번호가 일치합니다.";
-	        return true;
-	    }
-}
-
-function formatPhoneNumber(input) {
-    let value = input.value.replace(/[^0-9]/g, '');  // 숫자 이외의 문자를 제거합니다.
-    let formattedValue = value;
-
-    // 앞 세 자리를 "010"으로 고정합니다.
-    if (value.startsWith('010')) {
-        value = value.slice(3);  // 앞 세 자리("010")를 잘라냅니다.
-    }
-
-    if (value.length <= 4) {
-        formattedValue = '010-' + value;  // 4자리 이하의 숫자만 있을 경우
-    } else if (value.length <= 7) {
-        formattedValue = '010-' + value.slice(0, 4) + '-' + value.slice(4);  // 5~7자리의 경우
-    } else {
-        formattedValue = '010-' + value.slice(0, 4) + '-' + value.slice(4, 8); // 8자리 이상의 경우
-    }
-
-    input.value = formattedValue;
-}
-function formatSmsCode(input){
-	input.value = input.value.replace(/[^0-9]/g, ''); 
-}
-
 function sendSms() {
     var message = document.getElementById("sendSmsMessage");
     var phoneNumber = document.getElementById("userPhoneNumber").value.replace(/[^0-9]/g, '');
@@ -419,6 +265,132 @@ function verifySms() {
 	        }
 	    });
     }
+}
+</script>
+
+<!-- 이메일 인증 api -->
+<script type="text/javascript">
+
+</script>
+
+<!-- 메인 -->
+<script type="text/javascript">
+var currentStep = 1;
+var totalSteps = 7;
+var seq = 0;
+
+function nextStep() {
+	console.log("1");
+    if (validateStep(currentStep)) {
+        setStepReadonly(currentStep, true);
+        currentStep++;
+        document.getElementById('step' + currentStep).classList.add('active');
+        updateButtons();
+    }
+}
+
+function previousStep() {
+    if (currentStep > 1) {
+        document.getElementById('step' + currentStep).classList.remove('active');
+        currentStep--;
+        setStepReadonly(currentStep, false);
+        setSpan(currentStep);
+        updateButtons();
+    }
+}
+
+function updateButtons() {
+    var previousButton = document.getElementById("previousButton");
+    var nextButton = document.getElementById("nextButton");
+    var submitButton = document.getElementById("submitButton");
+
+    if (currentStep === 1) {
+        previousButton.style.display = "none";
+        nextButton.style.display = "inline-block";
+        submitButton.style.display = "none";
+    } else if (currentStep === totalSteps) {
+        previousButton.style.display = "inline-block";
+        nextButton.style.display = "none";
+        submitButton.style.display = "inline-block";
+    } else {
+        previousButton.style.display = "inline-block";
+        nextButton.style.display = "inline-block";
+        submitButton.style.display = "none";
+    }
+}
+
+function setStepReadonly(step, readonly) {
+    var inputs = document.querySelectorAll('#step' + step + ' input');
+    inputs.forEach(function(input) {
+        input.readOnly = readonly;
+    });
+}
+function setSpan(step) {
+	console.log("2");
+    var spans = document.querySelectorAll('#step' + step + ' span');
+    spans.forEach(function(span){
+    	span.textContent=' ';	
+    })
+    
+}
+
+function validatePasswords() {
+    var password = document.getElementById("userPassword").value;
+    var message = document.getElementById("passwordMessage");
+    var confirmMessage = document.getElementById("passwordConfirmMessage");
+    confirmMessage.innerText =' ';
+    
+    var passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+
+    if (!passwordPattern.test(password)) {
+        message.style.color = 'red';
+        message.innerText = "비밀번호는 최소 8자 이상이며, 영어, 숫자, 특수기호를 포함해야 합니다.";
+        return false;
+    }else {
+        message.style.color = 'green';
+        message.innerText = "유효한 비밀번호 입니다.";
+        return true;
+    }
+}
+
+function validateConfirmPasswords(){
+    var password = document.getElementById("userPassword").value;
+    var confirmPassword = document.getElementById("userConfirmPassword").value;
+    var message = document.getElementById("passwordConfirmMessage");
+
+
+	 if (password !== confirmPassword) {
+	        message.style.color = 'red';
+	        message.innerText = "비밀번호가 일치하지 않습니다.";
+	        return false;
+	    } else {
+	        message.style.color = 'green';
+	        message.innerText = "비밀번호가 일치합니다.";
+	        return true;
+	    }
+}
+
+function formatPhoneNumber(input) {
+    let value = input.value.replace(/[^0-9]/g, '');  // 숫자 이외의 문자를 제거합니다.
+    let formattedValue = value;
+
+    // 앞 세 자리를 "010"으로 고정합니다.
+    if (value.startsWith('010')) {
+        value = value.slice(3);  // 앞 세 자리("010")를 잘라냅니다.
+    }
+
+    if (value.length <= 4) {
+        formattedValue = '010-' + value;  // 4자리 이하의 숫자만 있을 경우
+    } else if (value.length <= 7) {
+        formattedValue = '010-' + value.slice(0, 4) + '-' + value.slice(4);  // 5~7자리의 경우
+    } else {
+        formattedValue = '010-' + value.slice(0, 4) + '-' + value.slice(4, 8); // 8자리 이상의 경우
+    }
+
+    input.value = formattedValue;
+}
+function formatSmsCode(input){
+	input.value = input.value.replace(/[^0-9]/g, ''); 
 }
 
 function validateStep(step) {

@@ -31,7 +31,7 @@
 	</servlet-mapping>
 	
 	<welcome-file-list>
-    <welcome-file>index</welcome-file>
+    <welcome-file>index1</welcome-file>
 	</welcome-file-list>	
 
 	<filter>

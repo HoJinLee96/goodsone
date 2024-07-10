@@ -119,7 +119,21 @@
 			<artifactId>jedis</artifactId>
 			<version>2.10.2</version>
 		</dependency>
-
+		
+		<!-- 스프링 메일 -->
+		<dependency>
+    		<groupId>org.springframework.boot</groupId>
+    		<artifactId>spring-boot-starter-mail</artifactId>
+			<version>3.2.7</version>
+		</dependency>
+		
+		<!-- 네이버 메일 SDK -->
+		<!-- 		<dependency>
+			<groupId>com.naver.cloud</groupId>
+			<artifactId>outbound-mailer-sdk</artifactId>
+			<version>1.6.1</version>
+		</dependency>  -->
+		
 	</dependencies>
 
 	<build>

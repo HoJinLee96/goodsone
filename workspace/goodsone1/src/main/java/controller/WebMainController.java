@@ -46,11 +46,6 @@ public class WebMainController {
 		System.out.println("WebMainController.showMy() 실행");
 		return "my";
 	}
-	
-	@GetMapping("/addressSearch")
-	public String showAddressSearch(HttpServletRequest req, HttpServletResponse res) {
-	  req.setAttribute("key","ehdjldyrx2");
-	  return "addressSearch";
-	}
+
 
 }

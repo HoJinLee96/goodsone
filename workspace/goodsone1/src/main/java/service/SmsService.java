@@ -38,17 +38,14 @@ import dto.SmsResponseDto;
 public class SmsService {
 	
 	private final VerificationRepositoryDao verificationRepositoryDao;
-
-	@Value("${naver-cloud-sms.accessKey}")
+	
+	@Value("${naver-api.accessKey}")
 	private String accessKey;
 
-	@Value("${naver-cloud-sms.secretKey}")
-	private String secretKey;
-
-	@Value("${naver-cloud-sms.serviceId}")
+	@Value("${naver-sms.serviceId}")
 	private String serviceId;
 
-	@Value("${naver-cloud-sms.senderPhone}")
+	@Value("${naver-sms.senderPhone}")
 	private String phone;
 
 	@Autowired
@@ -58,8 +55,6 @@ public class SmsService {
 	
 	@PostConstruct
     private void init() {
-        System.out.println("accessKey: " + accessKey);
-        System.out.println("secretKey: " + secretKey);
         System.out.println("serviceId: " + serviceId);
         System.out.println("phone: " + phone);
     }
@@ -68,23 +63,27 @@ public class SmsService {
 			URISyntaxException, InvalidKeyException, NoSuchAlgorithmException, UnsupportedEncodingException, java.security.InvalidKeyException, SQLException {
 	 init();
 	  System.out.println("인증번호 발생 시도 : "+phoneNumber);
-	    //인증번호
+	    //인증번호 생성
 	    String smsConfirmNum = createSmsKey();
 	    System.out.println("인증번호 발생 : "+ smsConfirmNum);
 	    
 		// 현재시간
 		String time = Long.toString(System.currentTimeMillis());
-
+		
+		// url
+	    String url = "/sms/v2/services/" + this.serviceId + "/messages";
+		
+		// 서명 생성
+	    NaverCreateSignature creater = new NaverCreateSignature();
+	    
 		// 헤더세팅
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.set("x-ncp-apigw-timestamp", time);
 		headers.set("x-ncp-iam-access-key", accessKey);
-		headers.set("x-ncp-apigw-signature-v2", getSignature(time)); // signature 서명
+		headers.set("x-ncp-apigw-signature-v2", creater.getSignature("POST", url, time)); // signature 서명
 		headers.add("Content-Type", "application/json; charset=UTF-8");
 
-
-		
 		MessageDto messageDto = new MessageDto(phoneNumber);
 		List<MessageDto> messages = new ArrayList<>();
 		messages.add(messageDto);
@@ -124,28 +123,28 @@ public class SmsService {
 	}
 
 // 전달하고자 하는 데이터를 암호화해주는 작업
-	private String getSignature(String time)
-			throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, java.security.InvalidKeyException {
-		String space = " ";
-		String newLine = "\n";
-		String method = "POST";
-		String url = "/sms/v2/services/" + this.serviceId + "/messages";
-		String accessKey = this.accessKey;
-		String secretKey = this.secretKey;
-
-		String message = new StringBuilder().append(method).append(space).append(url).append(newLine).append(time)
-				.append(newLine).append(accessKey).toString();
-
-		SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
-		Mac mac = Mac.getInstance("HmacSHA256");
-		mac.init(signingKey);
-
-		byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
-		String encodeBase64String = Base64.getEncoder().encodeToString(rawHmac);
-		
-	    System.out.println("시그니처 생성완료");
-		return encodeBase64String;
-	}
+//	private String getSignature(String time)
+//			throws NoSuchAlgorithmException, UnsupportedEncodingException, InvalidKeyException, java.security.InvalidKeyException {
+//		String space = " ";
+//		String newLine = "\n";
+//		String method = "POST";
+//		String url = "/sms/v2/services/" + this.serviceId + "/messages";
+//		String accessKey = this.accessKey;
+//		String secretKey = this.secretKey;
+//
+//		String message = new StringBuilder().append(method).append(space).append(url).append(newLine).append(time)
+//				.append(newLine).append(accessKey).toString();
+//
+//		SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256");
+//		Mac mac = Mac.getInstance("HmacSHA256");
+//		mac.init(signingKey);
+//
+//		byte[] rawHmac = mac.doFinal(message.getBytes("UTF-8"));
+//		String encodeBase64String = Base64.getEncoder().encodeToString(rawHmac);
+//		
+//	    System.out.println("시그니처 생성완료");
+//		return encodeBase64String;
+//	}
 
 //5자리의 난수를 조합을 통해 인증코드 만들기
 	private String createSmsKey() {

@@ -1,4 +1,4 @@
-package service;
+package trash;
 
 import java.net.URI;
 import javax.annotation.PostConstruct;
@@ -13,22 +13,21 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import dto.NaverAddressApiResponse;
 
-@PropertySource("classpath:application.properties")
-@Service
+//@PropertySource("classpath:application.properties")
+//@Service
 public class NaverAddressSearchService {
 
-  @Value("${naver-ai-geocoder.clientId}")
-  static String clientId;
+//  @Value("${naver-api.accessKey}")
+  static String accessKey;
   
-  @Value("${naver-ai-geocoder.clientSecret}")
-  static String clientSecret;
+//  @Value("${naver-api.secretKey}")
+  static String secretKey;
   
-  @PostConstruct
+//  @PostConstruct
   static public void init() {
-      System.out.println("clientId: " + clientId);
-      System.out.println("clientSecret: " + clientSecret);
+      System.out.println("accessKey: " + accessKey);
+      System.out.println("secretKey: " + secretKey);
   }
   
   public void searchAddress(String query) {
@@ -36,9 +35,6 @@ public class NaverAddressSearchService {
     init();
     
     System.out.println(query);
-    
-    RestTemplate restTemplate = new RestTemplate();
-    restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
     
     String url = "https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode";
 
@@ -50,13 +46,15 @@ public class NaverAddressSearchService {
     
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.set("X-NCP-APIGW-API-KEY-ID ", clientId);
-    headers.set("X-NCP-APIGW-API-KEY", clientSecret);
+    headers.set("X-NCP-APIGW-API-KEY-ID ", accessKey);
+    headers.set("X-NCP-APIGW-API-KEY", secretKey);
     headers.add("Content-Type", "application/json; charset=UTF-8");
     
     HttpEntity<String> entity = new HttpEntity<>(headers);
     
- // GET 요청 보내기
+    // GET 요청 보내기
+    RestTemplate restTemplate = new RestTemplate();
+    restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
     ResponseEntity<NaverAddressApiResponse> response = restTemplate.exchange(uri, HttpMethod.GET, entity, NaverAddressApiResponse.class);
 
     // 응답 처리
