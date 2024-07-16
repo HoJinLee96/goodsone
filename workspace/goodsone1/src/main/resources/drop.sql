@@ -43,7 +43,7 @@ DROP TABLE IF EXISTS `category`;
 -- Affiliation 테이블 삭제
 DROP TABLE IF EXISTS `affiliation`;
 
--- User 테이블 삭제
+-- Verification 테이블 삭제
 DROP TABLE IF EXISTS `verification`;
 
 

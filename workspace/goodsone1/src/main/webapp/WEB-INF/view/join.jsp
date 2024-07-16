@@ -101,7 +101,7 @@ margin: 10px 0px;
     <!-- 각 단계의 div 요소들... -->
     <div class="step active" id="step1">
         <label for="userEmail">이메일</label>
-        <input type="email" id="userEmail" name="userEmail" required autofocus oninput="validateEmail()">
+        <input type="email" id="userEmail" name="userEmail" required autofocus oninput="validateEmail(this)">
         <span id="emailMessage">적합니다!</span>
     </div>
     <div class="step" id="step2">
@@ -130,8 +130,8 @@ margin: 10px 0px;
         <span id="sendSmsMessage">적합니다</span>
         
         <label for="verificationCode">인증번호</label>
-        <input type="text" id="verificationSmsCode" name="verificationSmsCode" required oninput="formatSmsCode(this)" maxlength="5" readonly disabled>
-        <button class = "verifySmsCodeButton" type="button" onclick="verifySms()" disabled>인증번호 확인</button>
+        <input type="text" id="verificationSmsCode" name="verificationSmsCode" required oninput="formatCode(this)" maxlength="5" readonly disabled>
+        <button class = "verifySmsCodeButton" type="button" onclick="verifySmsCode()" disabled>인증번호 확인</button>
         <span id="verificationSmsMessage">적합니다</span>
     </div>
     <div class="step" id="step5">
@@ -142,12 +142,15 @@ margin: 10px 0px;
     </div>
     <div class="step" id="step6">
         <label for="emailVerificationCode">이메일 인증번호</label>
-        <input type="text" id="emailVerificationCode" name="emailVerificationCode" required>
+        <input type="text" id="verificationMailCode" name="verificationMailCode" required oninput="formatCode(this)" maxlength="5" readonly disabled>
+		<span id="verificationMailMessage">적합니다</span>
     </div>
     
     <div id="buttonContainer">
         <button type="button" class="previousButton" id="previousButton" onclick="previousStep()" style="display: none;">이전</button>
         <button type="button" class="nextButton" id="nextButton" onclick="nextStep()">다음</button>
+        <button type="button" class="sendMailButtons" id="sendMailButton" onclick="sendMail()">인증번호 발송</button>
+        <button type="button" class="verifyMailCodeButton" id="verifyMailCodeButton" onclick="verifyMailCode()" disabled >인증번호 확인</button>
         <input type="submit" id="submitButton" value="가입하기" style="display: none;">
     </div>
     <div id="error">
@@ -206,6 +209,8 @@ function searchAddress(){
 
 <!-- sms 인증 api -->
 <script type="text/javascript">
+var smsSeq = 0;
+
 function sendSms() {
     var message = document.getElementById("sendSmsMessage");
     var phoneNumber = document.getElementById("userPhoneNumber").value.replace(/[^0-9]/g, '');
@@ -225,11 +230,10 @@ function sendSms() {
          success: function(response) {
         	 message.style.color = 'green';
         	 message.innerText="인증번호 발송 완료";
-         	console.log("Response DTO 는 ", response);
-         	seq = response;
+         	smsSeq = response;
             document.getElementById("verificationSmsCode").removeAttribute("readonly");
             document.getElementById("verificationSmsCode").removeAttribute("disabled");
-            document.querySelector(".verifySmsCodeButton").removeAttribute("disabled");
+            document.getElementById("verifySmsCodeButton").removeAttribute("disabled");
          },
          error: function(xhr) {
         	 message.style.color = 'red';
@@ -239,7 +243,7 @@ function sendSms() {
     }
 }
 
-function verifySms() {
+function verifySmsCode() {
     var enteredCode = document.getElementById("verificationSmsCode").value;
     var message = document.getElementById("verificationSmsMessage");
     if(enteredCode<5){
@@ -247,12 +251,12 @@ function verifySms() {
 	 	message.innerText="인증번호를 다시 확인해주세요.";
     }else{
 	    $.ajax({
-	        url: '/api/verify/confirmsms',
+	        url: '/api/verify/comparecode',
 	        type: 'POST',
 	        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
 	        data: {
 	        	reqCode : enteredCode,
-	        	seq : seq
+	        	seq : smsSeq
 	        },
 	        success: function(response) {
 	        	message.style.color = 'green';
@@ -270,14 +274,76 @@ function verifySms() {
 
 <!-- 이메일 인증 api -->
 <script type="text/javascript">
+var mailSeq = 0;
 
+function sendMail() {
+    var message = document.getElementById("verificationMailMessage");
+    var reqEmail = document.getElementById("userEmail").value;
+    var reqName = document.getElementById("userName").value;
+
+    console.log(reqEmail);
+    if (!validateEmail()) {
+        // 여기서 원하는 작업을 수행합니다.
+        message.style.color = 'red';
+    	message.innerText="이메일 형식이 적합하지 않습니다.";
+    }else{
+     $.ajax({
+         url: '/api/verify/sendmail',
+         type: 'POST',
+         contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+         data: {
+        	 reqEmail: reqEmail,
+        	 reqName : reqName
+         },
+         success: function(response) {
+        	 message.style.color = 'green';
+        	 message.innerText="인증번호 발송 완료";
+         	mailSeq = response;
+            document.getElementById("verificationMailCode").removeAttribute("readonly");
+            document.getElementById("verificationMailCode").removeAttribute("disabled");
+            document.getElementById("verifyMailCodeButton").removeAttribute("disabled");
+         },
+         error: function(xhr) {
+        	 message.style.color = 'red';
+        	 message.innerText=xhr.responseText;
+         }
+     });
+    }
+}
+
+function verifyMailCode() {
+    var enteredCode = document.getElementById("verificationMailCode").value;
+    var message = document.getElementById("verificationMailMessage");
+    if(enteredCode<5){
+    	message.style.color = 'red';
+	 	message.innerText="인증번호를 다시 확인해주세요.";
+    }else{
+	    $.ajax({
+	        url: '/api/verify/comparecode',
+	        type: 'POST',
+	        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+	        data: {
+	        	reqCode : enteredCode,
+	        	seq : mailSeq
+	        },
+	        success: function(response) {
+	        	message.style.color = 'green';
+	        	message.innerText="인증 성공";
+	       	 
+	        },
+	        error: function(xhr) {
+				message.style.color = 'red';
+	    	 	message.innerText=xhr.responseText;
+	        }
+	    });
+    }
+}
 </script>
 
 <!-- 메인 -->
 <script type="text/javascript">
 var currentStep = 1;
 var totalSteps = 7;
-var seq = 0;
 
 function nextStep() {
 	console.log("1");
@@ -326,11 +392,26 @@ function setStepReadonly(step, readonly) {
     });
 }
 function setSpan(step) {
-	console.log("2");
     var spans = document.querySelectorAll('#step' + step + ' span');
     spans.forEach(function(span){
     	span.textContent=' ';	
     })
+    
+}
+
+function validateEmail() {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    var email = document.getElementById("userEmail").value;
+    var message = document.getElementById("emailMessage");
+    if (!emailPattern.test(email)) {
+        message.style.color = 'red';
+        message.innerText = "올바른 이메일 형식을 입력 해주세요.";
+        return false;
+    }else {
+        message.style.color = 'green';
+        message.innerText = "적합합니다.";
+        return true;
+    }
     
 }
 
@@ -389,7 +470,7 @@ function formatPhoneNumber(input) {
 
     input.value = formattedValue;
 }
-function formatSmsCode(input){
+function formatCode(input){
 	input.value = input.value.replace(/[^0-9]/g, ''); 
 }
 
@@ -428,6 +509,7 @@ function validateForm() {
     }
     return true;
 }
+
 $(document).ready(function() {
     $('#registrationForm').on('submit', function(event) {
         var email = $('#email').val();
@@ -438,10 +520,9 @@ $(document).ready(function() {
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
             data: {
             	reqEmail: email,
-            	reqPassword: password
             },
             success: function(response) {
-            	console.log("로그인 성공");
+            	console.log("성공");
             },
             error: function(xhr) {
                 $('#error').text(xhr.responseText);

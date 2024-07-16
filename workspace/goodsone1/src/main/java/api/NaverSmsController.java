@@ -11,26 +11,29 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestClientException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import dto.VerifyResponseDto;
+import service.NaverSmsService;
 import service.RateLimiterService;
-import service.SmsService;
+import service.VerificationServices;
 
 @RestController
 @RequestMapping("/api")
-
-public class SmsController {
-  private final SmsService smsService;
+public class NaverSmsController {
+  private final NaverSmsService smsService;
+  private final VerificationServices verificationServices;
   private final RateLimiterService rateLimiterService;
 
   @Autowired
-  public SmsController(SmsService smsService, RateLimiterService rateLimiterService) {
-    this.rateLimiterService = rateLimiterService;
+  public NaverSmsController(NaverSmsService smsService, VerificationServices verificationServices,
+      RateLimiterService rateLimiterService) {
     this.smsService = smsService;
+    this.verificationServices = verificationServices;
+    this.rateLimiterService = rateLimiterService;
   }
 
   @PostMapping("/verify/sendsms")
@@ -48,7 +51,8 @@ public class SmsController {
 
     int i = 0;
     try {
-      i = smsService.sendSms(phoneNumber);
+      VerifyResponseDto responseDto = smsService.sendSms(phoneNumber);
+      i = verificationServices.register(responseDto);
     } catch (JsonProcessingException | RestClientException | InvalidKeyException
         | java.security.InvalidKeyException | NoSuchAlgorithmException
         | UnsupportedEncodingException | URISyntaxException | SQLException e) {
@@ -57,21 +61,5 @@ public class SmsController {
     }
     return ResponseEntity.ok(i);
   }
-  
-  @PostMapping("/verify/confirmsms")
-  public ResponseEntity<?> verifySms(@RequestParam String seq, @RequestParam String reqCode){
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("Content-Type", "text/plain; charset=UTF-8");
-    
-    try {
-      if(reqCode.equals(smsService.confirmSms(seq)))
-        return ResponseEntity.ok("성공");
-      else
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).body("인증번호를 다시 확인해주세요.");
-    } catch (Exception e) {
-      e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 이용할 수 없습니다.");
-    }
-    
-  }
+
 }

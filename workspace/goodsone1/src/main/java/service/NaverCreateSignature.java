@@ -3,11 +3,14 @@ package service;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import javax.annotation.PostConstruct;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 
+@Component
 @PropertySource("classpath:application.properties")
 public class NaverCreateSignature {
   
@@ -16,6 +19,12 @@ public class NaverCreateSignature {
 
   @Value("${naver-api.secretKey}")
   private String secretKey;
+  
+  @PostConstruct
+  private void init() {
+      System.out.println("accessKey: " + accessKey);
+      System.out.println("secretKey: " + secretKey);
+  }
   
   public String getSignature(String method, String url, String time) throws UnsupportedEncodingException, NoSuchAlgorithmException, java.security.InvalidKeyException  {
     

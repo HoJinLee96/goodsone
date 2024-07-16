@@ -1,14 +1,19 @@
 package service;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
+import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpEntity;
@@ -17,74 +22,99 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.mail.MailMessage;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-import dtoNaverMail.OutboundMailRequest;
-import dtoNaverMail.RecipientForRequest;
-import trash.NaverAddressApiResponse;
+import dto.VerifyResponseDto;
 
 
 @Service
 @PropertySource("classpath:application.properties")
 public class NaverMailService {
+  
+  private final NaverCreateSignature naverCreateSignature;
+  
+  @Autowired
+  public NaverMailService(NaverCreateSignature naverCreateSignature) {
+    this.naverCreateSignature = naverCreateSignature;
+  }
 
   @Value("${naver-api.accessKey}")
   private String accessKey;
+  
+  @Value("${naver-mail.senderEmail}")
+  private String senderEmail;
+  
+  @PostConstruct
+  private void init() {
+    System.out.println("accessKey : " + accessKey);
+    System.out.println("senderEmail : " + senderEmail);
+  }
 
-  private final String mailEndpoint = "https://mail.apigw.ntruss.com/api/v1";
+  // url
+  private final String mailApiUrl ="https://mail.apigw.ntruss.com";
+  private final String mailEndpoint = "/api/v1";
+  
   private final String sendMailUri = "/mails";
 
+
   // 메일 전송
-  public void sendAuthMail(String mailAddress, String userName) throws InvalidKeyException, UnsupportedEncodingException, NoSuchAlgorithmException {
-    //인증번호 생성
-    String smsConfirmNum = createSmsKey();
-    System.out.println("인증번호 발생 : "+ smsConfirmNum);
+  public VerifyResponseDto sendMail(String reqEmail, String reqName) throws InvalidKeyException, UnsupportedEncodingException, NoSuchAlgorithmException, SQLException {
     
+ // 인증번호 생성
+    String verificationCode = createVerificationCode();
+    System.out.println("인증번호 발생 : " + verificationCode);
+
     // 현재시간
     String time = Long.toString(System.currentTimeMillis());
-    
-    // 서명 생성
-    NaverCreateSignature creater = new NaverCreateSignature();
-    
-    // 수신사 생성
-    ArrayList<RecipientForRequest> recipients = new ArrayList<>();
-    recipients.add(RecipientForRequest.of("mailAddress", "userName"));
 
-    // 파라미터 세팅
-    URI uri = UriComponentsBuilder.fromHttpUrl(mailEndpoint+sendMailUri)
-        .queryParam("senderAddress", "") // String
-        .queryParam("title", "[ goodsone1 인증번호 ]") // String
-        .queryParam("body", "[ goodsone1 인증번호 ]"+ "\n" +  "[" + smsConfirmNum + "]를 입력해주세요") // String
-        .queryParam("recipients", recipients) // List<RecipientForRequest>
-        .queryParam("unsubscribeMessage", "수신 거부 ") // String
-        .build()
-        .encode()
-        .toUri();
-    
+    // 수신자 생성
+    List<Map<String, Object>> recipients = new ArrayList<>();
+    Map<String, Object> recipient = new HashMap<>();
+    recipient.put("address", reqEmail);
+    recipient.put("name", reqName);
+    recipient.put("type", "R");
+    recipients.add(recipient);
+
+    // 메일 요청 데이터 생성
+    Map<String, Object> mailRequest = new HashMap<>();
+    mailRequest.put("senderAddress", senderEmail);
+    mailRequest.put("title", "[ chamman 회원 가입 인증번호 ]");
+    mailRequest.put("body", "[ 인증번호 ]" + "\n" + "[" + verificationCode + "]를 입력해주세요");
+    mailRequest.put("recipients", recipients);
+    mailRequest.put("individual", true);
+    mailRequest.put("advertising", false);
+
     // 헤더세팅
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
     headers.set("x-ncp-apigw-timestamp", time);
     headers.set("x-ncp-iam-access-key", accessKey);
-    headers.set("x-ncp-apigw-signature-v2", creater.getSignature("POST", mailEndpoint+sendMailUri, time)); // signature 서명
-    headers.set("x-ncp-lang ", "ko-KR"); //API 응답 값의 다국어 처리를 위한 값.
-    headers.add("Content-Type", "application/json; charset=UTF-8");
-    
-    HttpEntity<String> entity = new HttpEntity<>(headers);
+    headers.set("x-ncp-apigw-signature-v2", naverCreateSignature.getSignature("POST", mailEndpoint + sendMailUri, time));
+    headers.set("x-ncp-lang", "ko-KR");
 
+    // JSON 본문 설정
+    HttpEntity<Map<String, Object>> entity = new HttpEntity<>(mailRequest, headers);
 
-    
+    // RestTemplate를 통해 외부 API와 통신
     RestTemplate restTemplate = new RestTemplate();
     restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
-    ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.POST, entity, String.class);
-
+    ResponseEntity<String> response = restTemplate.exchange(mailApiUrl + mailEndpoint + sendMailUri, HttpMethod.POST, entity, String.class);
     
+    System.out.println("Response: " + response.getBody());
+    
+    VerifyResponseDto responseDto = new VerifyResponseDto();
+
+    responseDto.setRequestTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(time)), ZoneId.systemDefault()));
+    responseDto.setStatusCode("200");
+    responseDto.setVerificationCode(verificationCode);
+    responseDto.setTo(reqEmail);
+
+    return responseDto;
   }
   
 //5자리의 난수를 조합을 통해 인증코드 만들기
-  private String createSmsKey() {
+  private String createVerificationCode() {
       StringBuffer key = new StringBuffer();
       Random rnd = new Random();
 
@@ -93,5 +123,4 @@ public class NaverMailService {
       }
       return key.toString();
   }
-
 }

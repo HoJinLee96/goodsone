@@ -1,4 +1,4 @@
-package dto;
+package trash;
 import java.time.LocalDateTime;
 
 //public class Sms {

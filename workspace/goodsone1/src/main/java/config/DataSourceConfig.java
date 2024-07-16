@@ -31,7 +31,7 @@ public class DataSourceConfig {
 //  public DataSource dataSource() {
 //      DataSource ds = new DataSource();
 //      ds.setDriverClassName("com.mysql.jdbc.Driver"); // JDBC 드라이버 클래스를 MySQL 드라이버 클래스로 지정.
-//      ds.setUrl("jdbc:mysql://spring-webservice.cp4qqoi4m1yv.ap-northeast-2.rds.amazonaws.com:3306/spring-webservice"); // JDBC URL 지정 //?useSSL=no
+//      ds.setUrl("jdbc:mysql://spring-webservice.cp4qqoi4m1yv.ap-northeast-2.rds.amazonaws.com:3306"); // JDBC URL 지정 //?useSSL=no
 //      ds.setUsername("admin");
 //      ds.setPassword("Leeought21");
 //      ds.setInitialSize(10);

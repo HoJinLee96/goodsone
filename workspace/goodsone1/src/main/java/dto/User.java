@@ -12,6 +12,18 @@ public class User {
     private final String userPhoneAgency;
     private final String userPhoneNumber;
     private final String userAddress;
+    //주소 리스트로 바꾸기
+    
+    //구매내역 리스트
+    //위시 리스트
+    //문의 내역
+    
+    //멤버십
+    //결제정보
+    
+    //카카오
+    //네이버
+    
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
     private final String userStatus;

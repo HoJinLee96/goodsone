@@ -77,8 +77,14 @@ padding-bottom: 10px;
 		<c:if test="${not empty sessionScope.user}">
 		    <div class ="profile">
 		    	
+		    	<ul>
+		    	
+		    	${sessionScope.user.userEmail}
+		    	${sessionScope.user.userName}
     			${sessionScope.user.userNickname}
-    			${sessionScope.user.userEmail}
+    			${sessionScope.user.userPhoneNumber}
+    			${sessionScope.user.userAddress}
+    			</ul>
 				
 		    </div>
 	    </c:if>

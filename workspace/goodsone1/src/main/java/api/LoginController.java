@@ -54,8 +54,8 @@ public class LoginController {
 		}
 	}
 	
-	@PostMapping("/loginByUserCredentials")
-	public ResponseEntity<String> loginByUserCredentials(@RequestParam String reqPassword,HttpSession session){
+	@PostMapping("/loginBySession")
+	public ResponseEntity<String> loginBySession(@RequestParam String reqPassword,HttpSession session){
 	  HttpHeaders headers = new HttpHeaders();
       headers.add("Content-Type", "text/plain; charset=UTF-8");
 
