@@ -47,7 +47,7 @@ public class VerificationDao {
   }
 
   public Optional<String> getVerificationCode(int verSeq) throws SQLException {
-    String sql = "SELECT `verification_code` FROM verification where `ver_seq`=?";
+    String sql = "SELECT `verification_code` FROM verification where `verification_seq`=?";
     try (Connection con = dataSource.getConnection();
         PreparedStatement state = con.prepareStatement(sql);) {
       state.setInt(1, verSeq);

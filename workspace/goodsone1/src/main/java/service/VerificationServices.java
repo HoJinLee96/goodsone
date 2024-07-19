@@ -18,7 +18,7 @@ public class VerificationServices {
   
   public boolean compareCode(String seq,String reqCode) throws SQLException{
     String verificationCode = verificationDao.getVerificationCode(Integer.valueOf(seq)).orElseThrow(()->new SQLException("잠시후 시도 해주세요."));
-    return verificationCode.equals(verificationCode);
+    return verificationCode.equals(reqCode);
   }
   
   public int register(VerifyResponseDto responseDto) throws SQLException {

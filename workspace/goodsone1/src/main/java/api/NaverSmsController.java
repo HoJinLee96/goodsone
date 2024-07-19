@@ -37,7 +37,7 @@ public class NaverSmsController {
   }
 
   @PostMapping("/verify/sendsms")
-  public ResponseEntity<?> sendSms(@RequestParam String phoneNumber, HttpServletRequest request)
+  public ResponseEntity<?> sendSms(@RequestParam String reqPhone, HttpServletRequest request)
       throws UnsupportedEncodingException, URISyntaxException, NoSuchAlgorithmException,
       JsonProcessingException, RestClientException, InvalidKeyException,
       java.security.InvalidKeyException {
@@ -51,7 +51,7 @@ public class NaverSmsController {
 
     int i = 0;
     try {
-      VerifyResponseDto responseDto = smsService.sendSms(phoneNumber);
+      VerifyResponseDto responseDto = smsService.sendSms(reqPhone);
       i = verificationServices.register(responseDto);
     } catch (JsonProcessingException | RestClientException | InvalidKeyException
         | java.security.InvalidKeyException | NoSuchAlgorithmException
@@ -59,7 +59,7 @@ public class NaverSmsController {
       e.printStackTrace();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 이용할 수 없습니다.");
     }
-    return ResponseEntity.ok(i);
+    return ResponseEntity.status(HttpStatus.OK).headers(headers).body(i+"");
   }
 
 }

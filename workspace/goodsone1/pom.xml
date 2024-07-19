@@ -9,7 +9,6 @@
 	<packaging>war</packaging>
 	<dependencies>
 
-		<!--jar 직접 추가함--> 
 		<dependency>
 			<groupId>com.mysql</groupId>
 			<artifactId>mysql-connector-j</artifactId>
@@ -19,7 +18,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-			<version>5.0.2.RELEASE</version>
+			<version>5.3.10</version>
 		</dependency>
 
 		<!-- JdbcTembplate 등 JDBC 연동에 필요 기능 제공-->
@@ -46,7 +45,7 @@
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
-			<version>3.1.0</version>
+			<version>4.0.1</version>
 			<scope>provided</scope>
 		</dependency>
 
@@ -66,7 +65,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
-			<version>5.0.2.RELEASE</version>
+			<version>5.3.10</version>
 		</dependency>
 
 		<!-- Apache Commons Codec --> <!-- import

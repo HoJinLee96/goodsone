@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -12,187 +13,153 @@ import java.util.Map;
 import java.util.Optional;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import dto.User;
-import dto.UserRegister;
+import dto.UserDto;
 
 @Repository
-public class UserDao  {
-    private final DataSource dataSource;
+public class UserDao {
+  private final DataSource dataSource;
+  private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
-    public UserDao(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    public int registerUser(UserRegister userRegister) throws SQLException {
-        String sql = "INSERT INTO user (user_emil, user_password, user_name, user_nickname, user_birth, user_phone_agency, user_phone_number, user_address, created_at, user_status, user_signtype) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, userRegister.getUserEmail());
-            statement.setString(2, userRegister.getUserPassword());
-            statement.setString(4, userRegister.getUserName());
-            statement.setString(5, userRegister.getUserName());
-            statement.setString(6, userRegister.getUserBirth());
-            statement.setString(8, userRegister.getUserPhoneNumber());
-            statement.setString(9, userRegister.getUserAddress());
-            statement.setTimestamp(10, Timestamp.valueOf(userRegister.getCreatedAt()));
-            statement.setString(11,"normal");
-            statement.setString(12,"normal");
-
-            return statement.executeUpdate();
-        }
-    }
-
-    public Optional<User> getUserBySeq(int userSeq) throws SQLException {
-        String sql = "SELECT * FROM user WHERE user_seq = ?";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, userSeq);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    User user = new User.Builder()
-                        .userSeq(resultSet.getInt("user_seq"))
-                        .userEmail(resultSet.getString("user_email"))
-//                        .userPassword(resultSet.getString("user_password"))
-                        .userOldPassword(resultSet.getString("user_oldpassword"))
-                        .userName(resultSet.getString("user_name"))
-                        .userNickname(resultSet.getString("user_nickname"))
-                        .userBirth(resultSet.getString("user_birth"))
-                        .userPhoneAgency(resultSet.getString("user_phone_agency"))
-                        .userPhoneNumber(resultSet.getString("user_phone_number"))
-                        .userAddress(resultSet.getString("user_address"))
-                        .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
-                        .updatedAt(resultSet.getTimestamp("updated_at") != null ? resultSet.getTimestamp("updated_at").toLocalDateTime() : null)
-                        .userStatus(resultSet.getString("user_status"))
-                        .userSignType(resultSet.getString("user_signtype"))
-                        .build();
-
-                    return Optional.of(user);
-                }
-            }
-        }
-        return Optional.empty();
-    }
-    
-    public Optional<User> getUserByEmail(String email) throws SQLException {
-        String sql = "SELECT * FROM user WHERE user_email = ?";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, email);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) { //일지하는 정보가 있으면 true로 진행
-                    User user = new User.Builder()
-                        .userSeq(resultSet.getInt("user_seq"))
-                        .userEmail(resultSet.getString("user_email"))
-//                        .userPassword(resultSet.getString("user_password"))
-                        .userOldPassword(resultSet.getString("user_oldpassword"))
-                        .userName(resultSet.getString("user_name"))
-                        .userNickname(resultSet.getString("user_nickname"))
-                        .userBirth(resultSet.getString("user_birth"))
-                        .userPhoneAgency(resultSet.getString("user_phone_agency"))
-                        .userPhoneNumber(resultSet.getString("user_phone_number"))
-                        .userAddress(resultSet.getString("user_address"))
-                        .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
-                        .updatedAt(resultSet.getTimestamp("updated_at") != null ? resultSet.getTimestamp("updated_at").toLocalDateTime() : null)
-                        .userStatus(resultSet.getString("user_status"))
-                        .userSignType(resultSet.getString("user_signtype"))
-                        .build();
-
-                    return Optional.of(user);
-                }
-            }
-        }
-        return Optional.empty(); //일치하는 정보가 없으면 false로 빈 옵셔널 반환
-    }
-    public Optional<String> getPasswordBySeq(int seq) throws SQLException {
-      String sql = "SELECT user_password FROM user WHERE user_seq = ?";
-      try (Connection connection = dataSource.getConnection();
-           PreparedStatement statement = connection.prepareStatement(sql)) {
-          statement.setInt(1, seq);
-          try (ResultSet resultSet = statement.executeQuery()) {
-              if (resultSet.next()) {
-                  return Optional.of(resultSet.getString("user_password"));
-              }
-          }
-      }
-      return Optional.empty();
+  @Autowired
+  public UserDao(DataSource dataSource,JdbcTemplate jdbcTemplate) {
+    this.dataSource = dataSource;
+    this.jdbcTemplate = jdbcTemplate;
   }
-    public Optional<Map.Entry<Integer, String>> getPasswordByEmail(String email) throws SQLException {
-      String sql = "SELECT user_seq, user_password FROM user WHERE user_email = ?";
-      try (Connection connection = dataSource.getConnection();
-           PreparedStatement statement = connection.prepareStatement(sql)) {
-          statement.setString(1, email);
-          try (ResultSet resultSet = statement.executeQuery()) {
-              if (resultSet.next()) {
-                int userSeq = resultSet.getInt("user_seq");
-                String userPassword = resultSet.getString("user_password");
-                return Optional.of(new AbstractMap.SimpleEntry<>(userSeq, userPassword));
-              }
-          }
-      }
-      return Optional.empty();
+
+
+  // **** 회원가입 ****
+  public int registerUser(UserDto userDto) throws SQLException {
+    String sql =
+        "INSERT INTO user (email, password, name, nickname, birth, phone, status, marketing_received_status, tier_seq, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    try (Connection con = dataSource.getConnection();
+        PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
+
+      pst.setString(1, userDto.getEmail());
+      pst.setString(2, userDto.getPassword());
+      pst.setString(3, userDto.getName());
+      pst.setString(4, userDto.getName());
+      pst.setString(5, userDto.getBirth());
+      pst.setString(6, userDto.getPhone());
+      pst.setString(7, "public");
+      pst.setBoolean(8, true);;
+      pst.setString(9, "일반");
+      pst.setTimestamp(10, Timestamp.valueOf(userDto.getCreatedAt()));
+      pst.executeUpdate();
+      ResultSet generatedKeys = pst.getGeneratedKeys();
+      if (generatedKeys.next()) {
+        return generatedKeys.getInt(1);
+      }else
+        throw new SQLException("서버 장애 발생.");
+    }
   }
-    
-    public List<User> getAllUsers() throws SQLException {
-        List<User> users = new ArrayList<>();
-        String sql = "SELECT * FROM user";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet resultSet = statement.executeQuery()) {
 
-            while (resultSet.next()) {
-                User user = new User.Builder()
-                    .userSeq(resultSet.getInt("user_seq"))
-                    .userEmail(resultSet.getString("user_email"))
-//                    .userPassword(resultSet.getString("user_password"))
-                    .userOldPassword(resultSet.getString("user_oldpassword"))
-                    .userName(resultSet.getString("user_name"))
-                    .userNickname(resultSet.getString("user_nickname"))
-                    .userBirth(resultSet.getString("user_birth"))
-                    .userPhoneAgency(resultSet.getString("user_phone_agency"))
-                    .userPhoneNumber(resultSet.getString("user_phone_number"))
-                    .userAddress(resultSet.getString("user_address"))
-                    .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
-                    .updatedAt(resultSet.getTimestamp("updated_at") != null ? resultSet.getTimestamp("updated_at").toLocalDateTime() : null)
-                    .userStatus(resultSet.getString("user_status"))
-                    .userSignType(resultSet.getString("user_signtype"))
-                    .build();
-                users.add(user);
-            }
+  public Optional<UserDto> getUserBySeq(int userSeq) throws SQLException {
+    String sql = "SELECT * FROM user WHERE user_seq = ?";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setInt(1, userSeq);
+      try (ResultSet resultSet = statement.executeQuery()) {
+        if (resultSet.next()) {
+
+
+          return Optional.of(null);
         }
-        return users;
+      }
     }
+    return Optional.empty();
+  }
 
-    // Update
-    public void updateUser(User user) throws SQLException {
-        String sql = "UPDATE user SET user_email = ?, user_oldpassword = ?, user_name = ?, user_nickname = ?, user_birth = ?, user_phone_agency = ?, user_phone_number = ?, user_address = ?, updated_at = ?, user_status = ?, user_signtype = ? WHERE user_seq = ?";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setString(1, user.getUserEmail());
-//            statement.setString(2, user.getUserPassword());
-            statement.setString(3, user.getUserOldPassword());
-            statement.setString(4, user.getUserName());
-            statement.setString(5, user.getUserNickname());
-            statement.setString(6, user.getUserBirth());
-            statement.setString(7, user.getUserPhoneAgency());
-            statement.setString(8, user.getUserPhoneNumber());
-            statement.setString(9, user.getUserAddress());
-            statement.setTimestamp(10, user.getUpdatedAt() != null ? Timestamp.valueOf(user.getUpdatedAt()) : null);
-            statement.setString(11, user.getUserStatus());
-            statement.setString(12, user.getUserSignType());
-            statement.setInt(13, user.getUserSeq());
+  public Optional<UserDto> getUserByEmail(String email) throws SQLException {
+    String sql = "SELECT * FROM user WHERE user_email = ?";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setString(1, email);
+      try (ResultSet resultSet = statement.executeQuery()) {
+        if (resultSet.next()) {
 
-            statement.executeUpdate();
+
+
+          return Optional.of(null);
         }
+      }
     }
+    return Optional.empty();
+  }
 
-    public void deleteUser(int userSeq) throws SQLException {
-        String sql = "DELETE FROM user WHERE user_seq = ?";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
-            statement.setInt(1, userSeq);
-            statement.executeUpdate();
+  public Optional<String> getPasswordBySeq(int seq) throws SQLException {
+    String sql = "SELECT password FROM user WHERE user_seq = ?";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setInt(1, seq);
+      try (ResultSet resultSet = statement.executeQuery()) {
+        if (resultSet.next()) {
+          return Optional.of(resultSet.getString("user_password"));
         }
+      }
     }
+    return Optional.empty();
+  }
+
+  public Optional<Map.Entry<Integer, String>> getPasswordByEmail(String email) throws SQLException {
+    String sql = "SELECT user_seq, password FROM user WHERE email = ?";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setString(1, email);
+      try (ResultSet resultSet = statement.executeQuery()) {
+        if (resultSet.next()) {
+          int userSeq = resultSet.getInt("user_seq");
+          String userPassword = resultSet.getString("user_password");
+          return Optional.of(new AbstractMap.SimpleEntry<>(userSeq, userPassword));
+        }
+      }
+    }
+    return Optional.empty();
+  }
+
+  public List<UserDto> getAllUsers() throws SQLException {
+    List<UserDto> users = new ArrayList<>();
+    String sql = "SELECT * FROM user";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql);
+        ResultSet resultSet = statement.executeQuery()) {
+
+      while (resultSet.next()) {
+
+        users.add(null);
+      }
+    }
+    return users;
+  }
+
+  // Update
+  public void updateUser(UserDto user) throws SQLException {
+    String sql =
+        "UPDATE user SET user_email = ?, user_oldpassword = ?, user_name = ?, user_nickname = ?, user_birth = ?, user_phone_agency = ?, user_phone_number = ?, user_address = ?, updated_at = ?, user_status = ?, user_signtype = ? WHERE user_seq = ?";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+
+    }
+  }
+
+  public void deleteUser(int userSeq) throws SQLException {
+    String sql = "DELETE FROM user WHERE user_seq = ?";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setInt(1, userSeq);
+      statement.executeUpdate();
+    }
+  }
+  
+  public boolean isEmailExists(String email) throws SQLException{
+    String sql = "SELECT COUNT(*) FROM `user` WHERE `email` = ?";
+    int count = jdbcTemplate.queryForObject(sql, new Object[]{email}, Integer.class);
+    return count > 0;
+  }
+  public boolean isPhoneExists(String phone) throws SQLException{
+    String sql = "SELECT COUNT(*) FROM `user` WHERE `phone` = ?";
+    int count = jdbcTemplate.queryForObject(sql, new Object[]{phone}, Integer.class);
+    return count > 0;
+  }
 }

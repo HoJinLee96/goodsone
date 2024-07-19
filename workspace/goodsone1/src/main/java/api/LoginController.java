@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import dto.User;
+import dto.UserDto;
 import dto.UserCredentials;
 import exception.UserNotFoundException;
 import service.UserServices;
@@ -38,7 +38,7 @@ public class LoginController {
 		  UserCredentials userCredentials = userServices.getPasswordByEmail(reqEmail);
 			if (userCredentials.validatePassword(reqPassword)) {
 				System.out.println("로그인 성공");
-				User user = userServices.getUserBySeq(userCredentials.getUserSeq());
+				UserDto user = userServices.getUserBySeq(userCredentials.getUserSeq());
 //				session.invalidate();
 				session.setAttribute("user", user);
 				session.setAttribute("userCredentials", userCredentials);

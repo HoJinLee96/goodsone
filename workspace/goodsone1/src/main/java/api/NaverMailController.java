@@ -34,7 +34,7 @@ public class NaverMailController {
   }
 
   @PostMapping("/verify/sendmail")
-  public ResponseEntity<?> sendMail(@RequestParam String reqEmail,@RequestParam String reqName, HttpServletRequest request){
+  public ResponseEntity<?> sendMail(@RequestParam String reqEmail, HttpServletRequest request){
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "text/plain; charset=UTF-8");
 
@@ -45,15 +45,15 @@ public class NaverMailController {
 
     int i = 0;
       try {
-        VerifyResponseDto responseDto = mailService.sendMail(reqEmail,reqName);
+        VerifyResponseDto responseDto = mailService.sendMail(reqEmail);
         i = verificationServices.register(responseDto);
       } catch (java.security.InvalidKeyException | UnsupportedEncodingException
           | NoSuchAlgorithmException | SQLException e) {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 이용할 수 없습니다.");
       }
-    
-    return ResponseEntity.ok(i);
+    System.out.println(i);
+    return ResponseEntity.status(HttpStatus.OK).headers(headers).body(i+"");
   }
 
 

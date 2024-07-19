@@ -6,25 +6,28 @@ import java.util.Map.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import dao.AddressDao;
 import dao.UserDao;
-import dto.User;
+import dto.AddressDto;
 import dto.UserCredentials;
-import dto.UserRegister;
+import dto.UserDto;
 import exception.UserNotFoundException;
 
 @Service
 public class UserServices {
     private final UserDao userDAO;
+    private final AddressDao addressDao;
 
     @Autowired
-    public UserServices(UserDao userDAO) {
+    public UserServices(UserDao userDAO,AddressDao addressDao) {
         this.userDAO = userDAO;
+        this.addressDao = addressDao;
     }
 
     @Transactional
-    public void registerUser(UserRegister userRegister) throws SQLException {
-            int i = userDAO.registerUser(userRegister);
-            if(i!=1) throw new SQLException();
+    public void registerUser(UserDto userDto, AddressDto addressDto) throws SQLException {
+            int userSeq = userDAO.registerUser(userDto);
+            addressDao.registerAddress(userSeq, addressDto);
         }
     
     public String getPasswordBySeq(int userSeq) throws UserNotFoundException, SQLException {
@@ -37,38 +40,33 @@ public class UserServices {
 
     }
     
-    public User getUserBySeq(int userSeq) throws UserNotFoundException, SQLException {
+    public UserDto getUserBySeq(int userSeq) throws UserNotFoundException, SQLException {
     	return userDAO.getUserBySeq(userSeq).orElseThrow(()-> new UserNotFoundException("일치하는 회원이 없습니다."));
     }
 
-    public User getUserByEmail(String email) throws UserNotFoundException, SQLException {
+    public UserDto getUserByEmail(String email) throws UserNotFoundException, SQLException {
         return userDAO.getUserByEmail(email).orElseThrow(()-> new UserNotFoundException("일치하는 회원이 없습니다."));
 
     }
 
-    public List<User> getAllUsers() throws SQLException{
+    public List<UserDto> getAllUsers() throws SQLException{
             return userDAO.getAllUsers();
     }
 
     @Transactional
-    public void updateUser(User user) {
-        try {
+    public void updateUser(UserDto user) throws SQLException{
             userDAO.updateUser(user);
-        } catch (Exception e) {
-            // 예외 처리 로직 추가 (예: 로그 출력)
-            e.printStackTrace();
-            throw new RuntimeException("Failed to update user", e);
-        }
     }
 
     @Transactional
-    public void deleteUser(int userSeq) {
-        try {
+    public void deleteUser(int userSeq) throws SQLException {
             userDAO.deleteUser(userSeq);
-        } catch (Exception e) {
-            // 예외 처리 로직 추가 (예: 로그 출력)
-            e.printStackTrace();
-            throw new RuntimeException("Failed to delete user", e);
-        }
+    }
+    
+    public boolean isEmailExists(String email) throws SQLException {
+      return userDAO.isEmailExists(email);
+    }
+    public boolean isPhoneExists(String phone) throws SQLException {
+      return userDAO.isEmailExists(phone);
     }
 }

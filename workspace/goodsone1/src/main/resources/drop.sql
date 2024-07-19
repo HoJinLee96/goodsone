@@ -1,3 +1,5 @@
+
+
 ﻿-- Comment 데이터 삭제 (외래 키로 다른 테이블을 참조하므로 먼저 삭제)
 DELETE FROM `comment`;
 
@@ -46,7 +48,8 @@ DROP TABLE IF EXISTS `affiliation`;
 -- Verification 테이블 삭제
 DROP TABLE IF EXISTS `verification`;
 
-
+-- user 테이블 삭제
+DROP TABLE IF EXISTS `user`;
 
 
 

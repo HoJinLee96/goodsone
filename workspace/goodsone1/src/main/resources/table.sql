@@ -100,7 +100,7 @@ CREATE TABLE sale_post (
 create table `verification`(
 `ver_seq` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 `to` VARCHAR(30) NOT NULL,
-`confirm_num` VARCHAR(30) NOT NULL,
+`verification_code` VARCHAR(30) NOT NULL,
 `status` VARCHAR(30) NOT NULL,
 `create_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

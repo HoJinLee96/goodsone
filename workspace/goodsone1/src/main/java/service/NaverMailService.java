@@ -59,7 +59,7 @@ public class NaverMailService {
 
 
   // 메일 전송
-  public VerifyResponseDto sendMail(String reqEmail, String reqName) throws InvalidKeyException, UnsupportedEncodingException, NoSuchAlgorithmException, SQLException {
+  public VerifyResponseDto sendMail(String reqEmail) throws InvalidKeyException, UnsupportedEncodingException, NoSuchAlgorithmException, SQLException {
     
  // 인증번호 생성
     String verificationCode = createVerificationCode();
@@ -72,7 +72,7 @@ public class NaverMailService {
     List<Map<String, Object>> recipients = new ArrayList<>();
     Map<String, Object> recipient = new HashMap<>();
     recipient.put("address", reqEmail);
-    recipient.put("name", reqName);
+    recipient.put("name", reqEmail);
     recipient.put("type", "R");
     recipients.add(recipient);
 
