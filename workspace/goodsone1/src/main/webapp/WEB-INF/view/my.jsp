@@ -79,11 +79,10 @@ padding-bottom: 10px;
 		    	
 		    	<ul>
 		    	
-		    	${sessionScope.user.userEmail}
-		    	${sessionScope.user.userName}
-    			${sessionScope.user.userNickname}
-    			${sessionScope.user.userPhoneNumber}
-    			${sessionScope.user.userAddress}
+		    	${sessionScope.user.email}
+		    	${sessionScope.user.name}
+    			${sessionScope.user.nickname}
+    			${sessionScope.user.phone}
     			</ul>
 				
 		    </div>

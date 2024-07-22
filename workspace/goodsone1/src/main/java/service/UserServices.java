@@ -25,9 +25,10 @@ public class UserServices {
     }
 
     @Transactional
-    public void registerUser(UserDto userDto, AddressDto addressDto) throws SQLException {
-            int userSeq = userDAO.registerUser(userDto);
-            addressDao.registerAddress(userSeq, addressDto);
+    public int registerUser(UserDto userDto,AddressDto addressDto) throws SQLException {
+    int userSeq = userDAO.registerUser(userDto);
+    addressDao.registerAddress(userSeq, addressDto);
+      return userSeq;
         }
     
     public String getPasswordBySeq(int userSeq) throws UserNotFoundException, SQLException {
@@ -37,7 +38,6 @@ public class UserServices {
     public UserCredentials getPasswordByEmail(String email) throws UserNotFoundException, SQLException {
       Entry<Integer, String> opt = userDAO.getPasswordByEmail(email).orElseThrow(()-> new UserNotFoundException("일치하는 회원이 없습니다."));
       return new UserCredentials(opt.getKey(),email,opt.getValue());
-
     }
     
     public UserDto getUserBySeq(int userSeq) throws UserNotFoundException, SQLException {

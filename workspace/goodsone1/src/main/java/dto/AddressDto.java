@@ -7,6 +7,8 @@ public class AddressDto {
   private String mainAddress;
   private String detailAddress;
   
+  public AddressDto() {}
+
   public AddressDto(int userSeq ,int postcode, String mainAddress, String detailAddress) {
     this.userSeq = userSeq;
     this.postcode = postcode;

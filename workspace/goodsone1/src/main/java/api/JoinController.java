@@ -2,6 +2,8 @@ package api;
 
 import java.sql.SQLException;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.AddressDto;
+import dto.RegisterUserDto;
 import dto.UserDto;
 import service.UserServices;
 
@@ -64,20 +67,34 @@ public class JoinController {
   }
   
   
-  @PostMapping("/join/public")
-  public ResponseEntity<String> register(@RequestBody Map<String, Object> request) {
-    UserDto userDto = objectMapper.convertValue(request.get("user"), UserDto.class);
-    AddressDto addressDto = objectMapper.convertValue(request.get("address"), AddressDto.class);
+  @PostMapping("/join/public1")
+  public ResponseEntity<String> public1(@RequestBody Map<String, Object> request, HttpServletRequest httpServletRequest) {
+    RegisterUserDto registerUserDto = objectMapper.convertValue(request.get("registerUserDto"), RegisterUserDto.class);
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Type", "text/plain; charset=UTF-8");
+      
+    HttpSession session = httpServletRequest.getSession();
+    session.setAttribute("registerUserDto", registerUserDto);
+    
+    return ResponseEntity.status(HttpStatus.OK).headers(headers).body("계성 생성 완료.");
+
+  }
+
+  @PostMapping("/join/public2")
+  public ResponseEntity<String> public2(@RequestBody Map<String, Object> request, HttpServletRequest httpServletRequest) {
+    UserDto userDto = objectMapper.convertValue(request.get("userDto"), UserDto.class);
+    AddressDto addressDto = objectMapper.convertValue(request.get("addressDto"), AddressDto.class);
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "text/plain; charset=UTF-8");
       
     try {
       userService.registerUser(userDto, addressDto);
-      return ResponseEntity.status(HttpStatus.OK).headers(headers).body("회원가입 성공");
+      return ResponseEntity.status(HttpStatus.OK).headers(headers).body("회원가입 완료.");
     } catch (SQLException e) {
       e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("서버 장애 발생.");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("가입이 불가능 합니다.");
+      }
     }
-  }
-
+  
+  
 }
