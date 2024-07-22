@@ -22,8 +22,8 @@ public class NaverCreateSignature {
   
   @PostConstruct
   private void init() {
-      System.out.println("accessKey: " + accessKey);
-      System.out.println("secretKey: " + secretKey);
+      System.out.println("naver-api.accessKey : " + accessKey);
+      System.out.println("naver-api.secretKey : " + secretKey);
   }
   
   public String getSignature(String method, String url, String time) throws UnsupportedEncodingException, NoSuchAlgorithmException, java.security.InvalidKeyException  {

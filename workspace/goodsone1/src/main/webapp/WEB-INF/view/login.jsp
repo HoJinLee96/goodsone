@@ -72,6 +72,9 @@ text-align: left;
 	        <div id="error"></div>
 	        <button type="submit">로그인</button>
 	    </form>
+	            <a href="/api/naver-login">
+            <button>네이버 로그인</button>
+        </a>
     </div>
     
 </div>
