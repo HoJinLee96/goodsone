@@ -1,18 +1,34 @@
-package dto;
+package dtoNaverLogin;
 
-public class NaverToken {
+public class OAuthToken {
   
+  //공용
   private String access_token;
-  private String refresh_token;
   private String token_type;
   private String expires_in;
+
+  //네이버 공용
   private String error;
   private String error_description;
-  public NaverToken() {
+  
+  //네이버 발급
+  private String refresh_token;
+    
+  //네이버 삭제
+  private String result;
+  
+  
+  //카카오 공용
+  private int refresh_token_expires_in;
+  private String id_token;
+  
+  public OAuthToken() {
     super();
     // TODO Auto-generated constructor stub
   }
-  public NaverToken(String access_token, String refresh_token, String token_type, String expires_in,
+  
+  //네이버
+  public OAuthToken(String access_token, String refresh_token, String token_type, String expires_in,
       String error, String error_description) {
     super();
     this.access_token = access_token;
@@ -22,6 +38,8 @@ public class NaverToken {
     this.error = error;
     this.error_description = error_description;
   }
+  
+  
   public String getAccess_token() {
     return access_token;
   }
@@ -57,6 +75,18 @@ public class NaverToken {
   }
   public void setError_description(String error_description) {
     this.error_description = error_description;
+  }
+
+  public String getResult() {
+    return result;
+  }
+
+  public int getRefresh_token_expires_in() {
+    return refresh_token_expires_in;
+  }
+
+  public String getId_token() {
+    return id_token;
   }
 
   

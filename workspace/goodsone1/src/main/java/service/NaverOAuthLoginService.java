@@ -15,12 +15,12 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import dto.NaverCallback;
-import dto.NaverToken;
+import dtoNaverLogin.Callback;
+import dtoNaverLogin.OAuthToken;
 
 @Service
 @PropertySource("classpath:application.properties")
-public class OAuthLoginService {
+public class NaverOAuthLoginService {
 
   @Value("${naver-login.baseUrl}")
   private String baseUrl;
@@ -31,6 +31,8 @@ public class OAuthLoginService {
   @Value("${naver-login.clientSecret}")
   private String clientSecret;
   
+  
+  
   @PostConstruct
   private void init() {
       System.out.println("naver-login.baseUrl : " + baseUrl);
@@ -39,30 +41,29 @@ public class OAuthLoginService {
       System.out.println("naver-login.clientSecret : " + clientSecret);
   }
   
-  public String getNaverAuthorizeUrl(String type) throws URISyntaxException, MalformedURLException, UnsupportedEncodingException {
+  public String getNaverAuthorizeUrl(String path) throws URISyntaxException, MalformedURLException, UnsupportedEncodingException {
 
       UriComponents uriComponents = UriComponentsBuilder
-              .fromUriString(baseUrl + "/" + type)
+              .fromUriString(baseUrl + "/" + path)
               .queryParam("response_type", "code")
               .queryParam("client_id", clientId)
               .queryParam("redirect_uri", URLEncoder.encode(redirectUrl, "UTF-8"))
-              .queryParam("state", URLEncoder.encode("1234", "UTF-8"))
               .build();
 
       return uriComponents.toString();
   }
   
-  public String getNaverTokenUrl(String type, NaverCallback callback) throws URISyntaxException, IOException {
+  public String getTokenUrl(String path,Callback callback) throws URISyntaxException, IOException {
 
-    UriComponents uriComponents = UriComponentsBuilder
-            .fromUriString(baseUrl + "/" + type)
+    UriComponents uriComponents =UriComponentsBuilder
+            .fromUriString(baseUrl + "/" + path)
             .queryParam("grant_type", "authorization_code")
             .queryParam("client_id", clientId)
             .queryParam("client_secret", clientSecret)
             .queryParam("code", callback.getCode())
-            .queryParam("state", URLEncoder.encode(callback.getState(), "UTF-8"))
+//            .queryParam("state", new URL().)
             .build();
-
+            
         URL url = new URL(uriComponents.toString());
         HttpURLConnection con = (HttpURLConnection)url.openConnection();
         con.setRequestMethod("GET");
@@ -86,8 +87,49 @@ public class OAuthLoginService {
         return response.toString();
    
 }
+  public String updateTokenUrl(String path,String grant_type,OAuthToken oAuthToken) throws URISyntaxException, IOException {
+
+        UriComponentsBuilder uriComponentsBuilder =UriComponentsBuilder
+                .fromUriString(baseUrl + "/" + path)
+                .queryParam("grant_type", grant_type)
+                .queryParam("client_id", clientId)
+                .queryParam("client_secret", clientSecret);
+        
+        if(grant_type.equals("refresh_token")) {
+          uriComponentsBuilder.queryParam("refresh_token", oAuthToken.getRefresh_token());
+        }else if(grant_type.equals("delete")){
+          uriComponentsBuilder.queryParam("access_token", URLEncoder.encode(oAuthToken.getAccess_token(),"UTF-8"));
+          uriComponentsBuilder.queryParam("service_provider", "NAVER");
+        }else {
+          throw new IOException("grant_type 잘못 입력");
+        }
+        
+        UriComponents uriComponents = uriComponentsBuilder.build();
+        URL url = new URL(uriComponents.toString());
+        HttpURLConnection con = (HttpURLConnection)url.openConnection();
+        con.setRequestMethod("GET");
+    
+        int responseCode = con.getResponseCode();
+        BufferedReader br;
+    
+        if(responseCode==200) { // 정상 호출
+            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        } else {  // 에러 발생
+            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+        }
+    
+        String inputLine;
+        StringBuffer response = new StringBuffer();
+        while ((inputLine = br.readLine()) != null) {
+            response.append(inputLine);
+        }
+    
+        br.close();
+        return response.toString();
+   
+}
   
-  public String getNaverUserByToken(NaverToken token) throws IOException {
+  public String getNaverUserByToken(OAuthToken token) throws IOException {
 
         String accessToken = token.getAccess_token();
         String tokenType = token.getToken_type();
@@ -115,6 +157,7 @@ public class OAuthLoginService {
         br.close();
         return response.toString();
 }
+
 
 
 }

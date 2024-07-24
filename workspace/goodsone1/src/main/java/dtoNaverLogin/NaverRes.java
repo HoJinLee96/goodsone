@@ -1,4 +1,4 @@
-package dto;
+package dtoNaverLogin;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

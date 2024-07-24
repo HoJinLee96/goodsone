@@ -53,7 +53,26 @@ text-align: left;
     background-color: #000;
     color: #fff;
     font-size: 18px;
-    margin: 50px 0px;
+    margin: 50px 0px 10px 0px;
+}
+#OAutoLoginBlcok{
+padding: 10px 0px;
+    display: flex;
+    justify-content: center; /* 아이템 사이에 여백을 넣어 균등 배치 */
+    align-items: center; /* 수직 정렬 */
+}
+#OAutoLoginBlcok a{
+	text-decoration: none;
+	display: block;
+    width: 60px;
+    height: 60px;
+    margin: 0px 5px;
+    
+}
+#OAutoLoginBlcok img {
+	cursor: pointer;
+    width: 60px;
+    height: 60px;
 }
 </style>
 </head>
@@ -72,9 +91,15 @@ text-align: left;
 	        <div id="error"></div>
 	        <button type="submit">로그인</button>
 	    </form>
-	            <a href="/api/naver-login">
-            <button>네이버 로그인</button>
-        </a>
+	    <div id ="OAutoLoginBlcok">
+	        <a href="/api/kakao-login" id="kakao-login">
+        <img src="static/kakaoLogin.png" alt="Kakao Login Logo">
+    </a>
+	 <a href="/api/naver-login" id="naver-login">
+        <img src="static/naverLogin.png" alt="Naver Login Logo">
+    </a>
+
+    </div>
     </div>
     
 </div>
@@ -82,6 +107,8 @@ text-align: left;
 <%@ include file = "main_footer.jsp" %>
 </body>
   <script type="text/javascript">
+  var contextPath = '<%= request.getContextPath() %>';
+  console.log(contextPath);
     $(document).ready(function() {
         $('#loginForm').on('submit', function(event) {
             event.preventDefault();

@@ -1,31 +1,32 @@
 package exception;
 
-public class NotFoundException extends Exception{
+public class NullDataException extends Exception{
 
-	public NotFoundException() {
+  public NullDataException() {
+    super();
+    // TODO Auto-generated constructor stub
   }
 
-  public NotFoundException(String message, Throwable cause, boolean enableSuppression,
+  public NullDataException(String message, Throwable cause, boolean enableSuppression,
       boolean writableStackTrace) {
     super(message, cause, enableSuppression, writableStackTrace);
     // TODO Auto-generated constructor stub
   }
 
-  public NotFoundException(String message, Throwable cause) {
+  public NullDataException(String message, Throwable cause) {
     super(message, cause);
     // TODO Auto-generated constructor stub
   }
 
-  public NotFoundException(String message) {
+  public NullDataException(String message) {
     super(message);
     // TODO Auto-generated constructor stub
   }
 
-  public NotFoundException(Throwable cause) {
+  public NullDataException(Throwable cause) {
     super(cause);
     // TODO Auto-generated constructor stub
   }
-	
-	
 
+  
 }

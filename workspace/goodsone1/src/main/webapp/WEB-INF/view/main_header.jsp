@@ -77,15 +77,15 @@ padding-left: 20px;
 				<li><a href="">고객센터</a></li>
 				
 				<c:choose>
-					<c:when test="${not empty sessionScope.user}">
-						<!-- 로그인 상태 -->
-					<li><a href="/my">마이페이지</a></li>
-					<li><a href="/logout">로그아웃</a></li>
-					</c:when>
-					<c:otherwise>
+					<c:when test="${empty sessionScope.user and empty sessionScope.oAuthToken}">
 						<!-- 비로그인 상태 -->
 					<li><a href="/login">로그인</a></li>
 					<li><a href="/join">회원가입</a></li>
+					</c:when>
+					<c:otherwise>
+						<!-- 로그인 상태 -->
+					<li><a href="/my">마이페이지</a></li>
+					<li><a href="/logout">로그아웃</a></li>
 					</c:otherwise>
 				</c:choose>
 			</ul>

@@ -1,11 +1,11 @@
 package dto;
 
-public class UserAddress {
+public class UserAddressDto {
   private final String userPostcode;
   private final String userMainAddress;
   private final String userDetailAddress;
   
-  public UserAddress(String userPostcode, String userMainAddress, String userDetailAddress) {
+  public UserAddressDto(String userPostcode, String userMainAddress, String userDetailAddress) {
     super();
     this.userPostcode = userPostcode;
     this.userMainAddress = userMainAddress;

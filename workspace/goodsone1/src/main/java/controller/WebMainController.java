@@ -11,32 +11,35 @@ import dto.RegisterUserDto;
 public class WebMainController {
 
   @GetMapping({"/", "/home"})
-  public String showHome() {
+  public String showHome(HttpServletRequest req, HttpServletResponse res) {
     System.out.println("WebMainController.showHome() 실행");
     return "main_home";
   }
 
 
   @GetMapping("/login")
-  public String showLogin() {
+  public String showLogin(HttpServletRequest req, HttpServletResponse res) {
     System.out.println("WebMainController.showLogin() 실행");
     return "login";
   }
 
 
   @GetMapping("/logout")
-  public String logout(HttpSession session) {
+  public String logout(HttpServletRequest req, HttpServletResponse res,HttpSession session) {
     System.out.println("WebMainController.logout() 실행");
     // 세션에서 사용자 정보를 제거하여 로그아웃 처리
 
     if (session != null) {
       session.removeAttribute("user");
+      session.removeAttribute("oAuthDto");
+      session.removeAttribute("oAuthToken");
+      session.removeAttribute("oAuthTokenExpiry");
     }
     return "redirect:/home";
   }
 
   @GetMapping("/my")
-  public String showMy() {
+  public String showMy(HttpServletRequest req, HttpServletResponse res) {
     System.out.println("WebMainController.showMy() 실행");
     return "my";
   }

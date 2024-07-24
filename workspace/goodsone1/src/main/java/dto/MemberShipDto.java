@@ -1,6 +1,6 @@
 package dto;
 
-public class MemberShip {
+public class MemberShipDto {
   private String tier;
   private int benefit;
   private int totalPoint;

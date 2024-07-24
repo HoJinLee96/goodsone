@@ -4,7 +4,7 @@ CREATE TABLE `user` (
 	`password`	VARCHAR(100)	NOT NULL,
 	`oldpassword`	VARCHAR(100)	,
 	`name`	VARCHAR(100)	NOT NULL,
-	`nickname`	VARCHAR(100)	NOT NULL,
+	`nickname`	VARCHAR(100) ,
 	`birth`	VARCHAR(100)	NOT NULL,
 	`mobile_carrier`	ENUM("skt","kt","lg")	,
 	`phone`	VARCHAR(20)	NOT NULL,
@@ -21,6 +21,18 @@ CREATE TABLE `address` (
 	`postcode`	INT	NOT NULL,
 	`main_address`	VARCHAR(255)	NOT NULL,
 	`detail_address`	VARCHAR(255)	NOT NULL
+);
+
+CREATE TABLE `oauth` (
+	`oauth_seq`	INT	AUTO_INCREMENT PRIMARY KEY,
+	`user_seq`	INT,
+	`provider`	ENUM ("NAVER", "KAKAO")	NOT NULL,
+	`id`	VARCHAR(255)	NOT NULL,
+	`email`	VARCHAR(255)	NOT NULL,
+	`name`	VARCHAR(50)	NOT NULL,
+	`birth`	VARCHAR(50)	NOT NULL,
+	`phone`	VARCHAR(50)	NOT NULL,
+	`created_at`	DATETIME	NOT NULL
 );
 
 CREATE TABLE `cart` (
@@ -120,6 +132,14 @@ CREATE TABLE `point_history` (
 	`user_seq`	INT	NOT NULL,
 	`point`	INT	NOT NULL,
 	`create_at`	DATETIME	NOT NULL
+);
+
+create table `verification`(
+`verification_seq` INT AUTO_INCREMENT PRIMARY KEY ,
+`to` VARCHAR(50)	NOT NULL,
+`verification_code` VARCHAR(20)	NOT NULL,
+`status` VARCHAR(20)	NOT NULL,
+`create_at` DATETIME	NOT NULL
 );
 
 ALTER TABLE `user` ADD CONSTRAINT `FK_tier_TO_user_1` FOREIGN KEY (
@@ -235,6 +255,13 @@ REFERENCES `order_goods` (
 );
 
 ALTER TABLE `point_history` ADD CONSTRAINT `FK_user_TO_point_history_1` FOREIGN KEY (
+	`user_seq`
+)
+REFERENCES `user` (
+	`user_seq`
+);
+
+ALTER TABLE `oauth` ADD CONSTRAINT `FK_user_TO_oauth_1` FOREIGN KEY (
 	`user_seq`
 )
 REFERENCES `user` (

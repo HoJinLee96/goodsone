@@ -2,7 +2,7 @@ package dto;
 
 import java.time.LocalDateTime;
 
-public class Goods {
+public class GoodsDto {
     private int goodsSeq;
     private int categorySeq;
     private int affiliationSeq;

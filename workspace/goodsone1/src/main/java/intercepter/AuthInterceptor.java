@@ -18,17 +18,18 @@ System.out.println("AuthInterceptor.preHandle() 실행");
 
 		// /goodsone1/login 요청시
 		if ("/login".equals(uri)) {
-			if (session.getAttribute("user") != null) {
-System.out.println("세션에 userSeq 있어서 /home 리다이렉트 ");
-	            response.sendRedirect("/home"); // 또는 적절한 페이지로 리다이렉트
-				return false; // 세션이 비어있으면 로그인 창으로
+			if (session.getAttribute("user") != null || session.getAttribute("oAuthDto") != null || session.getAttribute("oAuthToken") != null) {
+System.out.println("세션에 userSeq 또는 oAuthDto 있어서 /home 리다이렉트 ");
+	            response.sendRedirect("/home");
+				return false; 
 			}
-System.out.println("세션 user 비어있어서 정상적으로 진행");
-			return true;
+System.out.println("세션 user, oAuthDto, oAuthToken 다 비어있어서 정상적으로 진행");
+			return true; 
 		}
 		
 	     // 그 외의 경우 세션에서 userSeq 확인
-	    if (session.getAttribute("user") == null) {
+	    if (session.getAttribute("user") == null && session.getAttribute("oAuthDto") == null && session.getAttribute("oAuthToken") == null) {
+//	        session.invalidate();
 	        response.sendRedirect("/login");
 	        return false;
 	    }
