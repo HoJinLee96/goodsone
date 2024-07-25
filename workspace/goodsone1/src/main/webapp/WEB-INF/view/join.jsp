@@ -16,6 +16,7 @@
 /* 폼 스타일 */
 #registrationForm {
 	max-width: 400px;
+	min-width: 440px;
 	margin: 0 auto;
 	padding: 60px 200px;
 	border: 1px solid #efefef;
@@ -106,33 +107,26 @@ margin-bottom: 50px;
 		<form id="registrationForm">
 			<h2>1 단계 : 계정 생성</h2>
 			<div class="step active" id="step1">
-				<label for="userEmail">이메일</label> <input type="email"
-					id="userEmail" name="userEmail" required autofocus
-					oninput="formatEmail(this)" placeholder="example@example.com">
-				<button type="button" class="sendMailButtons" id="sendMailButton"
-					onclick="nextStep()">인증번호 발송</button>
+				<label for="userEmail">이메일</label>
+				<input type="email" id="userEmail" name="userEmail" required autofocus oninput="formatEmail(this)" placeholder="example@example.com">
+				<button type="button" class="sendMailButtons" id="sendMailButton" onclick="nextStep()">인증번호 발송</button>
 				<span id="emailMessage"></span>
-
 			</div>
 			<div class="step" id="step2">
-				<label for="emailVerificationCode">이메일 인증번호</label> <input
-					type="text" id="verificationMailCode" name="verificationMailCode"
-					required oninput="formatCode(this)" maxlength="5" readonly disabled>
-				<button type="button" class="verifyMailCodeButton"
-					id="verifyMailCodeButton" onclick="nextStep()" disabled>인증번호
-					확인</button>
+				<label for="emailVerificationCode">이메일 인증번호</label>
+				<input type="text" id="verificationMailCode" name="verificationMailCode" required oninput="formatCode(this)" maxlength="5" readonly disabled>
+				<input type="hidden" id="mailSeq" value="" />
+				<button type="button" class="verifyMailCodeButton" id="verifyMailCodeButton" onclick="nextStep()" disabled>인증번호 확인</button>
 				<span id="verificationMailMessage"></span>
 			</div>
 			<div class="step" id="step3">
-				<label for="userPassword">비밀번호</label> <input type="password"
-					id="userPassword" name="userPassword" required
-					oninput="formatPasswords();"> <span id="passwordMessage"></span>
-				<label for="userConfirmPassword">비밀번호 확인</label> <input
-					type="password" id="userConfirmPassword" name="userConfirmPassword"
-					required oninput="validateConfirmPasswords()">
-					<span id="passwordConfirmMessage"></span>
+				<label for="userPassword">비밀번호</label>
+				<input type="password" id="userPassword" name="userPassword" required oninput="formatPasswords();"> <span id="passwordMessage"></span>
+				<label for="userConfirmPassword">비밀번호 확인</label>
+				<input type="password" id="userConfirmPassword" name="userConfirmPassword" required oninput="validateConfirmPasswords()">
+				<span id="passwordConfirmMessage"></span>
 				<div id="buttonContainer">
-					<button type="submit" id="submitButton">가입하기</button>
+				<button type="submit" id="submitButton">가입하기</button>
 				</div>
 			</div>
 			
@@ -143,7 +137,7 @@ margin-bottom: 50px;
 
 <!-- 이메일 인증 api -->
 <script type="text/javascript">
-	var mailSeq = 0;
+	/* var mailSeq = 0; */
 
 	function sendMail() {
 		var message = document.getElementById("emailMessage");
@@ -162,8 +156,9 @@ margin-bottom: 50px;
 				message.innerText = "인증번호 발송 완료";
 				console.log(xhr);
 				console.log(xhr.responseText);
-				mailSeq = 0;
-				mailSeq = xhr.responseText;
+				/*mailSeq = 0;
+				 mailSeq = xhr.responseText; */
+				document.getElementById("mailSeq").value = xhr.responseText;
 				document.getElementById("userEmail").setAttribute("readonly",
 						true);
 				document.getElementById("userEmail").setAttribute("disabled",
@@ -191,6 +186,7 @@ margin-bottom: 50px;
 	}
 
 	function verifyMailCode() {
+		var mailSeq = document.getElementById("mailSeq").value; // 숨겨진 필드에서 시퀀스 값 가져오기
 		var reqCode = document.getElementById("verificationMailCode").value;
 		var message = document.getElementById("verificationMailMessage");
 		if (mailSeq===0) {

@@ -53,7 +53,7 @@ public class WebMainController {
    @GetMapping("/joinDetail")
    public String showJoin2(HttpServletRequest req, HttpServletResponse res) {
    System.out.println("WebMainController.joinDetail() 실행");
-   HttpSession session = req.getSession();
+   HttpSession session = req.getSession(false);
    RegisterUserDto registerUserDto = (RegisterUserDto) session.getAttribute("registerUserDto");
    if (registerUserDto == null) {
    return "redirect:/join";

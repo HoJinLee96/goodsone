@@ -142,9 +142,6 @@ width: 20px;
         document.addEventListener("DOMContentLoaded", function() {
             var userEmail = document.getElementById("email").value;
             var userPasswrod = document.getElementById("password").value;
-
-            console.log("User Email : " + userEmail);
-            console.log("User Passwrod : " + userPasswrod);
         });
     </script>
     <%
@@ -171,17 +168,13 @@ width: 20px;
 				</div>
 				<span id="nameBirthMessage"></span>
 				<label for="phone">전화번호</label>
-				<input type="text" id="phone" name="phone"
-					required oninput="formatPhoneNumber(this)" maxlength="13"
-					value="010-">
+				<input type="text" id="phone" name="phone" required oninput="formatPhoneNumber(this)" maxlength="13" value="010-">
 				<button class="sendSmsButton" id="sendSmsButton" type="button" onclick="sendSms()">인증번호 발송</button>
 				<span id="sendSmsMessage"></span>
 				<label for="verificationCode">인증번호</label>
-				<input type="text" id="verificationSmsCode"
-					name="verificationSmsCode" required oninput="formatCode(this)"
-					maxlength="5" readonly disabled>
-				<button class="verifySmsCodeButton" id="verifySmsCodeButton"
-					type="button" onclick="verifySmsCode()" disabled>인증번호 확인</button>
+				<input type="text" id="verificationSmsCode" name="verificationSmsCode" required oninput="formatCode(this)" maxlength="5" readonly disabled>
+				<input type="hidden" id="smsSeq" value="" />
+				<button class="verifySmsCodeButton" id="verifySmsCodeButton" type="button" onclick="verifySmsCode()" disabled>인증번호 확인</button>
 				<span id="verificationSmsMessage"></span>
 				<label for="userMainAddress">주소</label>
 				<input type="text" id="postcode"
@@ -259,7 +252,6 @@ width: 20px;
 
 <!-- sms 인증 api -->
 <script type="text/javascript">
-	var smsSeq = 0;
 	function sendSms() {
 		var message = document.getElementById("sendSmsMessage");
 		var reqPhone = document.getElementById("phone").value
@@ -274,8 +266,7 @@ width: 20px;
 				alert("인증번호 발송 완료");
 				message.style.color = 'green';
 				message.innerText = "인증번호 발송 완료";
-				smsSeq = 0;
-				smsSeq = xhr.responseText;
+				document.getElementById("smsSeq").value = xhr.responseText;
 				document.getElementById("phone").setAttribute(
 						"readonly", true);
 				document.getElementById("phone").setAttribute(
@@ -300,6 +291,7 @@ width: 20px;
 	}
 
 	function verifySmsCode() {
+		var smsSeq = document.getElementById("smsSeq").value; // 숨겨진 필드에서 시퀀스 값 가져오기
 		var reqCode = document.getElementById("verificationSmsCode").value;
 		var message = document.getElementById("verificationSmsMessage");
 		if (reqCode < 5) {

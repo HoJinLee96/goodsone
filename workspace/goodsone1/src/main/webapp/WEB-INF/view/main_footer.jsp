@@ -13,6 +13,9 @@
 	padding-top: 20px;
 	min-height: 300px;
 	border-top: 1px solid #efefef;
+	min-width: 840px;
+	max-width: 1680px;
+	margin : 0px auto;
 }
 .footer ul{
 margin:5px 10px;
