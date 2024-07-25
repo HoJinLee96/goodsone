@@ -23,7 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import dto.VerifyResponseDto;
 
@@ -63,7 +62,7 @@ public class NaverMailService {
     
  // 인증번호 생성
     String verificationCode = createVerificationCode();
-    System.out.println("인증번호 발생 : " + verificationCode);
+    System.out.println("인증번호 발생 : "+ verificationCode);
 
     // 현재시간
     String time = Long.toString(System.currentTimeMillis());
@@ -101,14 +100,13 @@ public class NaverMailService {
     restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
     ResponseEntity<String> response = restTemplate.exchange(mailApiUrl + mailEndpoint + sendMailUri, HttpMethod.POST, entity, String.class);
     
-    System.out.println("Response: " + response.getBody());
-    
-    VerifyResponseDto responseDto = new VerifyResponseDto();
-
-    responseDto.setRequestTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(time)), ZoneId.systemDefault()));
-    responseDto.setStatusCode("200");
-    responseDto.setVerificationCode(verificationCode);
-    responseDto.setTo(reqEmail);
+    VerifyResponseDto responseDto =
+        new VerifyResponseDto.Builder()
+        .to(reqEmail)
+        .verificationCode(verificationCode)
+        .statusCode(response.getStatusCodeValue()+"")
+        .requestTime(LocalDateTime.ofInstant(Instant.ofEpochMilli(Long.parseLong(time)), ZoneId.systemDefault()))
+        .build();
 
     return responseDto;
   }

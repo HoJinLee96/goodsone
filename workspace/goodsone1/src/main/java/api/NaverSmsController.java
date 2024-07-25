@@ -6,6 +6,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import javax.management.openmbean.InvalidKeyException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -49,17 +50,18 @@ public class NaverSmsController {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).headers(headers).body("요청 횟수 초과. 잠시 후 시도 해주세요.");
     }
 
-    int i = 0;
     try {
-      VerifyResponseDto responseDto = smsService.sendSms(reqPhone);
-      i = verificationServices.register(responseDto);
+      VerifyResponseDto verifyResponseDto = smsService.sendSms(reqPhone);
+      VerifyResponseDto newVerifyResponseDto = verificationServices.register(verifyResponseDto);
+      HttpSession session = request.getSession();
+      session.setAttribute("verifyResponseDto", newVerifyResponseDto);
     } catch (JsonProcessingException | RestClientException | InvalidKeyException
         | java.security.InvalidKeyException | NoSuchAlgorithmException
         | UnsupportedEncodingException | URISyntaxException | SQLException e) {
       e.printStackTrace();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 이용할 수 없습니다.");
     }
-    return ResponseEntity.status(HttpStatus.OK).headers(headers).body(i+"");
+    return ResponseEntity.status(HttpStatus.OK).headers(headers).body("발송 성공.");
   }
 
 }

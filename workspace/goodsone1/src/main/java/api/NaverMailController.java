@@ -43,17 +43,16 @@ public class NaverMailController {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).headers(headers).body("요청 횟수 초과. 잠시 후 시도 해주세요.");
     }
 
-    int i = 0;
       try {
-        VerifyResponseDto responseDto = mailService.sendMail(reqEmail);
-        i = verificationServices.register(responseDto);
+        VerifyResponseDto verifyResponseDto = mailService.sendMail(reqEmail);
+        VerifyResponseDto newVerifyResponseDto = verificationServices.register(verifyResponseDto);
+        request.getSession().setAttribute("verifyResponseDto", newVerifyResponseDto);
       } catch (java.security.InvalidKeyException | UnsupportedEncodingException
           | NoSuchAlgorithmException | SQLException e) {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 이용할 수 없습니다.");
       }
-    System.out.println(i);
-    return ResponseEntity.status(HttpStatus.OK).headers(headers).body(i+"");
+    return ResponseEntity.status(HttpStatus.OK).headers(headers).body("발송 성공.");
   }
 
 

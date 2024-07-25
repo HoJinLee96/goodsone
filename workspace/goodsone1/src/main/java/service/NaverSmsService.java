@@ -107,13 +107,17 @@ public class NaverSmsService {
 	    .add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
 		restTemplate.setRequestFactory(new HttpComponentsClientHttpRequestFactory());
 
-		VerifyResponseDto responseDto = restTemplate.postForObject(new URI(smsApiUrl +smsEndpoint+ this.serviceId + sendSmsUri), httpBody,VerifyResponseDto.class);
+		VerifyResponseDto verifyResponseDto = restTemplate.postForObject(new URI(smsApiUrl +smsEndpoint+ this.serviceId + sendSmsUri), httpBody,VerifyResponseDto.class);
+		VerifyResponseDto newverifyResponseDto =
+		    new VerifyResponseDto.Builder()
+		    .verificationCode(verificationCode)
+		    .to(phoneNumber)
+		    .statusCode(verifyResponseDto.getStatusCode())
+		    .requestTime(verifyResponseDto.getRequestTime())
+		    .build();
 		
-		responseDto.setVerificationCode(verificationCode);
-		responseDto.setTo(phoneNumber);
-		
-		return responseDto;
-	}
+		return newverifyResponseDto;
+		}
 
 	//5자리의 난수를 조합을 통해 인증코드 만들기
 	private String createVerificationCode() {

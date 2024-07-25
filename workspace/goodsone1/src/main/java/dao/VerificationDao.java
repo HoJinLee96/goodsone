@@ -22,7 +22,7 @@ public class VerificationDao {
     this.dataSource = dataSource;
   }
 
-  public int register(VerifyResponseDto responseDto) throws SQLException {
+  public VerifyResponseDto register(VerifyResponseDto responseDto) throws SQLException {
     String sql = "INSERT INTO verification (`to`,`verification_code`,`status`,`create_at`) VALUES (?,?,?,?)";
     try (Connection connection = dataSource.getConnection();
         PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -35,11 +35,16 @@ public class VerificationDao {
       if (affectedRows == 0) {
         throw new SQLException("테이블에 저장했으나 바뀐 행 없음.");
       }
-
       try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
         if (generatedKeys.next()) {
-          return generatedKeys.getInt(1);
-        } else {
+          int verificationSeq = generatedKeys.getInt(1);
+          return new VerifyResponseDto.Builder()
+              .verificationSeq(verificationSeq)
+              .to(responseDto.getTo())
+              .statusCode(responseDto.getStatusCode())
+              .requestTime(responseDto.getRequestTime())
+              .build();
+          } else {
           throw new SQLException("테이블에 저장했으나 시퀀스값 없음");
         }
       }

@@ -16,12 +16,12 @@ public class VerificationServices {
     this.verificationDao = verificationDao;
   }
   
-  public boolean compareCode(String seq,String reqCode) throws SQLException{
-    String verificationCode = verificationDao.getVerificationCode(Integer.valueOf(seq)).orElseThrow(()->new SQLException("잠시후 시도 해주세요."));
+  public boolean compareCode(VerifyResponseDto verifyResponseDto,String reqCode) throws SQLException{
+    String verificationCode = verificationDao.getVerificationCode(verifyResponseDto.getVerificationSeq()).orElseThrow(()->new SQLException("현재 이용할 수 없습니다."));
     return verificationCode.equals(reqCode);
   }
   
-  public int register(VerifyResponseDto responseDto) throws SQLException {
+  public VerifyResponseDto register(VerifyResponseDto responseDto) throws SQLException {
     return verificationDao.register(responseDto);
   }
 }

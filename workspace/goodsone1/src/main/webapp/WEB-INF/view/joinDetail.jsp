@@ -266,7 +266,6 @@ width: 20px;
 				alert("인증번호 발송 완료");
 				message.style.color = 'green';
 				message.innerText = "인증번호 발송 완료";
-				document.getElementById("smsSeq").value = xhr.responseText;
 				document.getElementById("phone").setAttribute(
 						"readonly", true);
 				document.getElementById("phone").setAttribute(
@@ -291,7 +290,6 @@ width: 20px;
 	}
 
 	function verifySmsCode() {
-		var smsSeq = document.getElementById("smsSeq").value; // 숨겨진 필드에서 시퀀스 값 가져오기
 		var reqCode = document.getElementById("verificationSmsCode").value;
 		var message = document.getElementById("verificationSmsMessage");
 		if (reqCode < 5) {
@@ -302,8 +300,7 @@ width: 20px;
 			xhr.open('POST', '/api/verify/comparecode', false); // 동기식 요청으로 변경
 			xhr.setRequestHeader('Content-Type',
 					'application/x-www-form-urlencoded; charset=UTF-8');
-			xhr.send('seq=' + encodeURIComponent(smsSeq) + '&reqCode='
-					+ encodeURIComponent(reqCode));
+			xhr.send('reqCode=' + encodeURIComponent(reqCode));
 
 			if (xhr.status === 200) {
 				message.style.color = 'green';

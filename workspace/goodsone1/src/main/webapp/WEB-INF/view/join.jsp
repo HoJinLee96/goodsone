@@ -137,7 +137,6 @@ margin-bottom: 50px;
 
 <!-- 이메일 인증 api -->
 <script type="text/javascript">
-	/* var mailSeq = 0; */
 
 	function sendMail() {
 		var message = document.getElementById("emailMessage");
@@ -156,9 +155,6 @@ margin-bottom: 50px;
 				message.innerText = "인증번호 발송 완료";
 				console.log(xhr);
 				console.log(xhr.responseText);
-				/*mailSeq = 0;
-				 mailSeq = xhr.responseText; */
-				document.getElementById("mailSeq").value = xhr.responseText;
 				document.getElementById("userEmail").setAttribute("readonly",
 						true);
 				document.getElementById("userEmail").setAttribute("disabled",
@@ -184,9 +180,28 @@ margin-bottom: 50px;
 			}
 		}
 	}
+	
+	// 초기 시간 설정 (3분)
+    var time = 180; // 180초 = 3분
+
+    // 타이머 업데이트 함수
+    function updateTimer() {
+        var minutes = Math.floor(time / 60);
+        var seconds = time % 60;
+
+        // 두 자리 숫자로 만들기
+        if (seconds < 10) {
+            seconds = '0' + seconds;
+        }
+
+        document.getElementById('').innerHTML = minutes + ':' + seconds;
+
+        if (time > 0) {
+            time--;
+            setTimeout(updateTimer, 1000); // 1초마다 업데이트
+        }
 
 	function verifyMailCode() {
-		var mailSeq = document.getElementById("mailSeq").value; // 숨겨진 필드에서 시퀀스 값 가져오기
 		var reqCode = document.getElementById("verificationMailCode").value;
 		var message = document.getElementById("verificationMailMessage");
 		if (mailSeq===0) {
@@ -200,8 +215,7 @@ margin-bottom: 50px;
 			xhr.open('POST', '/api/verify/comparecode', false); // 동기식 요청으로 변경
 			xhr.setRequestHeader('Content-Type',
 					'application/x-www-form-urlencoded; charset=UTF-8');
-			xhr.send('seq=' + encodeURIComponent(mailSeq) + '&reqCode='
-					+ encodeURIComponent(reqCode));
+			xhr.send('reqCode=' + encodeURIComponent(reqCode));
 
 			if (xhr.status === 200) {
 				message.style.color = 'green';
@@ -230,6 +244,13 @@ margin-bottom: 50px;
 			}
 		}
 	}
+	
+
+    }
+
+    // 타이머 시작
+    updateTimer();
+</script>
 </script>
 
 <!--  중복 검사 api -->
