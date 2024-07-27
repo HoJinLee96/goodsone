@@ -78,7 +78,7 @@ public class UserServices {
     }
     //user 테이블 휴대폰번호 중복 검사
     public boolean isPhoneExists(String phone) throws SQLException {
-      return userDAO.isEmailExists(phone);
+      return userDAO.isPhoneExists(phone);
     }
     
     //OAuth

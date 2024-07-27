@@ -16,6 +16,7 @@
 	min-width: 840px;
 	max-width: 1680px;
 	margin : 0px auto;
+	margin-top: 100px;
 }
 .footer ul{
 margin:5px 10px;

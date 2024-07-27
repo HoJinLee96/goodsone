@@ -79,14 +79,6 @@ width: 150px !important;
 	margin-top: 30px;
 	text-align: center;
 }
-
-.step {
-    display: none;
-}
-
-.step.active {
-    display: block;
-}  
 #registrationForm span {
 	display: inline-block; /* block 요소처럼 동작하도록 설정 */
 	height: 14px;
@@ -97,7 +89,25 @@ width: 150px !important;
 margin-top:0px;
 margin-bottom: 50px;
 }
+ .step {
+    display: none;
+}
 
+.step.active {
+    display: block;
+} 
+#input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+#verificationTimeMessage{
+            position: absolute;
+            top: 40%;
+            right: 10px;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: red;
+            pointer-events: none; /* 타이머가 클릭되지 않도록 설정 */}
 </style>
 </head>
 <body>
@@ -108,13 +118,16 @@ margin-bottom: 50px;
 			<h2>1 단계 : 계정 생성</h2>
 			<div class="step active" id="step1">
 				<label for="userEmail">이메일</label>
-				<input type="email" id="userEmail" name="userEmail" required autofocus oninput="formatEmail(this)" placeholder="example@example.com">
+				<input type="email" id="userEmail" name="userEmail" required autofocus onblur="formatEmail()" placeholder="example@example.com">
 				<button type="button" class="sendMailButtons" id="sendMailButton" onclick="nextStep()">인증번호 발송</button>
 				<span id="emailMessage"></span>
 			</div>
 			<div class="step" id="step2">
 				<label for="emailVerificationCode">이메일 인증번호</label>
+				<div id="input-wrapper">
 				<input type="text" id="verificationMailCode" name="verificationMailCode" required oninput="formatCode(this)" maxlength="5" readonly disabled>
+				<div id ="verificationTimeMessage">03:00</div>
+				</div>
 				<input type="hidden" id="mailSeq" value="" />
 				<button type="button" class="verifyMailCodeButton" id="verifyMailCodeButton" onclick="nextStep()" disabled>인증번호 확인</button>
 				<span id="verificationMailMessage"></span>
@@ -137,9 +150,11 @@ margin-bottom: 50px;
 
 <!-- 이메일 인증 api -->
 <script type="text/javascript">
-
+	var timerInterval; // 타이머 인터벌을 저장할 변수
+	
 	function sendMail() {
 		var message = document.getElementById("emailMessage");
+		var verMessage = document.getElementById("verificationMailMessage");
 		var reqEmail = document.getElementById("userEmail").value;
 
 		if (validateEmail()) {
@@ -153,106 +168,109 @@ margin-bottom: 50px;
 				alert("인증번호 발송 완료");
 				message.style.color = 'green';
 				message.innerText = "인증번호 발송 완료";
-				console.log(xhr);
-				console.log(xhr.responseText);
-				document.getElementById("userEmail").setAttribute("readonly",
-						true);
-				document.getElementById("userEmail").setAttribute("disabled",
-						true);
+				verMessage.innerText = "";
+				console.log("인증번호 발송 완료");
+				document.getElementById("userEmail").setAttribute("readonly",true);
+				document.getElementById("userEmail").setAttribute("disabled",true);
 				document.getElementById("sendMailButton").innerText = "인증번호 재발송";
-				document.getElementById("sendMailButton").setAttribute(
-						"onclick", "sendMail()");
-				document.getElementById("verificationMailCode")
-						.removeAttribute("readonly");
-				document.getElementById("verificationMailCode")
-						.removeAttribute("disabled");
-				document.getElementById("verifyMailCodeButton")
-						.removeAttribute("disabled");
+				document.getElementById("sendMailButton").setAttribute("onclick", "sendMail()");
+				document.getElementById("verificationMailCode").removeAttribute("readonly");
+				document.getElementById("verificationMailCode").removeAttribute("disabled");
+				document.getElementById("verifyMailCodeButton").removeAttribute("disabled");
+				onVerificationCodeSent();
 				return true;
 			} else {
 				message.style.color = 'red';
 				if (xhr.status === 429 || xhr.status === 500) {
 					message.innerText = xhr.responseText;
+					console.log("인증번호 발송 실패.");
 				} else {
 					message.innerText = "서버 장애 발생.";
+					console.log("인증번호 발송 실패(서버 장애).");
 				}
 				return false;
 			}
 		}
 	}
 	
-	// 초기 시간 설정 (3분)
-    var time = 180; // 180초 = 3분
-
-    // 타이머 업데이트 함수
-    function updateTimer() {
-        var minutes = Math.floor(time / 60);
-        var seconds = time % 60;
-
-        // 두 자리 숫자로 만들기
-        if (seconds < 10) {
-            seconds = '0' + seconds;
-        }
-
-        document.getElementById('').innerHTML = minutes + ':' + seconds;
-
-        if (time > 0) {
-            time--;
-            setTimeout(updateTimer, 1000); // 1초마다 업데이트
-        }
-
 	function verifyMailCode() {
-		var reqCode = document.getElementById("verificationMailCode").value;
-		var message = document.getElementById("verificationMailMessage");
-		if (mailSeq===0) {
-			message.style.color = 'red';
-			message.innerText = "인증번호 발송을 해주세요.";
-		}else if(reqCode<5){
-			message.style.color = 'red';
-			message.innerText = "인증번호를 다시 확인해주세요.";
-		}else {
-			var xhr = new XMLHttpRequest();
-			xhr.open('POST', '/api/verify/comparecode', false); // 동기식 요청으로 변경
-			xhr.setRequestHeader('Content-Type',
-					'application/x-www-form-urlencoded; charset=UTF-8');
-			xhr.send('reqCode=' + encodeURIComponent(reqCode));
+	    var reqCode = document.getElementById("verificationMailCode").value;
+	    var message = document.getElementById("verificationMailMessage");
+	    if (mailSeq===0) {
+	        message.style.color = 'red';
+	        message.innerText = "인증번호 발송을 해주세요.";
+	    }else if(reqCode<5){
+	        message.style.color = 'red';
+	        message.innerText = "인증번호를 다시 확인해주세요.";
+	    }else {
+	        var xhr = new XMLHttpRequest();
+	        xhr.open('POST', '/api/verify/comparecode', false); // 동기식 요청으로 변경
+	        xhr.setRequestHeader('Content-Type',
+	                'application/x-www-form-urlencoded; charset=UTF-8');
+	        xhr.send('reqCode=' + encodeURIComponent(reqCode));
 
-			if (xhr.status === 200) {
-				message.style.color = 'green';
-				message.innerText = "인증 성공";
-				document.getElementById("userEmail").setAttribute("readonly",
-						true);
-				document.getElementById("userEmail").setAttribute("disabled",
-						true);
-				document.getElementById("sendMailButton").setAttribute(
-						"disabled", true);
-				document.getElementById("verificationMailCode").setAttribute(
-						"readonly", true);
-				document.getElementById("verificationMailCode").setAttribute(
-						"disabled", true);
-				document.getElementById("verifyMailCodeButton").setAttribute(
-						"disabled", true);
-				return true;
-			} else {
-				message.style.color = 'red';
-				if (xhr.status === 401 || xhr.status === 500) {
-					message.innerText = xhr.responseText;
-				} else {
-					message.innerText = "서버 장애 발생.";
-				}
-				return false;
-			}
-		}
+	        if (xhr.status === 200) {
+	            message.style.color = 'green';
+	            message.innerText = "인증 성공";
+	            document.getElementById("userEmail").setAttribute("readonly",true);
+	            document.getElementById("userEmail").setAttribute("disabled",true);
+	            document.getElementById("sendMailButton").setAttribute("disabled", true);
+	            document.getElementById("verificationMailCode").setAttribute("readonly", true);
+	            document.getElementById("verificationMailCode").setAttribute("disabled", true);
+	            document.getElementById("verifyMailCodeButton").setAttribute("disabled", true);
+	            
+	            clearInterval(timerInterval); // 타이머 중지
+	            timerInterval = null;
+
+	            return true;
+	        } else {
+	            message.style.color = 'red';
+	            if (xhr.status === 401 || xhr.status === 500) {
+	                message.innerText = xhr.responseText;
+	            } else {
+	                message.innerText = "서버 장애 발생.";
+	            }
+	            return false;
+	        }
+	    }
 	}
 	
+	function onVerificationCodeSent() {
+	    // 3분 타이머 시작
+	    let timeLeft = 180; // 3분 = 180초
+	    const timerElement = document.getElementById('verificationTimeMessage');
+	    var message = document.getElementById("verificationMailMessage");
+	    timerElement.textContent = formatTime(timeLeft);
 
+	    timerInterval = setInterval(() => {
+	        timeLeft--;
+	        timerElement.textContent = formatTime(timeLeft);
+
+	        if (timeLeft <= 0) {
+	            message.style.color = 'red';
+	            message.innerText = '인증 시간이 초과되었습니다. 재발송 시도 해주세요.' ;
+	            timerElement.textContent = '00:00' ;
+	            document.getElementById("verificationMailCode").setAttribute("readonly", true);
+	            document.getElementById("verificationMailCode").setAttribute("disabled", true);
+	            document.getElementById("verifyMailCodeButton").setAttribute("disabled", true);
+	            clearInterval(timerInterval); // 타이머 중지
+	            timerInterval = null;
+	        }
+	    }, 1000);
+	}
+
+    function formatTime(seconds) {
+        var minutes = Math.floor(seconds / 60);
+        var remainingSeconds = seconds % 60;
+        
+        function pad(number) {
+            return (number < 10 ? '0' : '') + number;
+        }
+
+        return pad(minutes) + ':' + pad(remainingSeconds);
     }
 
-    // 타이머 시작
-    updateTimer();
 </script>
-</script>
-
 <!--  중복 검사 api -->
 <script type="text/javascript">
 
@@ -261,9 +279,7 @@ margin-bottom: 50px;
 	function validateEmail() {
 		var reqEmail = document.getElementById("userEmail").value;
 		var message = document.getElementById("emailMessage");
-		console.log(formatEmail());
 		if (formatEmail()) {
-			console.log(1);
 			var xhr = new XMLHttpRequest();
 			xhr.open('POST', '/api/validate/email', false); // 동기식 요청으로 변경
 			xhr.setRequestHeader('Content-Type',
@@ -271,12 +287,18 @@ margin-bottom: 50px;
 			xhr.send('reqEmail=' + encodeURIComponent(reqEmail));
 
 			if (xhr.status === 200) {
+				console.log("이메일 중복 검사 완료.(성공)")
 				return true;
-			} else {
+			}  else {
 				message.style.color = 'red';
-				if (xhr.status === 401 || xhr.status === 500) {
+				if (xhr.status === 401) {
+					console.log("이메일 중복 검사 성공.(이미 가입된 이메일)");
 					message.innerText = xhr.responseText;
-				} else {
+				} else if(xhr.status === 500){
+					console.log("이메일 중복 검사 실패.(서버 장애)");
+					message.innerText = xhr.responseText;
+				}else {
+					console.log("이메일 중복 검사 실패.(서버 장애)");
 					message.innerText = "서버 장애 발생.";
 				}
 				return false;

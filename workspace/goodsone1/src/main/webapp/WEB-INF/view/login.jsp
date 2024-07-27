@@ -15,6 +15,7 @@
 }
 .loginform{
 	max-width: 400px;
+	min-width: 400px;
 	margin: 0 auto;
 	border: 2px solid #efefef;
 	padding : 0px 100px;
@@ -93,10 +94,10 @@ padding: 10px 0px;
 	    </form>
 	    <div id ="OAutoLoginBlcok">
 	        <a href="/api/kakao-login" id="kakao-login">
-        <img src="static/kakaoLogin.png" alt="Kakao Login Logo">
+        <img src="static/img/kakaoLogin.png" alt="Kakao Login Logo">
     </a>
 	 <a href="/api/naver-login" id="naver-login">
-        <img src="static/naverLogin.png" alt="Naver Login Logo">
+        <img src="static/img/naverLogin.png" alt="Naver Login Logo">
     </a>
 
     </div>

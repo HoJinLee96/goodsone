@@ -5,74 +5,108 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css">
 <style type="text/css">
 @import url("https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css");
 *{
 font-family: "Galmuri11", sans-serif;
 }
+</style> -->
+<link href="https://webfontworld.github.io/sandbox/SBAggro.css" rel="stylesheet">
+<style type="text/css">
+@import url('https://webfontworld.github.io/sandbox/SBAggro.css');
+*{font-family: 'SBAggro';}
+</style>
+
+<style type="text/css">
+#headerContainer{
+	max-width:1920px;
+	min-width:800px;
+	margin: 0px auto;
+	border-bottom: 1.5px solid #efefef;
+	padding-bottom: 15px;
+}
 .top_inner{
     display: flex;
     justify-content: flex-end;
-	padding: 2px 20px;
+	padding: 0px 20px;
 	max-width: 1200px;
 	margin: 0 auto;
 	min-width: 800px;
 }
 
 .top_nav ul{
-display:flex;
+	display:flex;
 	text-align: right;
-list-style-type: none;
-list-style: none;
-margin: 8px 0px;
-padding: 0px;
+	list-style-type: none;
+	list-style: none;
+	margin: 0px;
+	padding: 0px;
 }
 .top_nav ul li a{
-text-decoration: none;
-color: black;
-font-size: 14px;
-padding-left: 10px;
+	text-decoration: none;
+	color: black;
+	padding-left: 10px;
+	font-size: 12px;
+	font-weight: 300;
 }
-
-
 .top_main {
 	display: flex;
 	max-width: 1200px;
 	min-width: 800px;
 	margin: 0 auto;
-	padding: 2px 20px;
+	padding: 0px 20px;
+	justify-content: space-between;
+}
+#log_div{
+ display: flex;
+ flex-direction: column;
 }
 .logo {
-    margin-right: auto;
 	list-style: none;
 	display:flex;
 	padding: 0px;
-}
-.logo li h1{
-	margin: 0px;
+	margin-top: auto;
+	margin-bottom: 0px;
 }
 .logo a {
-    margin: 0px auto;
-    padding: 0px;
     text-decoration: none;
     color: black;
+	font-weight: 700;
+	padding-right: 2px;
+}
+#main_nav_div{
+ display: flex;
+ flex-direction: column;
 }
 .main_nav{
 	display:flex;
-    margin-left: auto;
 	list-style: none;
+	margin-top: auto;
+	margin-bottom: 6px;
 }
 .main_nav a{
 text-decoration: none;
 color: black;
-font-size: 21px;
+font-size: 23px;
 padding-left: 20px;
+
+}
+#logo1{
+font-size: 50px;
+}
+#logo2{
+font-size: 45px;
+color: #fef200;
+}
+#logo3{
+font-size: 50px;
 }
 </style>
+<link rel="stylesheet" href="static/header.css">
 </head>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<div id ="headerContainer">
 	<div class = "top_inner">
 		<nav class = "top_nav">
 			<ul>
@@ -94,16 +128,21 @@ padding-left: 20px;
 		</nav>
 	</div>
 	<div class = "top_main">
-		<ul class= "logo">
-			<li>
-				<h1><a href="/home">GoodsOne</a></h1>
-			</li>
-		</ul>
-		<ul class= "main_nav">
-			<li><a href="">상품</a></li>
-			<li><a href="">검색</a></li>
-			<li><a href="/wishlist">장바구니</a></li>
-		</ul>
+		<div id="log_div">
+			<ul class= "logo">
+				<li>
+					<a id="logo1" href="/home">달밤</a><a id="logo2" href="/home">N</a><a id="logo3" href="/home">청소</a>
+				</li>
+			</ul>
+		</div>
+			<div id="main_nav_div">
+			<ul class= "main_nav">
+				<li><a href="estimate">견적문의</a></li>
+				<li><a href="review">후기</a></li>
+			</ul>
+		</div>
+	</div>
+	
 	</div>
 <script type="text/javascript">
 var previousURI = document.referrer;

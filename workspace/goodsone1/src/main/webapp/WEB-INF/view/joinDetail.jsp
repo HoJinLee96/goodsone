@@ -122,6 +122,18 @@ width: 150px !important;
 height: 20px;
 width: 20px;
 }
+#input-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+#verificationTimeMessage{
+            position: absolute;
+            top: 40%;
+            right: 10px;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: red;
+            pointer-events: none; /* 타이머가 클릭되지 않도록 설정 */}
 </style>
 </head>
 <body>
@@ -172,21 +184,18 @@ width: 20px;
 				<button class="sendSmsButton" id="sendSmsButton" type="button" onclick="sendSms()">인증번호 발송</button>
 				<span id="sendSmsMessage"></span>
 				<label for="verificationCode">인증번호</label>
+				<div id="input-wrapper">
 				<input type="text" id="verificationSmsCode" name="verificationSmsCode" required oninput="formatCode(this)" maxlength="5" readonly disabled>
+				<div id ="verificationTimeMessage"></div>
+				</div>
 				<input type="hidden" id="smsSeq" value="" />
 				<button class="verifySmsCodeButton" id="verifySmsCodeButton" type="button" onclick="verifySmsCode()" disabled>인증번호 확인</button>
 				<span id="verificationSmsMessage"></span>
-				<label for="userMainAddress">주소</label>
-				<input type="text" id="postcode"
-					name="postcode" autocomplete="off" onclick="searchAddress()"
-					required readonly placeholder="우편번호">
-					<input type="text"
-					id="userMainAddress" name="userMainAddress" autocomplete="off"
-					onclick="searchAddress()" required readonly placeholder="주소">
-				<input type="text" id="userDetailAddress" name="userDetailAddress"
-					autocomplete="off" required placeholder="상세주소">
+				<label for="mainAddress">주소</label>
+				<input type="text" id="postcode" name="postcode" autocomplete="off" onclick="searchAddress()" required readonly placeholder="우편번호">
+				<input type="text" id="mainAddress" name="mainAddress" autocomplete="off" onclick="searchAddress()" required readonly placeholder="주소">
+				<input type="text" id="detailAddress" name="detailAddress" autocomplete="off" required placeholder="상세주소">
 				<span id="addressMessage"></span>
-				
 				<input type="checkbox" id="marketingReceivedStatus" name="marketingReceivedStatus">
 				<label for="marketingReceivedStatus">마케팅 정보 사용 동의 (선택)</label>
   				<br>
@@ -202,88 +211,48 @@ width: 20px;
 
 	<%@ include file="main_footer.jsp"%>
 </body>
+
 <!-- 주소 검색 api -->
-<script
-	src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<script type="text/javascript">
-	function searchAddress() {
-		new daum.Postcode({
-			oncomplete : function(data) {
-
-				var addr = ''; // 주소 변수
-				var extraAddr = ''; // 참고항목 변수
-
-				if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
-					addr = data.roadAddress;
-				} else { // 사용자가 지번 주소를 선택했을 경우(J)
-					addr = data.jibunAddress;
-				}
-
-				// 사용자가 선택한 주소가 도로명 타입일때 참고항목을 조합한다.
-				if (data.userSelectedType === 'R') {
-					// 법정동명이 있을 경우 추가한다. (법정리는 제외)
-					// 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
-					if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
-						extraAddr += data.bname;
-					}
-					// 건물명이 있고, 공동주택일 경우 추가한다.
-					if (data.buildingName !== '' && data.apartment === 'Y') {
-						extraAddr += (extraAddr !== '' ? ', '
-								+ data.buildingName : data.buildingName);
-					}
-					// 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
-					if (extraAddr !== '') {
-						extraAddr = ' (' + extraAddr + ')';
-					}
-					// 조합된 참고항목을 지번 주소 뒤에 붙인다.
-					addr = addr + extraAddr;
-
-				}
-
-				// 우편번호와 주소 정보를 해당 필드에 넣는다.
-				document.getElementById('postcode').value = data.zonecode;
-				document.getElementById("userMainAddress").value = addr;
-				// 커서를 상세주소 필드로 이동한다.
-				document.getElementById("userDetailAddress").focus();
-			}
-		}).open();
-	}
-</script>
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script src="static/daumAddressSearch.js"></script>
 
 <!-- sms 인증 api -->
 <script type="text/javascript">
+	var timerInterval; // 타이머 인터벌을 저장할 변수
+	
 	function sendSms() {
 		var message = document.getElementById("sendSmsMessage");
-		var reqPhone = document.getElementById("phone").value
-				.replace(/[^0-9]/g, '');
+		var verMessage = document.getElementById("verificationSmsMessage");
+		var reqPhone = document.getElementById("phone").value.replace(/[^0-9]/g, '');
 		if (formatName()&&formatBirth() && validatePhone()) {
 			var xhr = new XMLHttpRequest();
 			xhr.open('POST', '/api/verify/sendsms', false); // 동기식 요청으로 변경
-			xhr.setRequestHeader('Content-Type',
-					'application/x-www-form-urlencoded; charset=UTF-8');
+			xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
 			xhr.send('reqPhone=' + encodeURIComponent(reqPhone));
 			if (xhr.status === 200) {
 				alert("인증번호 발송 완료");
 				message.style.color = 'green';
 				message.innerText = "인증번호 발송 완료";
-				document.getElementById("phone").setAttribute(
-						"readonly", true);
-				document.getElementById("phone").setAttribute(
-						"disabled", true);
+				verMessage.innerText = "";
+				console.log("휴대폰 인증 코드 발송 성공.(성공)");
+				document.getElementById("phone").setAttribute("readonly", true);
+				document.getElementById("phone").setAttribute("disabled", true);
 				document.getElementById("sendSmsButton").innerText = "인증번호 재발송";
-				document.getElementById("verificationSmsCode").removeAttribute(
-						"readonly");
-				document.getElementById("verificationSmsCode").removeAttribute(
-						"disabled");
-				document.getElementById("verifySmsCodeButton").removeAttribute(
-						"disabled");
-
+				document.getElementById("verificationSmsCode").removeAttribute("readonly");
+				document.getElementById("verificationSmsCode").removeAttribute("disabled");
+				document.getElementById("verifySmsCodeButton").removeAttribute("disabled");
+				onVerificationCodeSent();
 			} else {
 				message.style.color = 'red';
-				if (xhr.status === 429 || xhr.status === 500) {
+				if (xhr.status === 429) {
 					message.innerText = xhr.responseText;
+					console.log("휴대폰 인증 코드 발송 성공.(너무 많은 시도)");
+				}else if(xhr.status === 500){
+					message.innerText = xhr.responseText;
+					console.log("휴대폰 인증 코드 발송 실패.(서버 장애)");
 				} else {
 					message.innerText = "서버 장애 발생.";
+					console.log("휴대폰 인증 코드 발송 실패.(서버 장애)");
 				}
 			}
 		}
@@ -298,60 +267,101 @@ width: 20px;
 		} else {
 			var xhr = new XMLHttpRequest();
 			xhr.open('POST', '/api/verify/comparecode', false); // 동기식 요청으로 변경
-			xhr.setRequestHeader('Content-Type',
-					'application/x-www-form-urlencoded; charset=UTF-8');
+			xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
 			xhr.send('reqCode=' + encodeURIComponent(reqCode));
 
 			if (xhr.status === 200) {
 				message.style.color = 'green';
 				message.innerText = "인증 성공";
-				document.getElementById("phone").setAttribute(
-						"readonly", true);
-				document.getElementById("phone").setAttribute(
-						"disabled", true);
-				document.getElementById("sendSmsButton").setAttribute(
-						"disabled", true);
-				document.getElementById("verificationSmsCode").setAttribute(
-						"readonly", true);
-				document.getElementById("verificationSmsCode").setAttribute(
-						"disabled", true);
-				document.getElementById("verifySmsCodeButton").setAttribute(
-						"disabled", true);
+				console.log("휴대폰 인증 성공.(성공)");
+				document.getElementById("phone").setAttribute("readonly", true);
+				document.getElementById("phone").setAttribute("disabled", true);
+				document.getElementById("sendSmsButton").setAttribute("disabled", true);
+				document.getElementById("verificationSmsCode").setAttribute("readonly", true);
+				document.getElementById("verificationSmsCode").setAttribute("disabled", true);
+				document.getElementById("verifySmsCodeButton").setAttribute("disabled", true);
+	            clearInterval(timerInterval); // 타이머 중지
+	            timerInterval = null; // 타이머 초기화
 				return true;
 			} else {
 				message.style.color = 'red';
-				if (xhr.status === 401 || xhr.status === 500) {
+				if (xhr.status === 404) {
 					message.innerText = xhr.responseText;
-				} else {
+					console.log("휴대폰 인증 실패.(인증 기간 완료)");
+				}else if( xhr.status === 500){
+					message.innerText = xhr.responseText;
+					console.log("휴대폰 인증 실패.(서버 장애)");
+				}else {
 					message.innerText = "알 수 없는 장애 발생.";
+					console.log("휴대폰 인증 실패.(서버 장애)");
 				}
 				return false;
 			}
 		}
 	}
+	
+	function onVerificationCodeSent() {
+	    // 3분 타이머 시작
+	    let timeLeft = 180; // 3분 = 180초
+	    const timerElement = document.getElementById('verificationTimeMessage');
+	    var message = document.getElementById("verificationSmsMessage");
+	    timerElement.textContent = formatTime(timeLeft);
+
+	    timerInterval = setInterval(() => {
+	        timeLeft--;
+	        timerElement.textContent = formatTime(timeLeft);
+
+	        if (timeLeft <= 0) {
+	            message.style.color = 'red';
+	            message.innerText = '인증 시간이 초과되었습니다. 재발송 시도 해주세요.' ;
+	            timerElement.textContent = '00:00' ;
+	            document.getElementById("verificationSmsCode").setAttribute("readonly", true);
+	            document.getElementById("verificationSmsCode").setAttribute("disabled", true);
+	            document.getElementById("verifySmsCodeButton").setAttribute("disabled", true);
+	            clearInterval(timerInterval); // 타이머 중지
+	            timerInterval = null; // 타이머 초기화
+	        }
+	    }, 1000);
+	}
+
+    function formatTime(seconds) {
+        var minutes = Math.floor(seconds / 60);
+        var remainingSeconds = seconds % 60;
+        
+        function pad(number) {
+            return (number < 10 ? '0' : '') + number;
+        }
+
+        return pad(minutes) + ':' + pad(remainingSeconds);
+    }
 </script>
 
 <!--  휴대폰 중복 검사 api -->
 <script type="text/javascript">
 function validatePhone() {
-	var reqPhone = document.getElementById("phone").value
-			.replace(/[^0-9]/g, '');
+	var reqPhone = document.getElementById("phone").value;
 	var message = document.getElementById("sendSmsMessage");
-	if (reqPhone.length === 11) {
+	console.log(reqPhone);
+	if (reqPhone.length === 13) {
 		var xhr = new XMLHttpRequest();
 		xhr.open('POST', '/api/validate/phone', false); // 동기식 요청으로 변경
-		xhr.setRequestHeader('Content-Type',
-				'application/x-www-form-urlencoded; charset=UTF-8');
+		xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
 		xhr.send('reqPhone=' + encodeURIComponent(reqPhone));
 
 		if (xhr.status === 200) {
 			message.style.color = 'green';
+			console.log("휴대폰 중복 검사 성공.(성공)");
 			return true;
 		} else {
 			message.style.color = 'red';
-			if (xhr.status === 401 || xhr.status === 500) {
+			if (xhr.status === 401) {
+				console.log("휴대폰 중복 검사 성공.(이미 가입된 휴대폰)");
 				message.innerText = xhr.responseText;
-			} else {
+			} else if(xhr.status === 500){
+				console.log("휴대폰 중복 검사 실패.(서버 장애)");
+				message.innerText = xhr.responseText;
+			}else {
+				console.log("휴대폰 중복 검사 실패.(서버 장애)");
 				message.innerText = "서버 장애 발생.";
 			}
 			return false;
@@ -501,8 +511,8 @@ function registerUser() {
 	var addressDto = {
 		userSeq : null, 
 		postcode : $("#postcode").val(),
-		mainAddress : $("#userMainAddress").val(),
-		detailAddress : $("#userDetailAddress").val()
+		mainAddress : $("#mainAddress").val(),
+		detailAddress : $("#detailAddress").val()
 	};
 
 	$.ajax({
