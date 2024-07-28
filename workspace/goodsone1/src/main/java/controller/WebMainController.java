@@ -1,11 +1,18 @@
 package controller;
 
+import java.util.Arrays;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import dto.RegisterUserDto;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import dto.EstimateDto;
 
 @Controller
 public class WebMainController {
@@ -77,6 +84,36 @@ public class WebMainController {
    public String showReview(HttpServletRequest req, HttpServletResponse res) {
      System.out.println("WebMainController.showReview() 실행");
      return "review";
+   }
+   
+   @PostMapping("/estimate")
+   @ResponseBody
+   public ResponseEntity<?> registerEstimate(
+       @RequestParam("phone") String phone,
+       @RequestParam(value = "pageAgree", required = false, defaultValue = "false") Boolean pageAgree,
+       @RequestParam(value = "smsAgree", required = false, defaultValue = "false") Boolean smsAgree,
+       @RequestParam(value = "callAgree", required = false, defaultValue = "false") Boolean callAgree,
+       @RequestParam("postcode") String postcode,
+       @RequestParam("mainAddress") String mainAddress,
+       @RequestParam("detailAddress") String detailAddress,
+       @RequestParam("content") String content,
+       @RequestParam("images") List<MultipartFile> images) {
+     System.out.println("WebMainController.registerEstimate() 실행");
+
+     EstimateDto estimateDTO = new EstimateDto();
+     estimateDTO.setPhone(phone);
+     estimateDTO.setPageAgree(pageAgree);
+     estimateDTO.setSmsAgree(smsAgree);
+     estimateDTO.setCallAgree(callAgree);
+     estimateDTO.setPostcode(postcode);
+     estimateDTO.setMainAddress(mainAddress);
+     estimateDTO.setDetailAddress(detailAddress);
+     estimateDTO.setContent(content);
+     estimateDTO.setImages(images);
+       
+       System.out.println(estimateDTO.toString());
+
+       return ResponseEntity.ok("성공");
    }
 
 }

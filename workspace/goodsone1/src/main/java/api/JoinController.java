@@ -25,7 +25,7 @@ public class JoinController {
   
   
   private UserServices userService;
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private ObjectMapper objectMapper;
 
   @Autowired
   public JoinController(UserServices userService) {
@@ -81,9 +81,9 @@ public class JoinController {
   }
 
   @PostMapping("/join/public2")
-  public ResponseEntity<String> public2(@RequestBody Map<String, Object> request, HttpServletRequest httpServletRequest) {
-    UserDto userDto = objectMapper.convertValue(request.get("userDto"), UserDto.class);
-    AddressDto addressDto = objectMapper.convertValue(request.get("addressDto"), AddressDto.class);
+  public ResponseEntity<String> public2(@RequestBody Map<String, Object> reqData, HttpServletRequest req) {
+    UserDto userDto = objectMapper.convertValue(reqData.get("userDto"), UserDto.class);
+    AddressDto addressDto = objectMapper.convertValue(reqData.get("addressDto"), AddressDto.class);
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "text/plain; charset=UTF-8");
       

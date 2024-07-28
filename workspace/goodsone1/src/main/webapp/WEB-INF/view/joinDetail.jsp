@@ -494,54 +494,47 @@ function validateForm() {
 }
 
 // ***** 회원가입 *****
-function registerUser() {
-	
-	if(validateForm()){
-	// User 데이터 수집
-	var userDto = {
-		email : $("#email").val(),
-		password : $("#password").val(),
-		name : $("#name").val(),
-		birth : $("#birth").val(),
-		phone : $("#phone").val(),
-		marketingReceivedStatus : $("#marketingReceivedStatus").is(":checked")
-	};
-	
-	// Address 데이터 수집
-	var addressDto = {
-		userSeq : null, 
-		postcode : $("#postcode").val(),
-		mainAddress : $("#mainAddress").val(),
-		detailAddress : $("#detailAddress").val()
-	};
-
-	$.ajax({
-		url : '/api/join/public2',
-		type : 'POST',
-		contentType : 'application/json; charset=UTF-8',
-		data : JSON.stringify({
-			userDto : userDto,
-			addressDto : addressDto
-		}),
-		success : function(response) {
-	        window.location.href = '/joinSuccess';
-		},
-		error : function(xhr, status, error) {
-			console.error(error);
-			// 에러 처리
-		}
-	});
-	}else{
-		
-	}
-}
-
 $('#detailForm').on('submit', function(event) {
 	event.preventDefault();
-	if(!validateForm()){
-	}else{
-		registerUser();
-	}
+	
+	if(validateForm()){
+		// User 데이터 수집
+		var userDto = {
+			email : $("#email").val(),
+			password : $("#password").val(),
+			name : $("#name").val(),
+			birth : $("#birth").val(),
+			phone : $("#phone").val(),
+			marketingReceivedStatus : $("#marketingReceivedStatus").is(":checked")
+		};
+		
+		// Address 데이터 수집
+		var addressDto = {
+			userSeq : null, 
+			postcode : $("#postcode").val(),
+			mainAddress : $("#mainAddress").val(),
+			detailAddress : $("#detailAddress").val()
+		};
+
+		$.ajax({
+			url : '/api/join/public2',
+			type : 'POST',
+			contentType : 'application/json; charset=UTF-8',
+			data : JSON.stringify({
+				userDto : userDto,
+				addressDto : addressDto
+			}),
+			success : function(response) {
+		        window.location.href = '/joinSuccess';
+			},
+			error : function(xhr, status, error) {
+				console.error(error);
+				// 에러 처리
+			}
+		});
+		}else{
+			
+		}
 });
 </script>
 
