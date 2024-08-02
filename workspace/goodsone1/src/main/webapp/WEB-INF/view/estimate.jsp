@@ -188,7 +188,7 @@ margin-right: 5px;
 				<input type="checkbox" id="agreeInput" name="callAgree">전화
 				</td>
 				</tr>
-			    <tr><td><span id="agreeMessage"></span></td></tr>
+			    <tr><td><span id="receiveAgreeMessage"></span></td></tr>
   			    <tr><td class="tableHeader">이메일</td></tr>
 			    <tr><td><input type="email" id="email" name="email" maxlength="30"></td></tr>
 			    <tr><td class="tableHeader">주소<span style="color:red">＊</span></td></tr>
@@ -197,8 +197,9 @@ margin-right: 5px;
 				<tr><td><input type="text" id="detailAddress" name="detailAddress" autocomplete="off" placeholder="상세주소"></td></tr>
 				<tr><td><span id="addressMessage"></span></td></tr>
 			    <tr><td class="tableHeader">내용</td></tr>
-			    <tr><td><textarea id="content" placeholder="내용을 입력하세요" name="content" required></textarea></td></tr>
-			    <tr><td><input id="submit" type="submit" value="등록"><div id="agreeMentDiv"><input type="checkbox" id="agreeMent">[필수] <a id="agreeMentUrl" href="https://koreaspacedata.notion.site/bcf26ad9571a4a42a2d9b8a272fe3e3a#aba60eba800a47e88f29af40578d597f" target="_blank">개인정보처리방침</a></div></td></tr>
+			    <tr><td><textarea id="content" placeholder="내용을 입력하세요" name="content"></textarea></td></tr>
+			    <tr><td><input id="submit" type="submit" value="등록"><div id="agreeMentDiv"><input type="checkbox" id="agreeMent">[필수] <a id="agreeMentUrl" href="https://koreaspacedata.notion.site/bcf26ad9571a4a42a2d9b8a272fe3e3a#aba60eba800a47e88f29af40578d597f" target="_blank">개인정보처리방침 동의</a></div></td></tr>
+			    <tr><td><span id="agreeMentMessage"></span></td></tr>
 			</table>
 		</div>
 		<input type="hidden" class="fileInputHidden" id="fileInputHidden1" accept="image/*" >
@@ -343,6 +344,8 @@ document.querySelectorAll('.closeBtn').forEach(function(btn) {
         }
         
         const fileInput = preview.querySelector('.fileInput');
+        let fileInputHidden = fileInput.id.replace('fileInput', 'fileInputHidden');
+        document.getElementById(fileInputHidden).value='';
         fileInput.value = ''; // 파일 input 초기화
     });
 });
@@ -377,14 +380,24 @@ function formatPhoneNumber(input) {
 $('#estimate').on('submit', function(event) {
 	  event.preventDefault(); // 폼 제출을 막음
 	  
+	  const agreeMentCheck = document.getElementById('agreeMent');
+	  const agreeMentMessage = document.getElementById('agreeMentMessage');
+	  if(!agreeMentCheck.checked){
+		  agreeMentMessage.style.color="red";
+		  agreeMentMessage.textContent = "개인정보처리방침에 동의해 주세요.";
+		  return;
+	  }else{
+		  agreeMentMessage.textContent ="";
+	  }
+	  
 	  //휴대폰
 	  let phone = document.getElementById("phone").value;
-	  const agreeMessage = document.getElementById('agreeMessage');
+	  const receiveAgreeMessage = document.getElementById('receiveAgreeMessage');
 	  if(phone.length<13){
-		  agreeMessage.style.color="red";
-		  agreeMessage.innerText="휴대폰 번호를 확인해 주세요.";
+		  receiveAgreeMessage.style.color="red";
+		  receiveAgreeMessage.innerText="휴대폰 번호를 확인해 주세요.";
 	  }else{
-		  agreeMessage.innerText="";
+		  receiveAgreeMessage.innerText="";
 	  }
 	  
 	  //주소 값 가져옴
@@ -413,14 +426,14 @@ $('#estimate').on('submit', function(event) {
 	  });
 
 	  // 에러 메시지 요소
-	  agreeMessage.style.color="red";
+	  receiveAgreeMessage.style.color="red";
 
 	  // 최소 1개, 최대 3개 체크 여부를 확인
 	  if (checkedCount < 1) {
-		  agreeMessage.textContent = "수신 방법을 최소 1개를 선택해야 합니다.";
+		  receiveAgreeMessage.textContent = "수신 방법을 최소 1개를 선택해야 합니다.";
 		  return;
 	  } else {
-		  agreeMessage.textContent = "";
+		  receiveAgreeMessage.textContent = "";
 	  }
 	    submitForm(event);
 	    alert("폼이 성공적으로 제출되었습니다!");
@@ -432,11 +445,11 @@ function submitForm(event) {
 	
     var form = document.getElementById('estimate');
     var formData = new FormData(form);
-    
+
     // Add files to formData
     for (var i = 1; i <= 10; i++) {
-        var fileInput = document.getElementById('fileInput' + i);
-        if (fileInput && fileInput.files.length > 0) {
+        var fileInput = document.getElementById('fileInputHidden' + i);
+        if (fileInput.value) {
             formData.append('images', fileInput.files[0]);
         	console.log(i+"번째 사진 추가");
         }

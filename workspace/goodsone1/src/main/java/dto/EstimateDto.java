@@ -17,10 +17,13 @@ public class EstimateDto {
   private String content;
   private List<MultipartFile> images;
   private String imagesPath;
+  private Status status; 
   public EstimateDto() {
   }
-  
-
+  // enum 선언
+  public enum Status {
+    접수, 답변중, 완료
+  }
 
 
   public String getPhone() {
@@ -106,13 +109,19 @@ public class EstimateDto {
   public void setImagesPath(String imagesPath) {
     this.imagesPath = imagesPath;
   }
-
+  public Status getStatus() {
+    return status;
+  }
+  public void setStatus(Status status) {
+    this.status = status;
+  }
   @Override
   public String toString() {
-    return "EstimateDTO [phone=" + phone + ", smsAgree=" + smsAgree
-        + ", callAgree=" + callAgree + ", postcode=" + postcode + ", mainAddress=" + mainAddress
-        + ", detailAddress=" + detailAddress + ", content=" + content + ", images=" + images + "]";
+    return "EstimateDto [name=" + name + ", phone=" + phone + ", email=" + email + ", emailAgree="
+        + emailAgree + ", smsAgree=" + smsAgree + ", callAgree=" + callAgree + ", postcode="
+        + postcode + ", mainAddress=" + mainAddress + ", detailAddress=" + detailAddress
+        + ", content=" + content + ", imagesPath=" + imagesPath + ", status=" + status + "]"+ "images.size" + images.size();
   }
-  
+
   
 }
