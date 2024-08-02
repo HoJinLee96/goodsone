@@ -2,6 +2,7 @@ package dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -41,5 +42,17 @@ public class EstimateDao {
     }
   }
 
-
+  public String getImagesPath(int estimateSeq) throws Exception {
+    String sql = "SELECT imagesPath FROM estimate WHERE estimate_seq = ?";
+    try(Connection con = dataSource.getConnection();
+    PreparedStatement pst = con.prepareStatement(sql);){
+        pst.setInt(1, estimateSeq);
+        try (ResultSet rs = pst.executeQuery()) {
+            if (rs.next()) {
+                return rs.getString("imagesPath");
+            }
+        }
+    }
+    return null;
+}
 }

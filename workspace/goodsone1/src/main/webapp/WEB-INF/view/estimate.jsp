@@ -20,6 +20,14 @@
 	margin: 0px auto;
 	min-width: 400px;
 }
+#estimate{
+	max-width: 540px;
+	min-width: 540px;
+}
+#rightDiv{
+	max-width: 650px;
+	min-width: 650px;
+}
 h1{
 margin-top: 0px;
 margin-bottom: 10px;
@@ -166,6 +174,7 @@ margin-left: 10px;
 margin-top: 0px;
 margin-right: 5px;
 }
+
 </style>
 </head>
 <body>
@@ -213,7 +222,7 @@ margin-right: 5px;
 		<input type="hidden" class="fileInputHidden" id="fileInputHidden9" accept="image/*" >
 		<input type="hidden" class="fileInputHidden" id="fileInputHidden10" accept="image/*" >
 	</form>
-		<div>
+		<div id="rightDiv">
 				이미지 첨부<br>
 				첨부시 상담에 도움 됩니다.
 		<div id="previewContainer">

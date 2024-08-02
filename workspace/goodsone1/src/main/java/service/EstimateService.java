@@ -6,6 +6,9 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -44,7 +47,7 @@ public class EstimateService {
     estimateDto.setImagesPath(imagesPath);
     // DAO로 DTO 전달
     estimateDao.registerEstimate(estimateDto);
-}
+  }
 
   private String uploadImagesToS3(List<MultipartFile> images, String phone) throws IOException {
     String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
@@ -77,5 +80,14 @@ public class EstimateService {
     }
 
     return imagePaths.toString();
-}
+  }
+  
+  protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+    int estimateSeq = Integer.parseInt(req.getParameter("estimateSeq"));
+    try {
+        String imagesPath = estimateDao.getImagesPath(estimateSeq);
+        req.setAttribute("imagesPath", imagesPath);
+        req.getRequestDispatcher("/displayImages.jsp").forward(req, res);
+    }
+  }
 }

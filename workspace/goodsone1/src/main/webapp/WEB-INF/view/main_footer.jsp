@@ -8,15 +8,21 @@
 <style type="text/css">
 
 .footer{
-	display : flex;
 	width: 100%;
 	padding-top: 20px;
 	min-height: 300px;
 	border-top: 1px solid #efefef;
 	min-width: 840px;
-	max-width: 1680px;
+	max-width:1920px;
 	margin : 0px auto;
 	margin-top: 100px;
+}
+.footerDiv{
+	display : flex;
+	width: 100%;
+	min-width: 840px;
+	max-width:1230px;
+	margin: 0px auto;
 }
 .footer ul{
 margin:5px 10px;
@@ -49,6 +55,7 @@ margin-left: auto;
 </head>
 
 <div class ="footer">
+<div class="footerDiv">
 	<nav class = "info">
 		<ul>
 			<li>
@@ -75,6 +82,7 @@ margin-left: auto;
 			<li><a href="">카카오톡</a></li>
 		</ul>
 	</nav>
+</div>
 </div>
 
 </html>
