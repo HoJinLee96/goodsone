@@ -120,7 +120,7 @@ public class EstimateDto {
     return "EstimateDto [name=" + name + ", phone=" + phone + ", email=" + email + ", emailAgree="
         + emailAgree + ", smsAgree=" + smsAgree + ", callAgree=" + callAgree + ", postcode="
         + postcode + ", mainAddress=" + mainAddress + ", detailAddress=" + detailAddress
-        + ", content=" + content + ", imagesPath=" + imagesPath + ", status=" + status + "]"+ "images.size" + images.size();
+        + ", content=" + content + ", imagesPath=" + imagesPath + ", status=" + status + "]"+ "images.size=" + images.size();
   }
 
   

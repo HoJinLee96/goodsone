@@ -1,6 +1,9 @@
 package api;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -8,10 +11,18 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import dto.EstimateDto;
 import dto.EstimateDto.Status;
+import service.EstimateService;
 
 @RestController
 public class EstimateController {
   
+  EstimateService estimateService;
+
+  @Autowired
+  public EstimateController(EstimateService estimateService) {
+    this.estimateService = estimateService;
+  }
+
   @PostMapping("/estimate")
   public ResponseEntity<?> registerEstimate(
       @RequestParam("name") String name,
@@ -42,6 +53,16 @@ public class EstimateController {
     estimateDTO.setStatus(Status.접수);
       
     System.out.println(estimateDTO.toString()); 
+    
+    try {
+      estimateService.registerEstimate(estimateDTO);
+    } catch (SQLException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     
       return ResponseEntity.ok("성공");
   }

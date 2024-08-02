@@ -314,10 +314,12 @@ document.querySelectorAll('.fileInput').forEach(function(input, index) {
                         img.style.height = '100%';
                         img.style.objectFit = 'cover';
                         preview.appendChild(img);
+                        
+                     	// base64 문자열을 hidden input에 설정
                         const hiddenInput = document.querySelectorAll('.fileInputHidden')[index];
                         hiddenInput.value = e.target.result;
+                        
                         document.getElementById('overlay').style.display = 'none';
-
                     };
                     reader.readAsDataURL(result); // result는 압축된 파일
                 },
@@ -450,7 +452,16 @@ function submitForm(event) {
     for (var i = 1; i <= 10; i++) {
         var fileInput = document.getElementById('fileInputHidden' + i);
         if (fileInput.value) {
-            formData.append('images', fileInput.files[0]);
+        	// base64 문자열을 Blob으로 변환하여 추가
+            var byteString = atob(fileInput.value.split(',')[1]);
+            var mimeString = fileInput.value.split(',')[0].split(':')[1].split(';')[0];
+            var ab = new ArrayBuffer(byteString.length);
+            var ia = new Uint8Array(ab);
+            for (var j = 0; j < byteString.length; j++) {
+                ia[j] = byteString.charCodeAt(j);
+            }
+            var blob = new Blob([ab], { type: mimeString });
+            formData.append('images', blob, 'image' + i + '.jpg');
         	console.log(i+"번째 사진 추가");
         }
     }
