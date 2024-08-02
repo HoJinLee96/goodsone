@@ -14,7 +14,7 @@
 	padding-top: 30px;
 	min-height: 1080px;
 }
-#estimate{
+#formContainer{
 	display:flex;
 	max-width: 1200px;
 	margin: 0px auto;
@@ -33,7 +33,7 @@ margin-right: 15px;
 #phone{
 width: 200px !important;
 }
-#estimate input[type="text"]{
+#formContainer input[type="text"], #formContainer input[type="email"]{
     border: 1.5px solid #efefef;
     width: 500px;
     height: 30px;
@@ -41,7 +41,7 @@ width: 200px !important;
     padding-left: 10px;
     outline:none;
 }
-#estimate input:focus{
+#formContainer input:focus{
 	border: 1.5px solid black;
 	transition: border-color 0.3s;
 }
@@ -121,7 +121,7 @@ width: 200px !important;
 	transform: translate(-50%, -50%);
 }
 
-#loadingOverlay {
+#overlay {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -153,6 +153,19 @@ width: 730px;
 height: 280px;
 margin-top: 50px;
 }
+#agreeMentDiv{
+display: inline-block;
+margin-top: auto;
+}
+#agreeMentUrl{
+text-decoration:none;
+color: black;
+}
+#agreeMent{
+margin-left: 10px;
+margin-top: 0px;
+margin-right: 5px;
+}
 </style>
 </head>
 <body>
@@ -161,30 +174,44 @@ margin-top: 50px;
 	<div id ="mainContainer">
 	
 	    <h1>청소 견적 문의하기</h1>
+	   <div id ="formContainer">
 	<form id="estimate" enctype="multipart/form-data" >
 		<div>
 			<table> 
-			    <!-- <tr><td class="tableHeader">제목</td></tr>
-			    <tr><td><input type="text" id="title" placeholder="제목을 입력하세요" name="title" required></td></tr> -->
-			    <tr><td class="tableHeader">연락처</td></tr>
+			    <tr><td class="tableHeader">성함 (상호명)</td></tr>
+			    <tr><td><input type="text" id="name" name="name" maxlength="20"></td></tr>
+			    <tr><td class="tableHeader">연락처<span style="color:red">＊</span></td></tr>
 				<tr><td><input type="text" id="phone" name="phone" oninput="formatPhoneNumber(this)" maxlength="13" value="010-" required>
 				수신 동의 :
-				<input type="checkbox" id="pageAgree" name="pageAgree">홈페이지
-				<input type="checkbox" id="smsAgree" name="smsAgree">문자
-				<input type="checkbox" id="callAgree" name="callAgree">전화
+				<input type="checkbox" id="agreeInput" name="pageAgree">이메일
+				<input type="checkbox" id="agreeInput" name="smsAgree">문자
+				<input type="checkbox" id="agreeInput" name="callAgree">전화
 				</td>
 				</tr>
-			    <tr><td class="tableHeader">주소</td></tr>
-			    <tr><td><input type="hidden" id="postcode" name="postcode" autocomplete="off" onclick="searchAddress()" required readonly placeholder="우편번호"></td></tr>
+			    <tr><td><span id="agreeMessage"></span></td></tr>
+  			    <tr><td class="tableHeader">이메일</td></tr>
+			    <tr><td><input type="email" id="email" name="email" maxlength="30"></td></tr>
+			    <tr><td class="tableHeader">주소<span style="color:red">＊</span></td></tr>
+			    <tr><td><input type="hidden" id="postcode" name="postcode" autocomplete="off" onclick="searchAddress()" readonly placeholder="우편번호"></td></tr>
 				<tr><td><input type="text" id="mainAddress" name="mainAddress" autocomplete="off" onclick="searchAddress()"  readonly placeholder="주소"></td></tr>
 				<tr><td><input type="text" id="detailAddress" name="detailAddress" autocomplete="off" placeholder="상세주소"></td></tr>
 				<tr><td><span id="addressMessage"></span></td></tr>
-			    <tr><td><span id="agreeMessage"></span></td></tr>
 			    <tr><td class="tableHeader">내용</td></tr>
 			    <tr><td><textarea id="content" placeholder="내용을 입력하세요" name="content" required></textarea></td></tr>
-			    <tr><td><input id="submit" type="submit" value="등록"></td></tr>
+			    <tr><td><input id="submit" type="submit" value="등록"><div id="agreeMentDiv"><input type="checkbox" id="agreeMent">[필수] <a id="agreeMentUrl" href="https://koreaspacedata.notion.site/bcf26ad9571a4a42a2d9b8a272fe3e3a#aba60eba800a47e88f29af40578d597f" target="_blank">개인정보처리방침</a></div></td></tr>
 			</table>
 		</div>
+		<input type="hidden" class="fileInputHidden" id="fileInputHidden1" accept="image/*" >
+		<input type="hidden" class="fileInputHidden" id="fileInputHidden2" accept="image/*" >
+		<input type="hidden" class="fileInputHidden" id="fileInputHidden3" accept="image/*" >
+		<input type="hidden" class="fileInputHidden" id="fileInputHidden4" accept="image/*" >
+		<input type="hidden" class="fileInputHidden" id="fileInputHidden5" accept="image/*" >
+		<input type="hidden" class="fileInputHidden" id="fileInputHidden6" accept="image/*" >
+		<input type="hidden" class="fileInputHidden" id="fileInputHidden7" accept="image/*" >
+		<input type="hidden" class="fileInputHidden" id="fileInputHidden8" accept="image/*" >
+		<input type="hidden" class="fileInputHidden" id="fileInputHidden9" accept="image/*" >
+		<input type="hidden" class="fileInputHidden" id="fileInputHidden10" accept="image/*" >
+	</form>
 		<div>
 				이미지 첨부<br>
 				첨부시 상담에 도움 됩니다.
@@ -232,7 +259,8 @@ margin-top: 50px;
 		</div>
 		<img id ="dal6"src="static/img/dal6.png" alt="dal6">	
 		</div>
-	</form>
+		<div id ="overlay"></div>
+	</div>
     
     </div>
 
@@ -241,6 +269,9 @@ margin-top: 50px;
 <!-- 주소 검색 api -->
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 <script src="static/daumAddressSearch.js"></script>
+
+<!-- 이미지 압축 Compressor.js 라이브러리 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/compressorjs/1.0.6/compressor.min.js"></script>
 
 <!-- 이미지 첨부 -->
 <script type="text/javascript">
@@ -251,29 +282,51 @@ document.querySelectorAll('.imgPreview').forEach(function(preview) {
     });
 });
 
-document.querySelectorAll('.fileInput').forEach(function(input) {
+document.querySelectorAll('.fileInput').forEach(function(input, index) {
     input.addEventListener('change', function(event) {
+        document.getElementById('overlay').style.display = 'flex';
         const file = event.target.files[0];
+        const maxSizeMB = 10;
+        const maxSizeBytes = maxSizeMB * 1024 * 1024;
+
+        if (file.size > maxSizeBytes) {
+            alert("이미지 크기는 10MB를 초과할 수 없습니다.");
+            input.value = '';
+            document.getElementById('overlay').style.display = 'none';
+            return;
+        }
+
         if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const preview = input.closest('.imgPreview');
-                let img = preview.querySelector('img');
-                
-                // 이미 img 태그가 있는 경우, 기존 이미지를 제거합니다.
-                if (img) {
-                    img.remove();
-                }
-                
-                // 새로운 img 태그를 추가합니다.
-                img = document.createElement('img');
-                img.src = e.target.result;
-                img.style.width = '100%';
-                img.style.height = '100%';
-                img.style.objectFit = 'cover';
-                preview.appendChild(img);
-            };
-            reader.readAsDataURL(file);
+            new Compressor(file, {
+                quality: 0.2,
+                success(result) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = input.closest('.imgPreview');
+                        let img = preview.querySelector('img');
+                        if (img) {
+                            img.remove();
+                        }
+                        img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.width = '100%';
+                        img.style.height = '100%';
+                        img.style.objectFit = 'cover';
+                        preview.appendChild(img);
+                        const hiddenInput = document.querySelectorAll('.fileInputHidden')[index];
+                        hiddenInput.value = e.target.result;
+                        document.getElementById('overlay').style.display = 'none';
+
+                    };
+                    reader.readAsDataURL(result); // result는 압축된 파일
+                },
+                error(err) {
+                    document.getElementById('overlay').style.display = 'none';
+                    alert("업로드 할 수 없는 파일입니다.");
+                    console.error(err.message);
+                    
+                },
+            });
         }
     });
 });
@@ -324,6 +377,16 @@ function formatPhoneNumber(input) {
 $('#estimate').on('submit', function(event) {
 	  event.preventDefault(); // 폼 제출을 막음
 	  
+	  //휴대폰
+	  let phone = document.getElementById("phone").value;
+	  const agreeMessage = document.getElementById('agreeMessage');
+	  if(phone.length<13){
+		  agreeMessage.style.color="red";
+		  agreeMessage.innerText="휴대폰 번호를 확인해 주세요.";
+	  }else{
+		  agreeMessage.innerText="";
+	  }
+	  
 	  //주소 값 가져옴
 	  let mainAddress = document.getElementById("mainAddress").value;
 	  console.log(mainAddress.length);
@@ -339,7 +402,7 @@ $('#estimate').on('submit', function(event) {
 	  }
 
 	  // 모든 체크박스를 가져옴
-	  const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+	  const checkboxes = document.querySelectorAll('#agreeInput');
 	  let checkedCount = 0;
 
 	  // 선택된 체크박스 수를 셈
@@ -350,7 +413,6 @@ $('#estimate').on('submit', function(event) {
 	  });
 
 	  // 에러 메시지 요소
-	  const agreeMessage = document.getElementById('agreeMessage');
 	  agreeMessage.style.color="red";
 
 	  // 최소 1개, 최대 3개 체크 여부를 확인
@@ -362,6 +424,8 @@ $('#estimate').on('submit', function(event) {
 	  }
 	    submitForm(event);
 	    alert("폼이 성공적으로 제출되었습니다!");
+	    
+	    
 });
 function submitForm(event) {
 	event.preventDefault();

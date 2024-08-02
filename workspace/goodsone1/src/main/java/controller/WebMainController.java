@@ -86,34 +86,5 @@ public class WebMainController {
      return "review";
    }
    
-   @PostMapping("/estimate")
-   @ResponseBody
-   public ResponseEntity<?> registerEstimate(
-       @RequestParam("phone") String phone,
-       @RequestParam(value = "pageAgree", required = false, defaultValue = "false") Boolean pageAgree,
-       @RequestParam(value = "smsAgree", required = false, defaultValue = "false") Boolean smsAgree,
-       @RequestParam(value = "callAgree", required = false, defaultValue = "false") Boolean callAgree,
-       @RequestParam("postcode") String postcode,
-       @RequestParam("mainAddress") String mainAddress,
-       @RequestParam("detailAddress") String detailAddress,
-       @RequestParam("content") String content,
-       @RequestParam("images") List<MultipartFile> images) {
-     System.out.println("WebMainController.registerEstimate() 실행");
-
-     EstimateDto estimateDTO = new EstimateDto();
-     estimateDTO.setPhone(phone);
-     estimateDTO.setPageAgree(pageAgree);
-     estimateDTO.setSmsAgree(smsAgree);
-     estimateDTO.setCallAgree(callAgree);
-     estimateDTO.setPostcode(postcode);
-     estimateDTO.setMainAddress(mainAddress);
-     estimateDTO.setDetailAddress(detailAddress);
-     estimateDTO.setContent(content);
-     estimateDTO.setImages(images);
-       
-       System.out.println(estimateDTO.toString());
-
-       return ResponseEntity.ok("성공");
-   }
 
 }

@@ -4,8 +4,11 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 public class EstimateDto {
+
+  private String name;
   private String phone;
-  private boolean pageAgree;
+  private String email;
+  private boolean emailAgree;
   private boolean smsAgree;
   private boolean callAgree;
   private String postcode;
@@ -13,33 +16,18 @@ public class EstimateDto {
   private String detailAddress;
   private String content;
   private List<MultipartFile> images;
+  private String imagesPath;
   public EstimateDto() {
   }
-  public EstimateDto(String phone, boolean pageAgree, boolean smsAgree, boolean callAgree,
-      String postcode, String mainAddress, String detailAddress, String content,
-      List<MultipartFile> images) {
-    super();
-    this.phone = phone;
-    this.pageAgree = pageAgree;
-    this.smsAgree = smsAgree;
-    this.callAgree = callAgree;
-    this.postcode = postcode;
-    this.mainAddress = mainAddress;
-    this.detailAddress = detailAddress;
-    this.content = content;
-    this.images = images;
-  }
+  
+
+
+
   public String getPhone() {
     return phone;
   }
   public void setPhone(String phone) {
     this.phone = phone;
-  }
-  public boolean isPageAgree() {
-    return pageAgree;
-  }
-  public void setPageAgree(boolean pageAgree) {
-    this.pageAgree = pageAgree;
   }
   public boolean isSmsAgree() {
     return smsAgree;
@@ -83,9 +71,45 @@ public class EstimateDto {
   public void setImages(List<MultipartFile> images) {
     this.images = images;
   }
+  
+  
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public boolean isEmailAgree() {
+    return emailAgree;
+  }
+
+  public void setEmailAgree(boolean emailAgree) {
+    this.emailAgree = emailAgree;
+  }
+  
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+  
+
+  public String getImagesPath() {
+    return imagesPath;
+  }
+
+  public void setImagesPath(String imagesPath) {
+    this.imagesPath = imagesPath;
+  }
+
   @Override
   public String toString() {
-    return "EstimateDTO [phone=" + phone + ", pageAgree=" + pageAgree + ", smsAgree=" + smsAgree
+    return "EstimateDTO [phone=" + phone + ", smsAgree=" + smsAgree
         + ", callAgree=" + callAgree + ", postcode=" + postcode + ", mainAddress=" + mainAddress
         + ", detailAddress=" + detailAddress + ", content=" + content + ", images=" + images + "]";
   }

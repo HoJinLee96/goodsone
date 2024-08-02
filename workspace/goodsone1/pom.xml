@@ -129,6 +129,13 @@
 	        <artifactId>commons-fileupload</artifactId>
 	        <version>1.4</version>
 	    </dependency>
+	    
+	    <!-- 파일을 AWS S3에 저장하기 위한 의존-->
+<dependency>
+    <groupId>software.amazon.awssdk</groupId>
+    <artifactId>s3</artifactId>
+    <version>2.26.1</version>
+</dependency>
 		
 	</dependencies>
 

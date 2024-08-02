@@ -12,10 +12,21 @@
 font-family: "Galmuri11", sans-serif;
 }
 </style> -->
-<link href="https://webfontworld.github.io/sandbox/SBAggro.css" rel="stylesheet">
+
+<!-- <link href="https://webfontworld.github.io/sandbox/SBAggro.css" rel="stylesheet">
 <style type="text/css">
 @import url('https://webfontworld.github.io/sandbox/SBAggro.css');
 *{font-family: 'SBAggro';}
+</style> -->
+
+<style type="text/css">
+@font-face {
+    font-family: 'Pretendard-Regular';
+    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+}
+*{font-family: 'Pretendard-Regular', sans-serif;}
 </style>
 
 <style type="text/css">
