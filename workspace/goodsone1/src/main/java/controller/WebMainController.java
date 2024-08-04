@@ -86,5 +86,9 @@ public class WebMainController {
      return "review";
    }
    
-
+   @GetMapping("/estimateView")
+   public String showEstimateView(HttpServletRequest req, HttpServletResponse res) {
+     System.out.println("WebMainController.showEstimateView() 실행");
+     return "estimateView";
+   }
 }

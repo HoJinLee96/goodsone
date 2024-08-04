@@ -476,7 +476,7 @@ function submitForm(event) {
     }
 	
     $.ajax({
-        url: '/estimate',
+        url: '/registerEstimate',
         type: 'POST',
         processData: false,
         contentType: false,

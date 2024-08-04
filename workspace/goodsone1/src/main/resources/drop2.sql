@@ -11,6 +11,8 @@ DELETE FROM `order_goods`;
 DELETE FROM `return`;
 DELETE FROM `tier`;
 DELETE FROM `point_history`;
+DELETE FROM `oauth`;
+
 
 commit;
 
@@ -28,6 +30,8 @@ DROP TABLE IF EXISTS `order_goods`;
 DROP TABLE IF EXISTS `return`;
 DROP TABLE IF EXISTS `tier`;
 DROP TABLE IF EXISTS `point_history`;
+DROP TABLE IF EXISTS `oauth`;
+
 
 commit;
 

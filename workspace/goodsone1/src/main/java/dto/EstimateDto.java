@@ -1,5 +1,6 @@
 package dto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,6 +19,7 @@ public class EstimateDto {
   private List<MultipartFile> images;
   private String imagesPath;
   private Status status; 
+  private LocalDateTime createdAt;
   public EstimateDto() {
   }
   // enum 선언
@@ -26,6 +28,25 @@ public class EstimateDto {
   }
 
 
+  public EstimateDto(String name, String phone, String email, boolean emailAgree, boolean smsAgree,
+      boolean callAgree, String postcode, String mainAddress, String detailAddress, String content,
+      List<MultipartFile> images, String imagesPath, Status status, LocalDateTime createdAt) {
+    super();
+    this.name = name;
+    this.phone = phone;
+    this.email = email;
+    this.emailAgree = emailAgree;
+    this.smsAgree = smsAgree;
+    this.callAgree = callAgree;
+    this.postcode = postcode;
+    this.mainAddress = mainAddress;
+    this.detailAddress = detailAddress;
+    this.content = content;
+    this.images = images;
+    this.imagesPath = imagesPath;
+    this.status = status;
+    this.createdAt = createdAt;
+  }
   public String getPhone() {
     return phone;
   }
@@ -115,12 +136,22 @@ public class EstimateDto {
   public void setStatus(Status status) {
     this.status = status;
   }
+  
+  
+  
+  public LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
   @Override
   public String toString() {
     return "EstimateDto [name=" + name + ", phone=" + phone + ", email=" + email + ", emailAgree="
         + emailAgree + ", smsAgree=" + smsAgree + ", callAgree=" + callAgree + ", postcode="
         + postcode + ", mainAddress=" + mainAddress + ", detailAddress=" + detailAddress
-        + ", content=" + content + ", imagesPath=" + imagesPath + ", status=" + status + "]"+ "images.size=" + images.size();
+        + ", content=" + content + ", imagesPath=" + imagesPath + ", status="
+        + status + ", createdAt=" + createdAt + "]";
   }
 
   

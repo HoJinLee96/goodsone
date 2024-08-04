@@ -3,17 +3,26 @@ package api;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dto.EstimateDto;
 import dto.EstimateDto.Status;
 import service.EstimateService;
 
 @RestController
+@RequestMapping("/estimate")
 public class EstimateController {
   
   EstimateService estimateService;
@@ -23,7 +32,7 @@ public class EstimateController {
     this.estimateService = estimateService;
   }
 
-  @PostMapping("/estimate")
+  @PostMapping("/register")
   public ResponseEntity<?> registerEstimate(
       @RequestParam("name") String name,
       @RequestParam("phone") String phone,
@@ -37,6 +46,9 @@ public class EstimateController {
       @RequestParam("content") String content,
       @RequestParam(value="images",required = false) List<MultipartFile> images) {
     System.out.println("EstimateController.registerEstimate() 실행");
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Type", "text/plain; charset=UTF-8");
+      
 
     EstimateDto estimateDTO = new EstimateDto();
     estimateDTO.setName(name);
@@ -57,14 +69,69 @@ public class EstimateController {
     try {
       estimateService.registerEstimate(estimateDTO);
     } catch (SQLException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("서버 장애 발생.");
     } catch (IOException e) {
-      // TODO Auto-generated catch block
       e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("서버 장애 발생.");
     }
     
       return ResponseEntity.ok("성공");
   }
 
+  @GetMapping("/getAllEstimate")
+  public ResponseEntity<?> getAllEstimate(HttpServletRequest req, HttpServletResponse res) {
+      HttpHeaders headers = new HttpHeaders();
+      headers.add("Content-Type", "application/json; charset=UTF-8");
+
+      System.out.println("EstimateController.getAllEstimate() 실행");
+      int page = Integer.parseInt(req.getParameter("page"));
+      System.out.println("page = " + page);
+      List<EstimateDto> list = null;
+      try {
+          list = estimateService.getAllEstimate(page);
+      } catch (SQLException e) {
+          e.printStackTrace();
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                               .headers(headers)
+                               .body("{\"error\": \"An error occurred while fetching the estimates.\"}");
+      }
+
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.registerModule(new JavaTimeModule());
+      String jsonResponse = "";
+      try {
+          jsonResponse = objectMapper.writeValueAsString(list);
+      } catch (Exception e) {
+          e.printStackTrace();
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                               .headers(headers)
+                               .body("{\"error\": \"An error occurred while processing the estimates.\"}");
+      }
+
+      return ResponseEntity.ok()
+                           .headers(headers)
+                           .body("{\"list\": " + jsonResponse + "}");
+  }
+      
+  @GetMapping("/getCountAll")
+  public ResponseEntity<?> getCountAll(HttpServletRequest req, HttpServletResponse res){
+      HttpHeaders headers = new HttpHeaders();
+      headers.add("Content-Type", "application/json; charset=UTF-8");
+
+      int total = 0;
+      try {
+          total = estimateService.getCountAll();
+      } catch (SQLException e) {
+          e.printStackTrace();
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                               .headers(headers)
+                               .body("{\"error\": \"An error occurred while fetching the count.\"}");
+      }
+      return ResponseEntity.ok()
+                           .headers(headers)
+                           .body("{\"totalCount\": " + total + "}");
+  }
+    
+  
 }

@@ -45,8 +45,25 @@ public class EstimateDao {
       pst.executeUpdate();
     }
   }
+  
+  public int getCountAll() throws SQLException {
+    System.out.println("EstimateDao.getCountAll() 실행");
 
-  public String getImagesPath(int estimateSeq) throws Exception {
+    String sql = "SELECT COUNT(*) FROM estimate";
+    try (Connection con = dataSource.getConnection();
+         PreparedStatement pst = con.prepareStatement(sql);
+         ResultSet rs = pst.executeQuery()) {
+        if (rs.next()) {
+            return rs.getInt(1); 
+        }
+    }
+    return 0; 
+}
+  
+
+  public String getImagesPath(int estimateSeq) throws SQLException {
+    System.out.println("EstimateDao.getImagesPath() 실행");
+
     String sql = "SELECT imagesPath FROM estimate WHERE estimate_seq = ?";
     try (Connection con = dataSource.getConnection();
         PreparedStatement pst = con.prepareStatement(sql);) {
@@ -60,8 +77,11 @@ public class EstimateDao {
     return null;
   }
 
-  public List<EstimateDto> getAll(int chepter) throws Exception {
-    String sql = "SELECT * FROM estimate ORDER BY created_at DESC LIMIT 50 OFFSET " + chepter * 50;
+  public List<EstimateDto> getAllEstimate(int page) throws SQLException {
+    System.out.println("EstimateDao.getAllEstimate() 실행");
+
+    String sql = "SELECT * FROM estimate ORDER BY created_at DESC LIMIT 50 OFFSET " + (page-1) * 50;
+    System.out.println(sql);
     List<EstimateDto> estimates = new ArrayList<>();
 
     try (Connection con = dataSource.getConnection();
@@ -73,7 +93,9 @@ public class EstimateDao {
     return estimates;
   }
 
-  public List<EstimateDto> getByStatus(int chepter, Status status) throws Exception {
+  public List<EstimateDto> getEstimateByStatus(int chepter, Status status) throws SQLException {
+    System.out.println("EstimateDao.getEstimateByStatus() 실행");
+
     String sql = "SELECT * FROM estimate WHERE status = ? ORDER BY created_at DESC LIMIT 50 OFFSET "
         + chepter * 50;
     List<EstimateDto> estimates = new ArrayList<>();
@@ -91,21 +113,23 @@ public class EstimateDao {
 
 
   public List<EstimateDto> mapResultSetToEstimates(ResultSet rs) throws SQLException {
+    System.out.println("EstimateDao.mapResultSetToEstimates() 실행");
     List<EstimateDto> estimates = new ArrayList<>();
     while (rs.next()) {
       EstimateDto estimate = new EstimateDto();
       estimate.setName(rs.getString("name"));
       estimate.setPhone(rs.getString("phone"));
       estimate.setEmail(rs.getString("email"));
-      estimate.setEmailAgree(rs.getBoolean("email_agree"));
-      estimate.setSmsAgree(rs.getBoolean("sms_agree"));
-      estimate.setCallAgree(rs.getBoolean("call_agree"));
+      estimate.setEmailAgree(rs.getBoolean("emailAgree"));
+      estimate.setSmsAgree(rs.getBoolean("smsAgree"));
+      estimate.setCallAgree(rs.getBoolean("callAgree"));
       estimate.setPostcode(rs.getString("postcode"));
-      estimate.setMainAddress(rs.getString("main_address"));
-      estimate.setDetailAddress(rs.getString("detail_address"));
+      estimate.setMainAddress(rs.getString("mainAddress"));
+      estimate.setDetailAddress(rs.getString("detailAddress"));
       estimate.setContent(rs.getString("content"));
-      estimate.setImagesPath(rs.getString("images_path"));
+      estimate.setImagesPath(rs.getString("imagesPath"));
       estimate.setStatus(Status.valueOf(rs.getString("status")));
+      estimate.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
       estimates.add(estimate);
     }
     return estimates;
