@@ -1,18 +1,10 @@
 package controller;
 
-import java.util.Arrays;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-import dto.EstimateDto;
 
 @Controller
 public class WebMainController {
@@ -86,9 +78,5 @@ public class WebMainController {
      return "review";
    }
    
-   @GetMapping("/estimateView")
-   public String showEstimateView(HttpServletRequest req, HttpServletResponse res) {
-     System.out.println("WebMainController.showEstimateView() 실행");
-     return "estimateView";
-   }
+
 }

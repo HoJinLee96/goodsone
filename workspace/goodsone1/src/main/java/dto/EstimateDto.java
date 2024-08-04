@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 public class EstimateDto {
-
+  private int estimateSeq;
   private String name;
   private String phone;
   private String email;

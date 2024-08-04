@@ -130,6 +130,7 @@ public class EstimateDao {
       estimate.setImagesPath(rs.getString("imagesPath"));
       estimate.setStatus(Status.valueOf(rs.getString("status")));
       estimate.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+      System.out.println(rs.getTimestamp("created_at").toLocalDateTime());
       estimates.add(estimate);
     }
     return estimates;

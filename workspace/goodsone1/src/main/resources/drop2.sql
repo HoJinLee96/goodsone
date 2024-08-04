@@ -12,6 +12,8 @@ DELETE FROM `return`;
 DELETE FROM `tier`;
 DELETE FROM `point_history`;
 DELETE FROM `oauth`;
+DELETE FROM `oauth`;
+DELETE FROM `verification`;
 
 
 commit;
@@ -31,6 +33,7 @@ DROP TABLE IF EXISTS `return`;
 DROP TABLE IF EXISTS `tier`;
 DROP TABLE IF EXISTS `point_history`;
 DROP TABLE IF EXISTS `oauth`;
+DROP TABLE IF EXISTS `verification`;
 
 
 commit;
