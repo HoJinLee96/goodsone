@@ -25,8 +25,10 @@ public class EstimateService {
   
   public void registerEstimate(EstimateDto estimateDto) throws SQLException, IOException {
     List<MultipartFile> reqImages = estimateDto.getImages();
+    if(reqImages != null) {
     String imagesPath = awss3Dao.uploadImagesToS3(reqImages, estimateDto.getPhone());
     estimateDto.setImagesPath(imagesPath);
+    }
     // DAO로 DTO 전달
     estimateDao.registerEstimate(estimateDto);
   }

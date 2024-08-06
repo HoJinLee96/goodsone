@@ -78,6 +78,38 @@ public class EstimateController {
     
       return ResponseEntity.ok("성공");
   }
+  
+  @PostMapping("/speedRegister")
+  public ResponseEntity<?> speedRegisterEstimate(
+      @RequestParam("phone") String phone,
+      @RequestParam("cleaningService") String cleaningService,
+      @RequestParam("region") String region) {
+    
+    System.out.println("EstimateController.speedRegisterEstimate() 실행");
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Type", "text/plain; charset=UTF-8");
+      
+
+    EstimateDto estimateDTO = new EstimateDto();
+    estimateDTO.setPhone(phone);
+    estimateDTO.setContent(cleaningService);
+    estimateDTO.setMainAddress(region);
+    estimateDTO.setStatus(Status.접수);
+      
+    System.out.println(estimateDTO.toString()); 
+    
+    try {
+      estimateService.registerEstimate(estimateDTO);
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("서버 장애 발생.");
+    } catch (IOException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("서버 장애 발생.");
+    }
+    
+      return ResponseEntity.ok("성공");
+  }
 
   @GetMapping("/getAllEstimate")
   public ResponseEntity<?> getAllEstimate(HttpServletRequest req, HttpServletResponse res) {

@@ -174,7 +174,11 @@ margin-left: 10px;
 margin-top: 0px;
 margin-right: 5px;
 }
-
+#agreementClick{
+margin-left:5px;
+	text-decoration: none;
+	color: black;
+}
 </style>
 </head>
 <body>
@@ -207,7 +211,7 @@ margin-right: 5px;
 				<tr><td><span id="addressMessage"></span></td></tr>
 			    <tr><td class="tableHeader">내용</td></tr>
 			    <tr><td><textarea id="content" placeholder="내용을 입력하세요" name="content"></textarea></td></tr>
-			    <tr><td><input id="submit" type="submit" value="등록"><div id="agreeMentDiv"><input type="checkbox" id="agreeMent">[필수] <a id="agreeMentUrl" href="https://koreaspacedata.notion.site/bcf26ad9571a4a42a2d9b8a272fe3e3a#aba60eba800a47e88f29af40578d597f" target="_blank">개인정보처리방침 동의</a></div></td></tr>
+			    <tr><td><input id="submit" type="submit" value="등록"><div id="agreeMentDiv"><input type="checkbox" id="agreeMent">개인정보 수집 및 이용 동의</div><a id="agreementClick" href="javascript:;" onclick="javascript:footerlayerLoad('static/agreement.html'); return false;">[원본]</a></td></tr>
 			    <tr><td><span id="agreeMentMessage"></span></td></tr>
 			</table>
 		</div>
@@ -275,6 +279,7 @@ margin-right: 5px;
     </div>
 
 <%@ include file = "main_footer.jsp" %>
+<%@ include file="../../static/footerlayerLoad.jsp"%>
 </body>
 <!-- 주소 검색 api -->
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
@@ -364,6 +369,12 @@ document.querySelectorAll('.closeBtn').forEach(function(btn) {
 
 <!-- 메인 js -->
 <script type="text/javascript">
+
+//개인동의 쉽게 체크하기
+document.getElementById('agreeMentDiv').addEventListener('click', function () {
+    const checkbox = document.getElementById('agreeMent');
+    checkbox.checked = !checkbox.checked;
+});
 
 //휴대폰 번호 규칙
 function formatPhoneNumber(input) {
@@ -476,13 +487,13 @@ function submitForm(event) {
     }
 	
     $.ajax({
-        url: '/registerEstimate',
+        url: '/estimate/register',
         type: 'POST',
         processData: false,
         contentType: false,
         data: formData,
         success: function(response) {
-            alert("감사합니다 고객님.<br> 빠른 답변 드리겠습니다.");
+            alert("감사합니다 고객님.\n 빠른 답변 드리겠습니다.");
             window.location.href = '/home';
         },
         error: function(xhr, status, error) {

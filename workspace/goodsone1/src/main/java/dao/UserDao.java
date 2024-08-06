@@ -31,25 +31,17 @@ public class UserDao {
   
   public int registerUser(UserDto userDto) throws SQLException {
     String sql =
-        "INSERT INTO user (email, password, name, nickname, birth, phone, status, marketing_received_status, tier_name, created_at,updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+        "INSERT INTO user (email, password, name, birth, phone, status, marketing_received_status, created_at) VALUES (?,?,?, ?, ?, ?, ?, ?,?)";
     try (Connection con = dataSource.getConnection();
         PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
-      System.out.println(userDto.getEmail());
-      System.out.println(userDto.getPassword());
-      System.out.println(userDto.getName());
-      System.out.println(userDto.getBirth());
-      System.out.println(userDto.getPhone());
       pst.setString(1, userDto.getEmail());
       pst.setString(2, userDto.getPassword());
       pst.setString(3, userDto.getName());
-      pst.setString(4, userDto.getName());
-      pst.setString(5, userDto.getBirth());
-      pst.setString(6, userDto.getPhone());
-      pst.setString(7, "public");
-      pst.setBoolean(8, userDto.isMarketingReceivedStatus());;
-      pst.setString(9, "Bronze");
-      pst.setTimestamp(10,Timestamp.valueOf(LocalDateTime.now()));
-      pst.setTimestamp(11,Timestamp.valueOf(LocalDateTime.now()));
+      pst.setString(4, userDto.getBirth());
+      pst.setString(5, userDto.getPhone());
+      pst.setString(6, "public");
+      pst.setBoolean(7, userDto.isMarketingReceivedStatus());;
+      pst.setTimestamp(8,Timestamp.valueOf(LocalDateTime.now()));
       pst.executeUpdate();
       ResultSet generatedKeys = pst.getGeneratedKeys();
       if (generatedKeys.next()) {
@@ -70,16 +62,13 @@ public class UserDao {
                     .userSeq(resultSet.getInt("user_seq"))
                     .email(resultSet.getString("email"))
                     // .password(resultSet.getString("password")) // 패스워드는 설정하지 않음
-                    .oldPassword(resultSet.getString("oldpassword"))
                     .name(resultSet.getString("name"))
-                    .nickname(resultSet.getString("nickname"))
                     .birth(resultSet.getString("birth"))
                     .phone(resultSet.getString("phone"))
                     .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
                     .updatedAt(resultSet.getTimestamp("updated_at").toLocalDateTime())
                     .status(resultSet.getString("status"))
                     .marketingReceivedStatus(resultSet.getBoolean("marketing_received_status"))
-                    .tierName(resultSet.getString("tier_name"))
                     .build();
 
                 return Optional.of(userDto);
@@ -96,10 +85,20 @@ public class UserDao {
       statement.setString(1, email);
       try (ResultSet resultSet = statement.executeQuery()) {
         if (resultSet.next()) {
+          UserDto userDto = new UserDto.Builder()
+              .userSeq(resultSet.getInt("user_seq"))
+              .email(resultSet.getString("email"))
+              // .password(resultSet.getString("password")) // 패스워드는 설정하지 않음
+              .name(resultSet.getString("name"))
+              .birth(resultSet.getString("birth"))
+              .phone(resultSet.getString("phone"))
+              .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
+              .updatedAt(resultSet.getTimestamp("updated_at").toLocalDateTime())
+              .status(resultSet.getString("status"))
+              .marketingReceivedStatus(resultSet.getBoolean("marketing_received_status"))
+              .build();
 
-
-
-          return Optional.of(null);
+          return Optional.of(userDto);
         }
       }
     }
@@ -144,8 +143,20 @@ public class UserDao {
         ResultSet resultSet = statement.executeQuery()) {
 
       while (resultSet.next()) {
+          UserDto userDto = new UserDto.Builder()
+              .userSeq(resultSet.getInt("user_seq"))
+              .email(resultSet.getString("email"))
+              // .password(resultSet.getString("password")) // 패스워드는 설정하지 않음
+              .name(resultSet.getString("name"))
+              .birth(resultSet.getString("birth"))
+              .phone(resultSet.getString("phone"))
+              .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
+              .updatedAt(resultSet.getTimestamp("updated_at").toLocalDateTime())
+              .status(resultSet.getString("status"))
+              .marketingReceivedStatus(resultSet.getBoolean("marketing_received_status"))
+              .build();
 
-        users.add(null);
+        users.add(userDto);
       }
     }
     return users;

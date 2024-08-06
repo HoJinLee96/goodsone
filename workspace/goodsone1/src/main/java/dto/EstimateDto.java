@@ -27,26 +27,7 @@ public class EstimateDto {
     접수, 답변중, 완료
   }
 
-
-  public EstimateDto(String name, String phone, String email, boolean emailAgree, boolean smsAgree,
-      boolean callAgree, String postcode, String mainAddress, String detailAddress, String content,
-      List<MultipartFile> images, String imagesPath, Status status, LocalDateTime createdAt) {
-    super();
-    this.name = name;
-    this.phone = phone;
-    this.email = email;
-    this.emailAgree = emailAgree;
-    this.smsAgree = smsAgree;
-    this.callAgree = callAgree;
-    this.postcode = postcode;
-    this.mainAddress = mainAddress;
-    this.detailAddress = detailAddress;
-    this.content = content;
-    this.images = images;
-    this.imagesPath = imagesPath;
-    this.status = status;
-    this.createdAt = createdAt;
-  }
+  
   public String getPhone() {
     return phone;
   }
@@ -121,8 +102,6 @@ public class EstimateDto {
   public void setName(String name) {
     this.name = name;
   }
-  
-
   public String getImagesPath() {
     return imagesPath;
   }
@@ -136,15 +115,20 @@ public class EstimateDto {
   public void setStatus(Status status) {
     this.status = status;
   }
-  
-  
-  
   public LocalDateTime getCreatedAt() {
     return createdAt;
   }
   public void setCreatedAt(LocalDateTime createdAt) {
     this.createdAt = createdAt;
   }
+  
+  public int getEstimateSeq() {
+    return estimateSeq;
+  }
+  public void setEstimateSeq(int estimateSeq) {
+    this.estimateSeq = estimateSeq;
+  }
+  
   @Override
   public String toString() {
     return "EstimateDto [name=" + name + ", phone=" + phone + ", email=" + email + ", emailAgree="

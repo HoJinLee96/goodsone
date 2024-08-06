@@ -136,7 +136,7 @@ function displayQuotes(list) {
     const tbody = document.createElement('tbody');
 
     // 테이블 헤더 설정
-    const headers = ["이름", "연락처", "이메일", "이메일 동의", "SMS 동의", "전화 동의", "우편번호", "주소", "상세 주소", "내용", "상태", "생성일시", ""];
+    const headers = ["접수번호","상태","이름", "연락처", "이메일", "이메일 동의", "SMS 동의", "전화 동의", "우편번호", "주소", "상세 주소", "생성일시", ""];
     const headerRow = document.createElement('tr');
     
     headers.forEach(headerText => {
@@ -172,6 +172,8 @@ function displayQuotes(list) {
         const row = document.createElement('tr');
 	console.log(estimate.createdAt);
         const rowData = [
+        	estimate.estimateSeq,
+        	estimate.status,
             estimate.name,
             estimate.phone,
             estimate.email,
@@ -181,8 +183,6 @@ function displayQuotes(list) {
             estimate.postcode,
             estimate.mainAddress,
             estimate.detailAddress,
-            estimate.content,
-            estimate.status,
             formatDate(estimate.createdAt)
         ];
 

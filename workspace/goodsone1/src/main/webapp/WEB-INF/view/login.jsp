@@ -17,7 +17,7 @@
 	max-width: 400px;
 	min-width: 400px;
 	margin: 0 auto;
-	border: 2px solid #efefef;
+	border: 2px solid #20367a;
 	padding : 0px 100px;
 	border-radius: 10px;
 	text-align: center;
@@ -51,10 +51,16 @@ text-align: left;
     height: 52px;
     border: none;
     border-radius: 10px;
-    background-color: #000;
+    background-color: #20367a;
     color: #fff;
     font-size: 18px;
     margin: 50px 0px 10px 0px;
+    cursor: pointer;
+}
+#loginForm button:hover{
+    background-color: white;
+    border: 2px solid #20367a;
+    color:#20367a;
 }
 #OAutoLoginBlcok{
 padding: 10px 0px;

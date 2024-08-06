@@ -44,7 +44,7 @@ public class AWSS3Dao {
 
   public String uploadImagesToS3(List<MultipartFile> images, String phone) throws IOException {
     String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-    String keyPrefix = "estimateImages/" + timestamp + "_" + phone.substring(4, 8)+phone.substring(9) + "/";
+    String keyPrefix = "estimateImages/" + timestamp + "_" + phone.replace("-", "") + "/";
     StringBuilder imagePaths = new StringBuilder();
 
     S3Client s3Client = S3Client.builder()

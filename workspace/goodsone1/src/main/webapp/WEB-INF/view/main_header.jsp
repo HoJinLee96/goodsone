@@ -5,28 +5,14 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css">
-<style type="text/css">
-@import url("https://cdn.jsdelivr.net/npm/galmuri/dist/galmuri.css");
-*{
-font-family: "Galmuri11", sans-serif;
-}
-</style> -->
-
-<!-- <link href="https://webfontworld.github.io/sandbox/SBAggro.css" rel="stylesheet">
-<style type="text/css">
-@import url('https://webfontworld.github.io/sandbox/SBAggro.css');
-*{font-family: 'SBAggro';}
-</style> -->
-
 <style type="text/css">
 @font-face {
-    font-family: 'Pretendard-Regular';
-    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
-    font-weight: 400;
+    font-family: 'SF_HambakSnow';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2106@1.1/SF_HambakSnow.woff') format('woff');
+    font-weight: normal;
     font-style: normal;
 }
-*{font-family: 'Pretendard-Regular', sans-serif;}
+*{font-family: 'SF_HambakSnow', sans-serif;}
 </style>
 
 <style type="text/css">
@@ -37,15 +23,46 @@ font-family: "Galmuri11", sans-serif;
 	border-bottom: 1.5px solid #efefef;
 	padding-bottom: 15px;
 }
+.background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            min-width: 800px;
+            max-width: 1920px;
+    height:130px;
+    margin: 0 auto;
+    background-image: url('static/img/headerBackground2.jpg'); /* 배경 이미지 경로 */
+    background-size: cover;
+    /* background-position: center; */
+    z-index: 1; /* 로고보다 뒤에 배치되도록 z-index 설정 */
+}
+#logopng{
+    position: relative;
+    z-index: 2; /* 배경 이미지보다 앞에 배치되도록 z-index 설정 */
+    display: block;
+    height: 100%;
+    bottom: 3px;
+}
+.logopng{
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    margin: auto; /* 로고가 중앙에 오도록 설정 */
+}
 .top_inner{
     display: flex;
     justify-content: flex-end;
 	padding: 0px 20px;
-	max-width: 1200px;
+	max-width: 1500px;
 	margin: 0 auto;
 	min-width: 800px;
+	z-index: 3;
 }
-
+.top_nav{
+	z-index: 3;
+}
 .top_nav ul{
 	display:flex;
 	text-align: right;
@@ -53,17 +70,19 @@ font-family: "Galmuri11", sans-serif;
 	list-style: none;
 	margin: 0px;
 	padding: 0px;
+
 }
 .top_nav ul li a{
 	text-decoration: none;
-	color: black;
+	color: white;
 	padding-left: 10px;
 	font-size: 12px;
 	font-weight: 300;
+
 }
 .top_main {
 	display: flex;
-	max-width: 1200px;
+	max-width: 1500px;
 	min-width: 800px;
 	margin: 0 auto;
 	padding: 0px 20px;
@@ -73,22 +92,11 @@ font-family: "Galmuri11", sans-serif;
  display: flex;
  flex-direction: column;
 }
-.logo {
-	list-style: none;
-	display:flex;
-	padding: 0px;
-	margin-top: auto;
-	margin-bottom: 0px;
-}
-.logo a {
-    text-decoration: none;
-    color: black;
-	font-weight: 700;
-	padding-right: 2px;
-}
+
 #main_nav_div{
  display: flex;
  flex-direction: column;
+ 	z-index: 3;
 }
 .main_nav{
 	display:flex;
@@ -98,25 +106,17 @@ font-family: "Galmuri11", sans-serif;
 }
 .main_nav a{
 text-decoration: none;
-color: black;
+color: white;
 font-size: 23px;
 padding-left: 20px;
 
-}
-#logo1{
-font-size: 50px;
-}
-#logo2{
-font-size: 45px;
-color: #fef200;
-}
-#logo3{
-font-size: 50px;
 }
 </style>
 <link rel="stylesheet" href="static/header.css">
 </head>
 <div id ="headerContainer">
+        <div class="background-image"></div>
+
 	<div class = "top_inner">
 		<nav class = "top_nav">
 			<ul>
@@ -139,16 +139,12 @@ font-size: 50px;
 	</div>
 	<div class = "top_main">
 		<div id="log_div">
-			<ul class= "logo">
-				<li>
-					<a id="logo1" href="/home">달밤</a><a id="logo2" href="/home">N</a><a id="logo3" href="/home">청소</a>
-				</li>
-			</ul>
+			<a id="logopng" href="/home"><img src="static/img/headerLogo.png" alt="Logo" class="logopng"></a>
 		</div>
 			<div id="main_nav_div">
 			<ul class= "main_nav">
-				<li><a href="estimate">견적문의</a></li>
-				<li><a href="review">후기</a></li>
+				<li><a href="estimate">견적신청</a></li>
+				<li><a href="review">현장사진</a></li>
 			</ul>
 		</div>
 	</div>

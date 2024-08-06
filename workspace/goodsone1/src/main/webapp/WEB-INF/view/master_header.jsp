@@ -7,12 +7,12 @@
 <meta charset="UTF-8">
 <style type="text/css">
 @font-face {
-    font-family: 'Pretendard-Regular';
-    src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
-    font-weight: 400;
+    font-family: 'SF_HambakSnow';
+    src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2106@1.1/SF_HambakSnow.woff') format('woff');
+    font-weight: normal;
     font-style: normal;
 }
-*{font-family: 'Pretendard-Regular', sans-serif;}
+*{font-family: 'SF_HambakSnow', sans-serif;}
 
 #headerContainer{
 	max-width:1920px;
@@ -56,6 +56,7 @@
 #log_div{
  display: flex;
  flex-direction: column;
+ background-image: 
 }
 .logo {
 	list-style: none;
@@ -102,6 +103,7 @@ font-size: 50px;
 </head>
 
 <div id ="headerContainer">
+
 	<div class = "top_inner">
 		<nav class = "top_nav">
 			<ul>

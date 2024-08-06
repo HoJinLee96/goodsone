@@ -5,9 +5,7 @@ public class UserDto {
       private int userSeq;
       private String email;
       private String password;
-      private String oldPassword;
       private String name;
-      private String nickname;
       private String birth;
       private String mobileCarrier;
       private String phone;
@@ -15,7 +13,6 @@ public class UserDto {
       private LocalDateTime updatedAt;
       private String status;
       private boolean marketingReceivedStatus;
-      private String tierName;
       
       public UserDto() {}
 
@@ -32,17 +29,14 @@ public class UserDto {
       }
       
       //전체생성자
-      public UserDto(int userSeq, String email, String password, String oldPassword, String name,
-          String nickname, String birth, String mobileCarrier, String phone,
-          LocalDateTime createdAt, LocalDateTime updatedAt, String status,
-          boolean marketingReceivedStatus, String tierName) {
+      public UserDto(int userSeq, String email, String password, String name, String birth,
+          String mobileCarrier, String phone, LocalDateTime createdAt, LocalDateTime updatedAt,
+          String status, boolean marketingReceivedStatus) {
         super();
         this.userSeq = userSeq;
         this.email = email;
         this.password = password;
-        this.oldPassword = oldPassword;
         this.name = name;
-        this.nickname = nickname;
         this.birth = birth;
         this.mobileCarrier = mobileCarrier;
         this.phone = phone;
@@ -50,17 +44,15 @@ public class UserDto {
         this.updatedAt = updatedAt;
         this.status = status;
         this.marketingReceivedStatus = marketingReceivedStatus;
-        this.tierName = tierName;
       }
+
       
       // Builde
       private UserDto(Builder builder) {
         this.userSeq = builder.userSeq;
         this.email = builder.email;
         this.password = builder.password;
-        this.oldPassword = builder.oldPassword;
         this.name = builder.name;
-        this.nickname = builder.nickname;
         this.birth = builder.birth;
         this.mobileCarrier = builder.mobileCarrier;
         this.phone = builder.phone;
@@ -68,7 +60,6 @@ public class UserDto {
         this.updatedAt = builder.updatedAt;
         this.status = builder.status;
         this.marketingReceivedStatus = builder.marketingReceivedStatus;
-        this.tierName = builder.tierName;
     }
 
       //Getter
@@ -85,16 +76,8 @@ public class UserDto {
         return password;
       }
 
-      public String getOldPassword() {
-        return oldPassword;
-      }
-
       public String getName() {
         return name;
-      }
-
-      public String getNickname() {
-        return nickname;
       }
 
       public String getBirth() {
@@ -125,19 +108,12 @@ public class UserDto {
         return marketingReceivedStatus;
       }
 
-      public String getTierName() {
-        return tierName;
-      }
-
-
 
     public static class Builder {
         private int userSeq;
         private String email;
         private String password;
-        private String oldPassword;
         private String name;
-        private String nickname;
         private String birth;
         private String mobileCarrier;
         private String phone;
@@ -145,7 +121,6 @@ public class UserDto {
         private LocalDateTime updatedAt;
         private String status;
         private boolean marketingReceivedStatus;
-        private String tierName;
 
         public Builder userSeq(int userSeq) {
             this.userSeq = userSeq;
@@ -162,18 +137,8 @@ public class UserDto {
             return this;
         }
 
-        public Builder oldPassword(String oldPassword) {
-            this.oldPassword = oldPassword;
-            return this;
-        }
-
         public Builder name(String name) {
             this.name = name;
-            return this;
-        }
-
-        public Builder nickname(String nickname) {
-            this.nickname = nickname;
             return this;
         }
 
@@ -209,11 +174,6 @@ public class UserDto {
 
         public Builder marketingReceivedStatus(boolean marketingReceivedStatus) {
             this.marketingReceivedStatus = marketingReceivedStatus;
-            return this;
-        }
-
-        public Builder tierName(String tierName) {
-            this.tierName = tierName;
             return this;
         }
 

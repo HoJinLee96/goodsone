@@ -117,6 +117,7 @@ public class EstimateDao {
     List<EstimateDto> estimates = new ArrayList<>();
     while (rs.next()) {
       EstimateDto estimate = new EstimateDto();
+      estimate.setEstimateSeq(rs.getInt("estimate_seq"));
       estimate.setName(rs.getString("name"));
       estimate.setPhone(rs.getString("phone"));
       estimate.setEmail(rs.getString("email"));
