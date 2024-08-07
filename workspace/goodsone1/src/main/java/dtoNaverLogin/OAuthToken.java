@@ -21,6 +21,7 @@ public class OAuthToken {
   //카카오 공용
   private int refresh_token_expires_in;
   private String id_token;
+  private String scope; 
   
   public OAuthToken() {
     super();
@@ -40,6 +41,20 @@ public class OAuthToken {
   }
   
   
+  
+  //카카
+  public OAuthToken(String access_token, String token_type, String expires_in, String refresh_token,
+      int refresh_token_expires_in, String id_token, String scope) {
+    super();
+    this.access_token = access_token;
+    this.token_type = token_type;
+    this.expires_in = expires_in;
+    this.refresh_token = refresh_token;
+    this.refresh_token_expires_in = refresh_token_expires_in;
+    this.id_token = id_token;
+    this.scope = scope;
+  }
+
   public String getAccess_token() {
     return access_token;
   }
@@ -87,6 +102,36 @@ public class OAuthToken {
 
   public String getId_token() {
     return id_token;
+  }
+  
+  
+
+  public String getScope() {
+    return scope;
+  }
+
+  public void setScope(String scope) {
+    this.scope = scope;
+  }
+
+  public void setResult(String result) {
+    this.result = result;
+  }
+
+  public void setRefresh_token_expires_in(int refresh_token_expires_in) {
+    this.refresh_token_expires_in = refresh_token_expires_in;
+  }
+
+  public void setId_token(String id_token) {
+    this.id_token = id_token;
+  }
+
+  @Override
+  public String toString() {
+    return "OAuthToken [access_token=" + access_token + ", token_type=" + token_type
+        + ", expires_in=" + expires_in + ", error=" + error + ", error_description="
+        + error_description + ", refresh_token=" + refresh_token + ", result=" + result
+        + ", refresh_token_expires_in=" + refresh_token_expires_in + ", id_token=" + id_token + "]";
   }
 
   

@@ -12,11 +12,17 @@ import java.net.URLEncoder;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import dtoNaverLogin.Callback;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dtoNaverLogin.OAuthToken;
+import exception.NotFoundException;
 
 @Service
 @PropertySource("classpath:application.properties")
@@ -29,6 +35,8 @@ public class KakaoOAuthLoginService {
   private String redirectUrl;
   @Value("${kakao-login.clientSecret}")
   private String clientSecret;
+  @Value("${kakao-login.redirectUri}")
+  private String redirectUri;
   
   @PostConstruct
   private void init() {
@@ -36,12 +44,14 @@ public class KakaoOAuthLoginService {
       System.out.println("kakao-login.clientId : " + clientId);
       System.out.println("kakao-login.redirectUrl : " + redirectUrl);
       System.out.println("kakao-login.clientSecret : " + clientSecret);
+      System.out.println("kakao-login.redirectUri : " + redirectUri);
   }
   
-  public String getKakaoAuthorizeUrl(String type) throws URISyntaxException, MalformedURLException, UnsupportedEncodingException {
-
+  
+  public String getKakaoAuthorizeUrl(String path) throws URISyntaxException, MalformedURLException, UnsupportedEncodingException {
+System.out.println("KakaoOAuthLoginService.getKakaoAuthorizeUrl()");
     UriComponents uriComponents = UriComponentsBuilder
-            .fromUriString(baseUrl + "/" + type)
+            .fromUriString(baseUrl + "/" + path)
             .queryParam("client_id", clientId)
             .queryParam("redirect_uri", URLEncoder.encode(redirectUrl, "UTF-8"))
             .queryParam("response_type", "code")
@@ -51,69 +61,66 @@ public class KakaoOAuthLoginService {
     return uriComponents.toString();
 }
 
-public String getKakaoTokenUrl(String type, Callback callback) throws URISyntaxException, IOException {
-
+public String getKakaoTokenUrl(String path, String code) throws NotFoundException {
+  HttpHeaders headers = new HttpHeaders();
+  headers.add("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+  
   UriComponents uriComponents = UriComponentsBuilder
-          .fromUriString(baseUrl + "/" + type)
+          .fromUriString(baseUrl + "/" + path)
           .queryParam("grant_type", "authorization_code")
           .queryParam("client_id", clientId)
-          .queryParam("client_secret", clientSecret)
-          .queryParam("code", callback.getCode())
-          .queryParam("state", URLEncoder.encode(callback.getState(), "UTF-8"))
+          .queryParam("redirect_uri",redirectUri )
+          .queryParam("code", code)
           .build();
 
-      URL url = new URL(uriComponents.toString());
-      HttpURLConnection con = (HttpURLConnection)url.openConnection();
-      con.setRequestMethod("GET");
+      RestTemplate restTemplate = new RestTemplate();
+      HttpEntity<String> entity = new HttpEntity<>(headers);
 
-      int responseCode = con.getResponseCode();
-      BufferedReader br;
-
-      if(responseCode==200) { // 정상 호출
-          br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-      } else {  // 에러 발생
-          br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+      ResponseEntity<String> response = restTemplate.exchange(
+          uriComponents.toUriString(), 
+          HttpMethod.GET, 
+          entity, 
+          String.class
+  );
+      
+      int responseCode = response.getStatusCodeValue();
+      String responseBody = response.getBody();
+      
+      System.out.println("responseCode = " + responseCode);
+      if(responseCode==200) {
+        return responseBody;
+      }else {
+        throw new NotFoundException();
       }
-
-      String inputLine;
-      StringBuffer response = new StringBuffer();
-      while ((inputLine = br.readLine()) != null) {
-          response.append(inputLine);
-      }
-
-      br.close();
-      return response.toString();
- 
 }
 
-public String getKakaoUserByToken(OAuthToken token) throws IOException {
+public String getKakaoUserByToken(OAuthToken token) {
 
-      String accessToken = token.getAccess_token();
-      String tokenType = token.getToken_type();
+  String accessToken = token.getAccess_token();
+  String tokenType = token.getToken_type();
 
-      URL url = new URL("https:");
-      HttpURLConnection con = (HttpURLConnection)url.openConnection();
-      con.setRequestMethod("GET");
-      con.setRequestProperty("Authorization", tokenType + " " + accessToken);
+  URL url = new URL("https://openapi.naver.com/v1/nid/me");
+  HttpURLConnection con = (HttpURLConnection)url.openConnection();
+  con.setRequestMethod("GET");
+  con.setRequestProperty("Authorization", tokenType + " " + accessToken);
 
-      int responseCode = con.getResponseCode();
-      BufferedReader br;
+  int responseCode = con.getResponseCode();
+  BufferedReader br;
 
-      if(responseCode==200) { // 정상 호출
-          br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-      } else {  // 에러 발생
-          br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
-      }
+  if(responseCode==200) { // 정상 호출
+      br = new BufferedReader(new InputStreamReader(con.getInputStream()));
+  } else {  // 에러 발생
+      br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+  }
 
-      String inputLine;
-      StringBuffer response = new StringBuffer();
-      while ((inputLine = br.readLine()) != null) {
-          response.append(inputLine);
-      }
+  String inputLine;
+  StringBuffer response = new StringBuffer();
+  while ((inputLine = br.readLine()) != null) {
+      response.append(inputLine);
+  }
 
-      br.close();
-      return response.toString();
+  br.close();
+  return response.toString();
 }
-  
   
 }

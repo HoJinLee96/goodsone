@@ -337,12 +337,49 @@ public class LoginController {
     
     @GetMapping("/kakao-login")
     public void kakaoLogin(HttpServletRequest request, HttpServletResponse response) throws MalformedURLException, UnsupportedEncodingException, URISyntaxException {
+      System.out.println("LoginController.kakaoLogin() 실행");
+
         String url = kakaoOAuthLoginService.getKakaoAuthorizeUrl("authorize");
         try {
             response.sendRedirect(url);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    @GetMapping("/login/kakao")
+    public ResponseEntity<String> loginKakaoCallBack(HttpServletRequest request, HttpServletResponse response,@RequestParam(value = "code", defaultValue = "defaultCode") String code,
+        @RequestParam(value = "error", defaultValue = "defaultValue") String error) {
+      System.out.println("LoginController.loginKakaoCallBack() 실행");
+      System.out.println("code = " + code);
+      System.out.println("error = " + error);
+      
+      HttpHeaders headers = new HttpHeaders();
+      headers.add("Content-Type", "text/plain; charset=UTF-8");
+      
+      if (!error.equals("defaultValue")) {
+        System.out.println(error);
+        headers.setLocation(URI.create("/home"));
+        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 카카오 로그인을 이용 할 수 없습니다.");
+    }
+    
+      ObjectMapper mapper = new ObjectMapper();
+      OAuthToken newToken = new OAuthToken();
+      String responseBody = "";
+        try {
+          responseBody = kakaoOAuthLoginService.getKakaoTokenUrl("token",code);
+          newToken = mapper.readValue(responseBody, OAuthToken.class);
+          System.out.println(newToken.toString());
+          
+        } catch (JsonProcessingException | NotFoundException e) {
+          
+          e.printStackTrace();
+          return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 카카오 로그인을 이용 할 수 없습니다.");
+        } 
+        
+        
+      
+      return ResponseEntity.status(HttpStatus.OK).headers(headers).body("현재 회원탈퇴 할 수 없는 계정입니다.");
     }
     
 }
