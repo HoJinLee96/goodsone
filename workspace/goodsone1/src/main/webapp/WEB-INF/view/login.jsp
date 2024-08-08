@@ -99,7 +99,7 @@ padding: 10px 0px;
 	        <button type="submit">로그인</button>
 	    </form>
 	    <div id ="OAutoLoginBlcok">
-	        <a href="/api/kakao-login" id="kakao-login">
+	        <a href="/api/kakaoLoginUrl" id="kakao-login">
         <img src="static/img/kakaoLogin.png" alt="Kakao Login Logo">
     </a>
 	 <a href="/api/naver-login" id="naver-login">
@@ -125,7 +125,7 @@ padding: 10px 0px;
             $.ajax({
                 url: '/api/loginByEmail',
                 type: 'POST',
-                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                contentType: 'application/plain; charset=UTF-8',
                 data: {
                 	reqEmail: email,
                 	reqPassword: password
@@ -163,5 +163,6 @@ padding: 10px 0px;
             });
         });
     });
+    
 </script>
 </html>

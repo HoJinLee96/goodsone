@@ -52,6 +52,12 @@ public class OAuthDto {
     this.phone = naverUser.getResponse().getMobile();
   }
   
+  public OAuthDto(KakaoUserInfoResponseDto kakaoUser) {
+    this.id = kakaoUser.getId()+"";
+    this.email = kakaoUser.getKakao_account().getEmail();
+    this.name = kakaoUser.getKakao_account().getProfile().getNickname();
+  }
+  
   public static class Builder{
     
     private int oauthSeq;
