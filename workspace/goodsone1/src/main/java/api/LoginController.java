@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.AddressDto;
 import dto.KakaoUserInfoResponseDto;
@@ -412,6 +413,7 @@ public class LoginController {
     
     @GetMapping("/refresh/kakao")
     public ResponseEntity<String> kakaoRefreshToken(HttpSession session) {
+      System.out.println("LoginController.kakaoRefreshToken() 실행");
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "text/plain; charset=UTF-8");
       
@@ -437,11 +439,15 @@ public class LoginController {
         }
         
         // 리프레시 토큰으로 새로운 엑세스 토큰 요청
-        OAuthToken  newToken = null;
         try {
           String responseToken = kakaoOAuthLoginService.updateTokenUrl("token","refresh_token",oAuthToken);
           ObjectMapper mapper = new ObjectMapper();
-          newToken = mapper.readValue(responseToken, OAuthToken.class);
+          JsonNode rootNode = mapper.readTree(responseToken);
+          String access_token = rootNode.get("access_token").asText();
+          String id_token = rootNode.get("id_token").asText();
+          oAuthToken.setAccess_token(access_token);
+          oAuthToken.setId_token(id_token);
+          
         } catch (URISyntaxException | IOException e) {
           e.printStackTrace();
           headers.setLocation(URI.create("/logout"));
@@ -449,10 +455,71 @@ public class LoginController {
         }
 
         // 새로운 토큰을 세션에 저장
-        session.setAttribute("oAuthToken", newToken);
-        session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(newToken.getExpires_in())  * 1000));
+        session.setAttribute("oAuthToken", oAuthToken);
+        session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in())  * 1000));
         System.out.println("갱신 완료");
         return ResponseEntity.ok("토큰 갱신 성공");
+    }
+    
+    @GetMapping("/delete/kakao")
+    public ResponseEntity<String> kakaoDeleteToken(HttpServletRequest request) {
+      HttpHeaders headers = new HttpHeaders();
+      headers.add("Content-Type", "text/plain; charset=UTF-8");
+      
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+          headers.setLocation(URI.create("/logout"));
+          return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("세션이 없습니다.");
+        }
+        OAuthDto oAuthDto = (OAuthDto)session.getAttribute("oAuthDto");
+        if (oAuthDto == null) {
+          headers.setLocation(URI.create("/logout"));
+          return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("인증정보가 없습니다.");
+        }
+        OAuthToken oAuthToken = (OAuthToken) session.getAttribute("oAuthToken");
+        if (oAuthToken == null) {
+          headers.setLocation(URI.create("/logout"));
+          return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰이 없습니다.");
+        }
+        Long oAuthTokenExpiry = (Long) session.getAttribute("oAuthTokenExpiry");
+        if (oAuthTokenExpiry == null || System.currentTimeMillis() > oAuthTokenExpiry) {
+          headers.setLocation(URI.create("/logout"));
+          return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰 유효기간이 지났습니다.");
+        }
+        
+        
+        OAuthToken deleteToken =null;
+        try {
+          String responseToken = naverOAuthLoginService.updateTokenUrl("token","delete",oAuthToken);
+          ObjectMapper mapper = new ObjectMapper();
+          deleteToken = mapper.readValue(responseToken, OAuthToken.class);
+        } catch (IOException | URISyntaxException e) {
+          e.printStackTrace();
+          headers.setLocation(URI.create("/my"));
+          return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 회원탈퇴 할 수 없는 계정입니다.");
+        }
+        
+        String result = deleteToken.getResult();
+        if(result.equals("success")) {
+          try {
+            userServices.deleteOAuthDtoByOAuthId(oAuthDto.getId());
+            session.invalidate();
+//            session.removeAttribute("oAuthDto");
+//            session.removeAttribute("oAuthToken");
+//            session.removeAttribute("oAuthTokenExpiry");
+            System.out.println("회원탈퇴 완료");
+            headers.setLocation(URI.create("/home"));
+            return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("회원탈퇴 완료");
+          } catch (SQLException | NotFoundException e) {
+            headers.setLocation(URI.create("/my"));
+            return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 회원탈퇴 할 수 없는 계정입니다.");
+          }
+        } else {
+          System.out.println(deleteToken.getError() + deleteToken.getError_description());
+          headers.setLocation(URI.create("/my"));
+          return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 회원탈퇴 할 수 없는 계정입니다.");
+        }
+        
     }
     
 }

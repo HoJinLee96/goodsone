@@ -37,6 +37,8 @@ public class MvcConfig implements WebMvcConfigurer {
 //		.excludePathPatterns("/login", "/join","/home")
 		;
 	}
+	
+	
 
     @Bean
     public CommonsMultipartResolver multipartResolver() {
