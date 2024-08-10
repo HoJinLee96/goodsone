@@ -70,6 +70,8 @@ margin: 0px;
 	width:100%;
     position: fixed;
     top: 0;
+    left: 50%;
+    transform: translateX(-50%);
 }
 #agreeMentDiv{
 display: inline;

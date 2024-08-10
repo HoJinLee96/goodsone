@@ -99,10 +99,10 @@ padding: 10px 0px;
 	        <button type="submit">로그인</button>
 	    </form>
 	    <div id ="OAutoLoginBlcok">
-	        <a href="/api/kakaoLoginUrl" id="kakao-login">
+	        <a href="/kakao/login/url" id="kakao-login">
         <img src="static/img/kakaoLogin.png" alt="Kakao Login Logo">
     </a>
-	 <a href="/api/naver-login" id="naver-login">
+	 <a href="/naver/login/url" id="naver-login">
         <img src="static/img/naverLogin.png" alt="Naver Login Logo">
     </a>
 

@@ -10,7 +10,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import intercepter.AuthInterceptor;
+import intercepter.LoginAuthInterceptor;
+import intercepter.OAuthRefreshInterceptor;
 
 @Configuration
 @EnableWebMvc
@@ -18,7 +19,9 @@ import intercepter.AuthInterceptor;
 public class MvcConfig implements WebMvcConfigurer {
 
 	@Autowired
-	private AuthInterceptor authInterceptor;
+	private LoginAuthInterceptor loginAuthInterceptor;
+	@Autowired
+	private OAuthRefreshInterceptor oAuthRefreshInterceptor;
 
 	@Override
 	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
@@ -32,10 +35,12 @@ public class MvcConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(authInterceptor)
+		registry.addInterceptor(loginAuthInterceptor)
 		.addPathPatterns("/login","/my")
 //		.excludePathPatterns("/login", "/join","/home")
 		;
+		registry.addInterceptor(oAuthRefreshInterceptor);
+		
 	}
 	
 	
