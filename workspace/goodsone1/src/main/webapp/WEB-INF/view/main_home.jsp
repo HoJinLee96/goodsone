@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function () {
     </form>
     <div id ="agreeMentDiv">
     <input type="checkbox" id="agreement" name="greement">
-    <label for="greement" style="font-size: 14px;">개인정보 수집 및 이용 동의</label></div> <a style="font-size:14px;" href="javascript:;" onclick="javascript:footerlayerLoad('static/agreement.html'); return false;">[원본]</a>
+    <label for="greement" style="font-size: 14px;">개인정보 수집 및 이용 동의</label></div> <a style="font-size:14px;" href="javascript:;" onclick="javascript:footerlayerLoad('static/InfoAgreement.html'); return false;">[원본]</a>
 </div>
 </div>
 

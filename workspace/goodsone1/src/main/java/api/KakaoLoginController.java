@@ -24,6 +24,7 @@ import dto.UserDto;
 import dtoNaverLogin.OAuthToken;
 import exception.NotFoundException;
 import service.KakaoOAuthLoginService;
+import service.OAuthService;
 import service.UserServices;
 
 @RestController
@@ -31,13 +32,15 @@ import service.UserServices;
 public class KakaoLoginController {
   
   private UserServices userServices;
+  private OAuthService oAuthService;
   private KakaoOAuthLoginService kakaoOAuthLoginService;
   
   @Autowired
-  public KakaoLoginController(UserServices userServices,
+  public KakaoLoginController(UserServices userServices, OAuthService oAuthService,
       KakaoOAuthLoginService kakaoOAuthLoginService) {
     super();
     this.userServices = userServices;
+    this.oAuthService = oAuthService;
     this.kakaoOAuthLoginService = kakaoOAuthLoginService;
   }
   
@@ -60,6 +63,8 @@ public class KakaoLoginController {
       }
   }
   
+
+
   @GetMapping("/login/callback")
   public ResponseEntity<String> loginKakaoCallBack(HttpServletRequest req, HttpServletResponse res,@RequestParam(value = "code", defaultValue = "defaultCode") String code,
       @RequestParam(value = "error", defaultValue = "defaultValue") String error) {
@@ -106,7 +111,7 @@ public class KakaoLoginController {
     HttpSession session = req.getSession();
     try {
       // 계정 고유 id통해 oauth테이블에 데이터 있는지 확인 -> 없으면 NotFoundException 발생
-      OAuthDto oAuthDto = userServices.getOAuthByOAuthId("KAKAO", oAuthid);
+      OAuthDto oAuthDto = oAuthService.getOAuthByOAuthId("KAKAO", oAuthid);
         if(oAuthDto.getUserSeq()!=0) {// 데이터 존재 (기존 회원 계정과 소셜 계정이 연동된 계정)
         // 해당 데이터의 userSeq 추출 및 user 테이블 데이터 읽기
         UserDto userDto = userServices.getUserBySeq(oAuthDto.getUserSeq()); // 여기서도 NotFoundException 발생 가능성이 있긴한데 여기서 발생시 로직에 문제가 있는거임.
@@ -125,7 +130,7 @@ public class KakaoLoginController {
     catch (NotFoundException e) { //OAuth 처음 이용자 / oauth 테이블에 데이터 없음 등록 절차 진행
       try {
         System.out.println("OAuth 처음 이용자");
-        userServices.registerOAuth("KAKAO", new OAuthDto(kakaoUserInfoResponseDto));
+        oAuthService.registerOAuth("KAKAO", new OAuthDto(kakaoUserInfoResponseDto));
         session.setAttribute("oAuthToken", oAuthToken);
         session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in()) * 1000));
         headers.setLocation(URI.create("/home"));
@@ -145,32 +150,19 @@ public class KakaoLoginController {
     
   }
   
+  //토큰 갱신
   @GetMapping("/token/refresh")
-  public ResponseEntity<String> kakaoTokenRefresh(HttpSession session) {
+  public ResponseEntity<String> kakaoTokenRefresh(HttpServletRequest req) {
     System.out.println("LoginController.kakaoRefreshToken() 실행");
       HttpHeaders headers = new HttpHeaders();
       headers.add("Content-Type", "text/plain; charset=UTF-8");
     
-//      HttpSession session = request.getSession(false);
-      if (session == null) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("세션이 없습니다.");
-      }
-      OAuthDto oAuthDto = (OAuthDto)session.getAttribute("oAuthDto");
-      if (oAuthDto == null) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("인증정보가 없습니다.");
-      }
+      HttpSession session = req.getSession(false);
+      ResponseEntity<String> sessionConfirmResult = sessionConfirm(session,headers);
+      if(sessionConfirmResult.getStatusCode() != HttpStatus.OK)
+        return sessionConfirmResult;
+      
       OAuthToken oAuthToken = (OAuthToken) session.getAttribute("oAuthToken");
-      if (oAuthToken == null) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰이 없습니다.");
-      }
-      Long oAuthTokenExpiry = (Long) session.getAttribute("oAuthTokenExpiry");
-      if (oAuthTokenExpiry == null || System.currentTimeMillis() > oAuthTokenExpiry) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰 유효기간이 지났습니다.");
-      }
       
       // 리프레시 토큰으로 새로운 엑세스 토큰 요청
       try {
@@ -195,65 +187,77 @@ public class KakaoLoginController {
       return ResponseEntity.ok("토큰 갱신 성공");
   }
   
+  //회원 탈퇴
   @GetMapping("/token/delete")
   public ResponseEntity<String> kakaoDeleteToken(HttpServletRequest request) {
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "text/plain; charset=UTF-8");
-    
       HttpSession session = request.getSession(false);
-      if (session == null) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("세션이 없습니다.");
-      }
-      OAuthDto oAuthDto = (OAuthDto)session.getAttribute("oAuthDto");
-      if (oAuthDto == null) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("인증정보가 없습니다.");
-      }
+      
+      ResponseEntity<String> sessionConfirmResult = sessionConfirm(session,headers);
+      if(sessionConfirmResult.getStatusCode() != HttpStatus.OK)
+        return sessionConfirmResult;
+      
+      OAuthDto oAuthDto = (OAuthDto) session.getAttribute("oAuthDto");
       OAuthToken oAuthToken = (OAuthToken) session.getAttribute("oAuthToken");
-      if (oAuthToken == null) {
+      
+      if(!(oAuthDto.getId().equals(oAuthToken.getId_token()))) {
         headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰이 없습니다.");
-      }
-      Long oAuthTokenExpiry = (Long) session.getAttribute("oAuthTokenExpiry");
-      if (oAuthTokenExpiry == null || System.currentTimeMillis() > oAuthTokenExpiry) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰 유효기간이 지났습니다.");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body("세션 오류, 로그아웃 처리");
       }
       
       
-      OAuthToken deleteToken =null;
+      // 실제 카카오톡 서버에 회원 탈퇴 요청
+      String deleteId = "";
       try {
-        String responseToken = kakaoOAuthLoginService.updateTokenUrl("token","delete",oAuthToken);
-        ObjectMapper mapper = new ObjectMapper();
-        deleteToken = mapper.readValue(responseToken, OAuthToken.class);
+        deleteId = kakaoOAuthLoginService.stopKakaoUserBy(oAuthToken);
+        System.out.println("카카오톡 서버 회원탈퇴 완료 deleteId = " + deleteId);
       } catch (IOException | URISyntaxException e) {
         e.printStackTrace();
         headers.setLocation(URI.create("/my"));
         return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 회원탈퇴 할 수 없는 계정입니다.");
       }
       
-      String result = deleteToken.getResult();
-      if(result.equals("success")) {
-        try {
-          userServices.deleteOAuthDtoByOAuthId(oAuthDto.getId());
-          session.invalidate();
-//          session.removeAttribute("oAuthDto");
-//          session.removeAttribute("oAuthToken");
-//          session.removeAttribute("oAuthTokenExpiry");
-          System.out.println("회원탈퇴 완료");
-          headers.setLocation(URI.create("/home"));
-          return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("회원탈퇴 완료");
-        } catch (SQLException | NotFoundException e) {
-          headers.setLocation(URI.create("/my"));
-          return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 회원탈퇴 할 수 없는 계정입니다.");
-        }
-      } else {
-        System.out.println(deleteToken.getError() + deleteToken.getError_description());
+      // DB에서 계정 탈퇴 계정으로 변경
+      try {
+        oAuthService.stopOAuthDtoByOAuthId(deleteId);
+        session.removeAttribute("oAuthDto");
+        session.removeAttribute("oAuthToken");
+        session.removeAttribute("oAuthTokenExpiry");
+        System.out.println("DB 회원탈퇴 적용 완료");
+        headers.setLocation(URI.create("/logout"));
+        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("회원탈퇴 완료");
+      } catch (SQLException | NotFoundException e) {
         headers.setLocation(URI.create("/my"));
         return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 회원탈퇴 할 수 없는 계정입니다.");
       }
       
+
+      
+      
+  }
+  
+  private ResponseEntity<String> sessionConfirm(HttpSession session,HttpHeaders headers) {
+    if (session == null) {
+      headers.setLocation(URI.create("/logout"));
+      return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("세션이 없습니다.");
+    }
+    OAuthDto oAuthDto = (OAuthDto)session.getAttribute("oAuthDto");
+    if (oAuthDto == null) {
+      headers.setLocation(URI.create("/logout"));
+      return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("인증정보가 없습니다.");
+    }
+    OAuthToken oAuthToken = (OAuthToken) session.getAttribute("oAuthToken");
+    if (oAuthToken == null) {
+      headers.setLocation(URI.create("/logout"));
+      return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰이 없습니다.");
+    }
+    Long oAuthTokenExpiry = (Long) session.getAttribute("oAuthTokenExpiry");
+    if (oAuthTokenExpiry == null || System.currentTimeMillis() > oAuthTokenExpiry) {
+      headers.setLocation(URI.create("/logout"));
+      return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰 유효기간이 지났습니다.");
+    }
+    return ResponseEntity.ok("성공");
   }
   
 }

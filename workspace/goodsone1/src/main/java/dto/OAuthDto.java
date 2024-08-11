@@ -12,38 +12,16 @@ public class OAuthDto {
   private String name;
   private String birth;
   private String phone;
+  private Status status;
   private LocalDateTime createdAt;
   
-  private OAuthDto() {}
+  public enum Status {
+    normal, stay, stop
+  }
   
-  //생성자
-  public OAuthDto(String provider, String id, String email, String name, String birth,
-      String phone, LocalDateTime createdAt) {
-    super();
-    this.provider = provider;
-    this.id = id;
-    this.email = email;
-    this.name = name;
-    this.birth = birth;
-    this.phone = phone;
-    this.createdAt = createdAt;
+  public OAuthDto() {
   }
 
-  //전체생성자
-  public OAuthDto(int oauthSeq, int userSeq, String provider, String id, String email, String name,
-      String birth, String phone, LocalDateTime createdAt) {
-    super();
-    this.oauthSeq = oauthSeq;
-    this.userSeq = userSeq;
-    this.provider = provider;
-    this.id = id;
-    this.email = email;
-    this.name = name;
-    this.birth = birth;
-    this.phone = phone;
-    this.createdAt = createdAt;
-  }
-  
   public OAuthDto(NaverRes naverUser) {
     this.id = naverUser.getResponse().getId();
     this.email = naverUser.getResponse().getEmail();
@@ -57,82 +35,8 @@ public class OAuthDto {
     this.email = kakaoUser.getKakao_account().getEmail();
     this.name = kakaoUser.getKakao_account().getProfile().getNickname();
   }
+
   
-  public static class Builder{
-    
-    private int oauthSeq;
-    private int userSeq;
-    private String provider; // "NAVER" 또는 "KAKAO"
-    private String id;
-    private String email;
-    private String name;
-    private String birth;
-    private String phone;
-    private LocalDateTime createdAt;
-    
-    public Builder() {}
-
-    public Builder oauthSeq(int oauthSeq) {
-        this.oauthSeq = oauthSeq;
-        return this;
-    }
-
-    public Builder userSeq(int userSeq) {
-        this.userSeq = userSeq;
-        return this;
-    }
-
-    public Builder provider(String provider) {
-        this.provider = provider;
-        return this;
-    }
-
-    public Builder id(String id) {
-        this.id = id;
-        return this;
-    }
-
-    public Builder email(String email) {
-        this.email = email;
-        return this;
-    }
-
-    public Builder name(String name) {
-        this.name = name;
-        return this;
-    }
-
-    public Builder birth(String birth) {
-        this.birth = birth;
-        return this;
-    }
-
-    public Builder phone(String phone) {
-        this.phone = phone;
-        return this;
-    }
-
-    public Builder createdAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-        return this;
-    }
-
-    // build 메서드: OAuthDto 객체 생성
-    public OAuthDto build() {
-        OAuthDto oAuthDto = new OAuthDto();
-        oAuthDto.oauthSeq = this.oauthSeq;
-        oAuthDto.userSeq = this.userSeq;
-        oAuthDto.provider = this.provider;
-        oAuthDto.id = this.id;
-        oAuthDto.email = this.email;
-        oAuthDto.name = this.name;
-        oAuthDto.birth = this.birth;
-        oAuthDto.phone = this.phone;
-        oAuthDto.createdAt = this.createdAt;
-        return oAuthDto;
-    }
-}
-
   public int getOauthSeq() {
     return oauthSeq;
   }
@@ -159,6 +63,50 @@ public class OAuthDto {
   }
   public LocalDateTime getCreatedAt() {
     return createdAt;
+  }
+
+  public Status getStatus() {
+    return status;
+  }
+
+  public void setStatus(Status status) {
+    this.status = status;
+  }
+
+  public void setOauthSeq(int oauthSeq) {
+    this.oauthSeq = oauthSeq;
+  }
+
+  public void setUserSeq(int userSeq) {
+    this.userSeq = userSeq;
+  }
+
+  public void setProvider(String provider) {
+    this.provider = provider;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setBirth(String birth) {
+    this.birth = birth;
+  }
+
+  public void setPhone(String phone) {
+    this.phone = phone;
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
   }
   
   

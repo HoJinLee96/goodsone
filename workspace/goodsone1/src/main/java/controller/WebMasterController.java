@@ -12,12 +12,13 @@ public class WebMasterController {
   
   @GetMapping("/home")
   public String showMasterHome(HttpServletRequest req, HttpServletResponse ress) {
+    System.out.println("----------WebMainController.showMasterHome() 실행----------");
     return "masterHome";
   }
   
   @GetMapping("/estimateView")
   public String showEstimateView(HttpServletRequest req, HttpServletResponse res) {
-    System.out.println("WebMainController.showEstimateView() 실행");
+    System.out.println("----------WebMainController.showEstimateView() 실행----------");
     return "estimateView";
   }
 

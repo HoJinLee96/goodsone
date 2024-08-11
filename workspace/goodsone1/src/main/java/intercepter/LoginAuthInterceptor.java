@@ -12,14 +12,14 @@ public class LoginAuthInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object Handler)
 			throws Exception {
-System.out.println("AuthInterceptor.preHandle() 실행");
+System.out.println("LoginAuthInterceptor.preHandle() 실행");
 		HttpSession session = request.getSession();
 		String uri = request.getRequestURI();
 
 		// /goodsone1/login 요청시
 		if ("/login".equals(uri)) {
 			if (session.getAttribute("user") != null || session.getAttribute("oAuthDto") != null || session.getAttribute("oAuthToken") != null) {
-System.out.println("세션에 userSeq 또는 oAuthDto 있어서 /home 리다이렉트 ");
+System.out.println("**비정상 접근** 세션에 userSeq 또는 oAuthDto 있어서 /home 리다이렉트 ");
 	            response.sendRedirect("/home");
 				return false; 
 			}

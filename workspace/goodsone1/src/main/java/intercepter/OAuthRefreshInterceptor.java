@@ -31,7 +31,7 @@ public class OAuthRefreshInterceptor implements HandlerInterceptor {
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
       throws Exception {
 
-    System.out.println("AuthInterceptor.preHandle() 실행");
+    System.out.println("OAuthRefreshInterceptor.preHandle() 실행");
     HttpSession session = request.getSession();
 
     if (session == null) {
@@ -51,6 +51,9 @@ public class OAuthRefreshInterceptor implements HandlerInterceptor {
       return false;
     }
     
+    System.out.println("세션에 저장된 토큰 남은 시간 = "+(oAuthTokenExpiry - System.currentTimeMillis()));
+    if ((oAuthTokenExpiry - System.currentTimeMillis()) <= 5 * 60 * 1000) {
+      
     String provider = oAuthDto.getProvider();
     ObjectMapper mapper = new ObjectMapper();
     if (provider.equals("NAVER")) {
@@ -74,5 +77,7 @@ public class OAuthRefreshInterceptor implements HandlerInterceptor {
     return true;
     
     }
+    return true;
+  }
 
 }

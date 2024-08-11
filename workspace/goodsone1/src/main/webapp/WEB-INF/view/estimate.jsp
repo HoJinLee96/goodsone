@@ -211,7 +211,7 @@ margin-left:5px;
 				<tr><td><span id="addressMessage"></span></td></tr>
 			    <tr><td class="tableHeader">내용</td></tr>
 			    <tr><td><textarea id="content" placeholder="내용을 입력하세요" name="content"></textarea></td></tr>
-			    <tr><td><input id="submit" type="submit" value="등록"><div id="agreeMentDiv"><input type="checkbox" id="agreeMent">개인정보 수집 및 이용 동의</div><a id="agreementClick" href="javascript:;" onclick="javascript:footerlayerLoad('static/agreement.html'); return false;">[원본]</a></td></tr>
+			    <tr><td><input id="submit" type="submit" value="등록"><div id="agreeMentDiv"><input type="checkbox" id="agreeMent">개인정보 수집 및 이용 동의</div><a id="agreementClick" href="javascript:;" onclick="javascript:footerlayerLoad('static/InfoAgreement.html'); return false;">[원본]</a></td></tr>
 			    <tr><td><span id="agreeMentMessage"></span></td></tr>
 			</table>
 		</div>

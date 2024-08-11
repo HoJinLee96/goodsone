@@ -8,7 +8,7 @@ CREATE TABLE `user` (
 	`phone`	VARCHAR(20)	NOT NULL,
 	`created_at`	DATETIME	NOT NULL,
 	`updated_at`	DATETIME	,
-	`status`	ENUM("public","stay","stop")	NOT NULL,
+	`status`	ENUM("normal","stay","stop")	NOT NULL,
 	`marketing_received_status`	BOOLEAN	NOT NULL
 );
 SELECT * FROM `user`;
@@ -25,6 +25,14 @@ CREATE TABLE `address` (
 	`main_address`	VARCHAR(255)	NOT NULL,
 	`detail_address`	VARCHAR(255)	NOT NULL
 );
+
+ALTER TABLE `address` ADD CONSTRAINT `FK_user_TO_address_1` FOREIGN KEY (
+	`user_seq`
+)
+REFERENCES `user` (
+	`user_seq`
+);
+
 SELECT * FROM `address`;
 
 DELETE FROM `address`;
@@ -69,3 +77,29 @@ DELETE FROM `estimate`;
 DROP TABLE IF EXISTS `estimate`;
 ALTER TABLE `estimate` AUTO_INCREMENT = 1;
 
+
+CREATE TABLE `oauth` (
+	`oauth_seq`	INT	AUTO_INCREMENT PRIMARY KEY,
+	`user_seq`	INT,
+	`provider`	ENUM ("NAVER", "KAKAO")	NOT NULL,
+	`id`	VARCHAR(255)	NOT NULL,
+	`email`	VARCHAR(255)	NOT NULL,
+	`name`	VARCHAR(50)	,
+	`birth`	VARCHAR(50)	,
+	`phone`	VARCHAR(50)	,
+    `status`	ENUM("normal","stay","stop")	NOT NULL,
+	`created_at`	DATETIME	NOT NULL
+);
+
+ALTER TABLE `oauth` ADD CONSTRAINT `FK_user_TO_oauth_1` FOREIGN KEY (
+	`user_seq`
+)
+REFERENCES `user` (
+	`user_seq`
+);
+
+SELECT * FROM `oauth`;
+
+DELETE FROM `oauth`;
+DROP TABLE IF EXISTS `oauth`;
+ALTER TABLE `oauth` AUTO_INCREMENT = 1;

@@ -24,6 +24,7 @@ import dtoNaverLogin.NaverRes;
 import dtoNaverLogin.OAuthToken;
 import exception.NotFoundException;
 import service.NaverOAuthLoginService;
+import service.OAuthService;
 import service.UserServices;
 
 @RestController
@@ -31,13 +32,15 @@ import service.UserServices;
 public class NaverLoginController {
   
   private UserServices userServices;
+  private OAuthService oAuthService;
   private NaverOAuthLoginService naverOAuthLoginService;
   
   @Autowired
-  public NaverLoginController(UserServices userServices,
+  public NaverLoginController(UserServices userServices, OAuthService oAuthService,
       NaverOAuthLoginService naverOAuthLoginService) {
     super();
     this.userServices = userServices;
+    this.oAuthService = oAuthService;
     this.naverOAuthLoginService = naverOAuthLoginService;
   }
   
@@ -92,7 +95,7 @@ public class NaverLoginController {
       HttpSession session = request.getSession();
       try {
         // 계정 고유 id통해 oauth테이블에 데이터 있는지 확인 -> 없으면 NotFoundException 발생
-        OAuthDto oAuthDto = userServices.getOAuthByOAuthId("NAVER", oAuthid);
+        OAuthDto oAuthDto = oAuthService.getOAuthByOAuthId("NAVER", oAuthid);
           if(oAuthDto.getUserSeq()!=0) {// 데이터 존재 (기존 회원 계정과 소셜 계정이 연동된 계정)
             // 해당 데이터의 userSeq 추출 및 user 테이블 데이터 읽기
           UserDto userDto = userServices.getUserBySeq(oAuthDto.getUserSeq()); // 여기서도 NotFoundException 발생 가능성이 있긴한데 여기서 발생시 로직에 문제가 있는거임.
@@ -111,7 +114,7 @@ public class NaverLoginController {
       catch (NotFoundException e) { //OAuth 처음 이용자 / oauth 테이블에 데이터 없음 등록 절차 진행
         try {
           System.out.println("OAuth 처음 이용자");
-          userServices.registerOAuth("NAVER", new OAuthDto(naverUser));
+          oAuthService.registerOAuth("NAVER", new OAuthDto(naverUser));
           session.setAttribute("oAuthToken", oAuthToken);
           session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in()) * 1000));
           headers.setLocation(URI.create("/home"));
@@ -130,6 +133,7 @@ public class NaverLoginController {
       }
   }
   
+  // 토큰 갱신
   @GetMapping("/token/refresh")
   public ResponseEntity<String> naverTokenRefresh(HttpSession session) {
       HttpHeaders headers = new HttpHeaders();
@@ -175,6 +179,8 @@ public class NaverLoginController {
   }
 
   
+  
+  // 회원 탈퇴
   @GetMapping("/token/delete")
   public ResponseEntity<String> deleteToken(HttpServletRequest request) {
     HttpHeaders headers = new HttpHeaders();
@@ -216,7 +222,7 @@ public class NaverLoginController {
       String result = deleteToken.getResult();
       if(result.equals("success")) {
         try {
-          userServices.deleteOAuthDtoByOAuthId(oAuthDto.getId());
+          oAuthService.stopOAuthDtoByOAuthId(oAuthDto.getId());
           session.invalidate();
 //          session.removeAttribute("oAuthDto");
 //          session.removeAttribute("oAuthToken");

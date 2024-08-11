@@ -99,7 +99,6 @@ public class NaverOAuthLoginService {
           uriComponentsBuilder.queryParam("refresh_token", oAuthToken.getRefresh_token());
         }else if(grant_type.equals("delete")){
           uriComponentsBuilder.queryParam("access_token", URLEncoder.encode(oAuthToken.getAccess_token(),"UTF-8"));
-          uriComponentsBuilder.queryParam("service_provider", "NAVER");
         }else {
           throw new IOException("grant_type 잘못 입력");
         }

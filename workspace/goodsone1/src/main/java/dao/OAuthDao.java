@@ -27,7 +27,7 @@ public class OAuthDao {
   // 유저등록
   public int registerOAuth(String provider, OAuthDto oAuthDto) throws SQLException {
     String sql =
-        "INSERT INTO oauth (provider,id,email,name,birth,phone,created_at) VALUES(?,?,?,?,?,?,?)";
+        "INSERT INTO oauth (provider,id,email,name,birth,phone,status,created_at) VALUES(?,?,?,?,?,?,?,?)";
     try (Connection con = dataSource.getConnection();
         PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
       pst.setString(1, provider);
@@ -36,7 +36,8 @@ public class OAuthDao {
       pst.setString(4, oAuthDto.getName());
       pst.setString(5, oAuthDto.getBirth());
       pst.setString(6, oAuthDto.getPhone());
-      pst.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
+      pst.setString(7, OAuthDto.Status.normal.name());
+      pst.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
       pst.executeUpdate();
       ResultSet generatedKeys = pst.getGeneratedKeys();
       if (generatedKeys.next()) {
@@ -46,6 +47,7 @@ public class OAuthDao {
     }
   }
 
+  
   public Optional<OAuthDto> getOAuthByOAuthId(String provider, String oAuthid) throws SQLException, NotFoundException {
     String sql = "select * from oauth where provider=? and id=?";
     try (Connection con = dataSource.getConnection();
@@ -55,17 +57,17 @@ public class OAuthDao {
       try (ResultSet rs = pst.executeQuery();) {
         if (rs.next()) {
           Integer userSeq = rs.getObject("user_seq", Integer.class);
-          OAuthDto oAuthDto = new OAuthDto.Builder()
-              .oauthSeq(rs.getInt("oauth_seq"))
-              .userSeq(userSeq != null ? userSeq : 0) // userSeq가 null일 경우 0으로 설정
-              .provider(rs.getString("provider"))
-              .id(rs.getString("id"))
-              .email(rs.getString("email"))
-              .name(rs.getString("name"))
-              .birth(rs.getString("birth"))
-              .phone(rs.getString("phone"))
-              .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-              .build();
+          OAuthDto oAuthDto = new OAuthDto();
+          oAuthDto.setOauthSeq(rs.getInt("oauth_seq"));
+          oAuthDto.setUserSeq(userSeq != null ? userSeq : 0); // userSeq가 null일 경우 0으로 설정
+          oAuthDto.setProvider(rs.getString("provider"));
+          oAuthDto.setId(rs.getString("id"));
+          oAuthDto.setEmail(rs.getString("email"));
+          oAuthDto.setName(rs.getString("name"));
+          oAuthDto.setBirth(rs.getString("birth"));
+          oAuthDto.setPhone(rs.getString("phone"));
+          oAuthDto.setStatus(OAuthDto.Status.valueOf(rs.getString("status")));
+          oAuthDto.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
       return Optional.ofNullable(oAuthDto);
         }
       }
@@ -81,17 +83,17 @@ public class OAuthDao {
       try (ResultSet rs = pst.executeQuery();) {
         if (rs.next()) {
           Integer userSeq = rs.getObject("user_seq", Integer.class);
-          OAuthDto oAuthDto = new OAuthDto.Builder()
-              .oauthSeq(oAuthSeq)
-              .userSeq(userSeq != null ? userSeq : 0) // userSeq가 null일 경우 0으로 설정
-              .provider(rs.getString("provider"))
-              .id(rs.getString("id"))
-              .email(rs.getString("email"))
-              .name(rs.getString("name"))
-              .birth(rs.getString("birth"))
-              .phone(rs.getString("phone"))
-              .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
-              .build();
+          OAuthDto oAuthDto = new OAuthDto();
+          oAuthDto.setOauthSeq(rs.getInt("oauth_seq"));
+          oAuthDto.setUserSeq(userSeq != null ? userSeq : 0); // userSeq가 null일 경우 0으로 설정
+          oAuthDto.setProvider(rs.getString("provider"));
+          oAuthDto.setId(rs.getString("id"));
+          oAuthDto.setEmail(rs.getString("email"));
+          oAuthDto.setName(rs.getString("name"));
+          oAuthDto.setBirth(rs.getString("birth"));
+          oAuthDto.setPhone(rs.getString("phone"));
+          oAuthDto.setStatus(OAuthDto.Status.valueOf(rs.getString("status")));
+          oAuthDto.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
       return Optional.ofNullable(oAuthDto);
         }
       }
@@ -99,13 +101,24 @@ public class OAuthDao {
     return Optional.empty();
   }
   
-  public int deleteOAuthDtoByOAuthId(String oAuthId) throws SQLException{
-    String sql = "delete from oauth where id =?";
-    try (Connection con = dataSource.getConnection();
-        PreparedStatement pst = con.prepareStatement(sql);) {
-      pst.setString(1, oAuthId);
-      return pst.executeUpdate();
-      }
+  // 진짜 데이터 삭제
+//  public int deleteOAuthDtoByOAuthId(String oAuthId) throws SQLException{
+//    String sql = "delete from oauth where id =?";
+//    try (Connection con = dataSource.getConnection();
+//        PreparedStatement pst = con.prepareStatement(sql);) {
+//      pst.setString(1, oAuthId);
+//      return pst.executeUpdate();
+//      }
+//  }
+  
+  // 회원 탈퇴(status값 stop으로 변경)
+  public int stopOAuthDtoByOAuthId(String oAuthId) throws SQLException{
+    String sql = "UPDATE oauth SET status = 'stop' WHERE id = ?";
+        try (Connection con = dataSource.getConnection();
+            PreparedStatement pst = con.prepareStatement(sql);) {
+          pst.setString(1, oAuthId);
+          return pst.executeUpdate();
+          }
   }
 
 }
