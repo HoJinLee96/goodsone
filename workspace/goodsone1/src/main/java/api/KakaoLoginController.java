@@ -176,24 +176,31 @@ public class KakaoLoginController {
         
       } catch (URISyntaxException | IOException e) {
         e.printStackTrace();
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰 갱신 실패");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("소셜 로그인 연장 실패");
       }
 
       // 새로운 토큰을 세션에 저장
       session.setAttribute("oAuthToken", oAuthToken);
       session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in())  * 1000));
       System.out.println("갱신 완료");
-      return ResponseEntity.ok("토큰 갱신 성공");
+      return ResponseEntity.ok("소셜 로그인 연장 성공");
   }
   
   //회원 탈퇴
   @GetMapping("/token/delete")
   public ResponseEntity<String> kakaoDeleteToken(HttpServletRequest request) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("Content-Type", "text/plain; charset=UTF-8");
+    //1. 세션에 저장되어있는 OAuthDto,OAuthToken 가지고 회원 탈퇴 진행.
+    //2. OAuthToken가 만료기간때문에 갱신을 먼저 진행
+    //3. 갱신한 OAuthToken가지고 회원 정보 얻기
+    //4. 얻은 회원 정보와, OAuthDto 일치한지 확인(고유 id값)
+    //5. DB 회원 탈퇴 적용(stats 값 stop으로 변경)
+    //6. 카카오 서버 회원 탈퇴 진행
+    
+      HttpHeaders headers = new HttpHeaders();
+      headers.add("Content-Type", "text/plain; charset=UTF-8");
       HttpSession session = request.getSession(false);
       
+      //1. 세션에 저장되어있는 OAuthDto,OAuthToken 가지고 회원 탈퇴 진행.
       ResponseEntity<String> sessionConfirmResult = sessionConfirm(session,headers);
       if(sessionConfirmResult.getStatusCode() != HttpStatus.OK)
         return sessionConfirmResult;
@@ -201,40 +208,68 @@ public class KakaoLoginController {
       OAuthDto oAuthDto = (OAuthDto) session.getAttribute("oAuthDto");
       OAuthToken oAuthToken = (OAuthToken) session.getAttribute("oAuthToken");
       
-      if(!(oAuthDto.getId().equals(oAuthToken.getId_token()))) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body("세션 오류, 로그아웃 처리");
+      System.out.println("카카오 회원 탈퇴 1단계 성공");
+      
+      //2. OAuthToken가 만료기간때문에 갱신을 먼저 진행
+      try {
+        String responseToken = kakaoOAuthLoginService.updateTokenUrl("token","refresh_token",oAuthToken);
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode rootNode = mapper.readTree(responseToken);
+        String access_token = rootNode.get("access_token").asText();
+        String id_token = rootNode.get("id_token").asText();
+        oAuthToken.setAccess_token(access_token);
+        oAuthToken.setId_token(id_token);
+        session.setAttribute("oAuthToken", oAuthToken);
+        session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in())  * 1000));
+      } catch (URISyntaxException | IOException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 탈퇴가 불가능합니다. 잠시후 시도 부탁드립니다.");
+      }
+      System.out.println("카카오 회원 탈퇴 2단계 성공");
+      
+      
+      //3. 갱신한 OAuthToken가지고 회원 정보 얻기
+      KakaoUserInfoResponseDto kakaoUserInfoResponseDto = new KakaoUserInfoResponseDto();
+      try {
+        kakaoUserInfoResponseDto = kakaoOAuthLoginService.getKakaoUserByToken(oAuthToken);
+      } catch (IOException | NotFoundException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 탈퇴가 불가능합니다. 잠시후 시도 부탁드립니다.");
+      }
+      System.out.println("카카오 회원 탈퇴 3단계 성공");
+
+      
+      //4. 얻은 회원 정보와, OAuthDto 일치한지 확인(고유 id값)
+      if(!(oAuthDto.getId().equals(kakaoUserInfoResponseDto.getId()+""))) {
+        session.invalidate();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body("재로그인 후 탈퇴 이용 부탁드립니다.");
+      }
+      System.out.println("카카오 회원 탈퇴 4단계 성공");
+      
+      
+      //5. DB 회원 탈퇴 적용(stats 값 stop으로 변경)
+      try {
+        oAuthService.stopOAuthDtoByOAuthId(oAuthDto.getId());
+        session.invalidate();
+        System.out.println("카카오 회원 탈퇴 5단계 성공");
+      } catch (SQLException | NotFoundException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 회원탈퇴 할 수 없는 계정입니다. \n 1:1 문의 부탁드립니다.");
       }
       
-      
-      // 실제 카카오톡 서버에 회원 탈퇴 요청
+      //6. 카카오 서버 회원 탈퇴 진행
       String deleteId = "";
       try {
         deleteId = kakaoOAuthLoginService.stopKakaoUserBy(oAuthToken);
         System.out.println("카카오톡 서버 회원탈퇴 완료 deleteId = " + deleteId);
+        System.out.println("카카오 회원 탈퇴 최종 성공");
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body("현재 탈퇴 완료.");
       } catch (IOException | URISyntaxException e) {
         e.printStackTrace();
-        headers.setLocation(URI.create("/my"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 회원탈퇴 할 수 없는 계정입니다.");
-      }
-      
-      // DB에서 계정 탈퇴 계정으로 변경
-      try {
-        oAuthService.stopOAuthDtoByOAuthId(deleteId);
-        session.removeAttribute("oAuthDto");
-        session.removeAttribute("oAuthToken");
-        session.removeAttribute("oAuthTokenExpiry");
-        System.out.println("DB 회원탈퇴 적용 완료");
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("회원탈퇴 완료");
-      } catch (SQLException | NotFoundException e) {
-        headers.setLocation(URI.create("/my"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 회원탈퇴 할 수 없는 계정입니다.");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 탈퇴가 불가능합니다. 잠시후 시도 부탁드립니다.");
       }
       
 
-      
-      
   }
   
   private ResponseEntity<String> sessionConfirm(HttpSession session,HttpHeaders headers) {

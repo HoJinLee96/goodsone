@@ -135,29 +135,16 @@ public class NaverLoginController {
   
   // 토큰 갱신
   @GetMapping("/token/refresh")
-  public ResponseEntity<String> naverTokenRefresh(HttpSession session) {
+  public ResponseEntity<String> naverTokenRefresh(HttpServletRequest request) {
       HttpHeaders headers = new HttpHeaders();
       headers.add("Content-Type", "text/plain; charset=UTF-8");
+      HttpSession session = request.getSession(false);
     
-      if (session == null) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("세션이 없습니다.");
-      }
-      OAuthDto oAuthDto = (OAuthDto)session.getAttribute("oAuthDto");
-      if (oAuthDto == null) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("인증정보가 없습니다.");
-      }
+      ResponseEntity<String> sessionConfirmResult = sessionConfirm(session,headers);
+      if(sessionConfirmResult.getStatusCode() != HttpStatus.OK)
+        return sessionConfirmResult;
+      
       OAuthToken oAuthToken = (OAuthToken) session.getAttribute("oAuthToken");
-      if (oAuthToken == null) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰이 없습니다.");
-      }
-      Long oAuthTokenExpiry = (Long) session.getAttribute("oAuthTokenExpiry");
-      if (oAuthTokenExpiry == null || System.currentTimeMillis() > oAuthTokenExpiry) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰 유효기간이 지났습니다.");
-      }
       
       // 리프레시 토큰으로 새로운 엑세스 토큰 요청
       OAuthToken  newToken = null;
@@ -183,62 +170,110 @@ public class NaverLoginController {
   // 회원 탈퇴
   @GetMapping("/token/delete")
   public ResponseEntity<String> deleteToken(HttpServletRequest request) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("Content-Type", "text/plain; charset=UTF-8");
-    
+      HttpHeaders headers = new HttpHeaders();
+      headers.add("Content-Type", "text/plain; charset=UTF-8");
       HttpSession session = request.getSession(false);
-      if (session == null) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("세션이 없습니다.");
-      }
-      OAuthDto oAuthDto = (OAuthDto)session.getAttribute("oAuthDto");
-      if (oAuthDto == null) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("인증정보가 없습니다.");
-      }
+      
+      //1. 세션에 저장되어있는 OAuthDto,OAuthToken 가지고 회원 탈퇴 진행.
+      ResponseEntity<String> sessionConfirmResult = sessionConfirm(session,headers);
+      if(sessionConfirmResult.getStatusCode() != HttpStatus.OK)
+        return sessionConfirmResult;
+      
+      OAuthDto oAuthDto = (OAuthDto) session.getAttribute("oAuthDto");
       OAuthToken oAuthToken = (OAuthToken) session.getAttribute("oAuthToken");
-      if (oAuthToken == null) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰이 없습니다.");
+      
+      System.out.println("카카오 회원 탈퇴 1단계 성공");
+
+      
+      //2. OAuthToken가 만료기간때문에 갱신을 먼저 진행
+      OAuthToken  newToken = null;
+      try {
+        String responseToken = naverOAuthLoginService.updateTokenUrl("token","refresh_token",oAuthToken);
+        ObjectMapper mapper = new ObjectMapper();
+        newToken = mapper.readValue(responseToken, OAuthToken.class);
+        session.setAttribute("oAuthToken", newToken);
+        session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(newToken.getExpires_in())  * 1000));
+      } catch (URISyntaxException | IOException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 탈퇴가 불가능합니다. 잠시후 시도 부탁드립니다.");
       }
-      Long oAuthTokenExpiry = (Long) session.getAttribute("oAuthTokenExpiry");
-      if (oAuthTokenExpiry == null || System.currentTimeMillis() > oAuthTokenExpiry) {
-        headers.setLocation(URI.create("/logout"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰 유효기간이 지났습니다.");
+      System.out.println("네이버 회원 탈퇴 2단계 성공");
+
+    
+      //3. 갱신한 OAuthToken가지고 회원 정보 얻기
+      NaverRes naverUser = null;
+      try {
+        String responseUser = naverOAuthLoginService.getNaverUserByToken(newToken);
+        ObjectMapper mapper = new ObjectMapper();
+        naverUser = mapper.readValue(responseUser, NaverRes.class);
+      } catch (IOException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 탈퇴가 불가능합니다. 잠시후 시도 부탁드립니다.");
       }
+      System.out.println("네이버 회원 탈퇴 3단계 성공");
       
       
+      //4. 얻은 회원 정보와, OAuthDto 일치한지 확인(고유 id값)
+      if(!(oAuthDto.getId().equals(naverUser.getResponse().getId()))) {
+        session.invalidate();
+        System.out.println("얻은 회원 정보와, OAuthDto 일치한지 확인(고유 id값) : 일치하지 않음.");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body("재로그인 후 탈퇴 이용 부탁드립니다.");
+      }
+      System.out.println("네이버 회원 탈퇴 4단계 성공");
+
+      
+      //5. DB 회원 탈퇴 적용(stats 값 stop으로 변경)
+      try {
+        oAuthService.stopOAuthDtoByOAuthId(oAuthDto.getId());
+        session.invalidate();
+        System.out.println("카카오 회원 탈퇴 4단계 성공");
+      } catch (SQLException | NotFoundException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 탈퇴가 불가능합니다. 잠시후 시도 부탁드립니다.");
+      }
+
+      //6. 네이버 서버 회원 탈퇴 진행
       OAuthToken deleteToken =null;
       try {
-        String responseToken = naverOAuthLoginService.updateTokenUrl("token","delete",oAuthToken);
+        String responseToken = naverOAuthLoginService.updateTokenUrl("token","delete",newToken);
         ObjectMapper mapper = new ObjectMapper();
         deleteToken = mapper.readValue(responseToken, OAuthToken.class);
+        String result = deleteToken.getResult();
+        if(result.equals("success")) {
+          return ResponseEntity.status(HttpStatus.OK).headers(headers).body("현재 탈퇴 완료.");
+        } else {
+          System.out.println(deleteToken.getError() + deleteToken.getError_description());
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 탈퇴가 불가능합니다. 잠시후 시도 부탁드립니다.");
+        }
       } catch (IOException | URISyntaxException e) {
         e.printStackTrace();
-        headers.setLocation(URI.create("/my"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 회원탈퇴 할 수 없는 계정입니다.");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 탈퇴가 불가능합니다. 잠시후 시도 부탁드립니다.");
       }
       
-      String result = deleteToken.getResult();
-      if(result.equals("success")) {
-        try {
-          oAuthService.stopOAuthDtoByOAuthId(oAuthDto.getId());
-          session.invalidate();
-//          session.removeAttribute("oAuthDto");
-//          session.removeAttribute("oAuthToken");
-//          session.removeAttribute("oAuthTokenExpiry");
-          System.out.println("회원탈퇴 완료");
-          headers.setLocation(URI.create("/home"));
-          return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("회원탈퇴 완료");
-        } catch (SQLException | NotFoundException e) {
-          headers.setLocation(URI.create("/my"));
-          return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 회원탈퇴 할 수 없는 계정입니다.");
-        }
-      } else {
-        System.out.println(deleteToken.getError() + deleteToken.getError_description());
-        headers.setLocation(URI.create("/my"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 회원탈퇴 할 수 없는 계정입니다.");
-      }
+
       
+  }
+  
+  private ResponseEntity<String> sessionConfirm(HttpSession session,HttpHeaders headers) {
+    if (session == null) {
+      headers.setLocation(URI.create("/logout"));
+      return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("세션이 없습니다.");
+    }
+    OAuthDto oAuthDto = (OAuthDto)session.getAttribute("oAuthDto");
+    if (oAuthDto == null) {
+      headers.setLocation(URI.create("/logout"));
+      return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("인증정보가 없습니다.");
+    }
+    OAuthToken oAuthToken = (OAuthToken) session.getAttribute("oAuthToken");
+    if (oAuthToken == null) {
+      headers.setLocation(URI.create("/logout"));
+      return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰이 없습니다.");
+    }
+    Long oAuthTokenExpiry = (Long) session.getAttribute("oAuthTokenExpiry");
+    if (oAuthTokenExpiry == null || System.currentTimeMillis() > oAuthTokenExpiry) {
+      headers.setLocation(URI.create("/logout"));
+      return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰 유효기간이 지났습니다.");
+    }
+    return ResponseEntity.ok("성공");
   }
 }

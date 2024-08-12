@@ -128,6 +128,7 @@ public class NaverOAuthLoginService {
    
 }
   
+//회원 정보 받기
   public String getNaverUserByToken(OAuthToken token) throws IOException {
 
         String accessToken = token.getAccess_token();

@@ -96,6 +96,7 @@ public String getKakaoToken(String path, String code) throws NotFoundException {
 public KakaoUserInfoResponseDto getKakaoUserByToken(OAuthToken token) throws IOException, NotFoundException {
   System.out.println("KakaoOAuthLoginService.getKakaoUserByToken() 실행");
   System.out.println("token.getAccess_token() = " + token.getAccess_token());
+  
   HttpHeaders headers = new HttpHeaders();
   headers.add("Authorization", "Bearer "+token.getAccess_token());
   headers.add("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
