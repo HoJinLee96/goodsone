@@ -119,18 +119,18 @@ public class NaverLoginController {
           session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in()) * 1000));
           headers.setLocation(URI.create("/home"));
           return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("회원가입 성공");
-        } catch (SQLException | NotFoundException e1) {
+        } catch (SQLException e1) {
           e1.printStackTrace();
           headers.setLocation(URI.create("/home"));
           return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 네이버 로그인을 이용 할 수 없습니다.");
         }
       }
-       catch (SQLException e) {
+     catch (SQLException e) {
         e.printStackTrace();
         headers.setLocation(URI.create("/home"));
         return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 네이버 로그인을 이용 할 수 없습니다.");
 
-      }
+     }
   }
   
   // 토큰 갱신

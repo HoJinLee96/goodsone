@@ -12,7 +12,6 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import dto.OAuthDto;
-import exception.NotFoundException;
 
 @Repository
 public class OAuthDao {
@@ -48,7 +47,7 @@ public class OAuthDao {
   }
 
   
-  public Optional<OAuthDto> getOAuthByOAuthId(String provider, String oAuthid) throws SQLException, NotFoundException {
+  public Optional<OAuthDto> getOAuthByOAuthId(String provider, String oAuthid) throws SQLException {
     String sql = "select * from oauth where provider=? and id=?";
     try (Connection con = dataSource.getConnection();
         PreparedStatement pst = con.prepareStatement(sql);) {

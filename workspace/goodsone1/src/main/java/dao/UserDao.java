@@ -71,7 +71,7 @@ public class UserDao {
                     .marketingReceivedStatus(resultSet.getBoolean("marketing_received_status"))
                     .build();
 
-                return Optional.of(userDto);
+                return Optional.ofNullable(userDto);
             }
         }
     }
@@ -98,7 +98,7 @@ public class UserDao {
               .marketingReceivedStatus(resultSet.getBoolean("marketing_received_status"))
               .build();
 
-          return Optional.of(userDto);
+          return Optional.ofNullable(userDto);
         }
       }
     }

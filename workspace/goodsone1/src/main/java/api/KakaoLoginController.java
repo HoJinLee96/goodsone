@@ -68,18 +68,28 @@ public class KakaoLoginController {
   @GetMapping("/login/callback")
   public ResponseEntity<String> loginKakaoCallBack(HttpServletRequest req, HttpServletResponse res,@RequestParam(value = "code", defaultValue = "defaultCode") String code,
       @RequestParam(value = "error", defaultValue = "defaultValue") String error) {
+    /**
+    1. 결과 확인
+    2. 인가 코드 통해 접근 토큰 얻기
+    3. 접근토큰 통해 고객 정보 얻기
+    4. user 테이블에서 같인 이메일로 가입된 계정이 있는지 확인.
+    4. oauth 테이블에서 데이터 확인
+    4-1. 처음 이용자 처리
+    4-2. 기존 이용자
+    4-2-1. 기존 계정과 연동된 sns 계정 이용자 처리
+    4-2-2. sns 전용 계정 이용자 처리
+    **/
     System.out.println("LoginController.loginKakaoCallBack() 실행");
     
     HttpHeaders headers = new HttpHeaders();
-//    headers.add("Content-Type", "text/plain; charset=UTF-8");
+    headers.add("Content-Type", "text/plain; charset=UTF-8");
     
+//    1. 결과 확인
     if (!error.equals("defaultValue")) {
-      System.out.println(error);
-      headers.setLocation(URI.create("/login"));
-      return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 카카오 로그인을 이용 할 수 없습니다.");
+      return handleError(headers, HttpStatus.INTERNAL_SERVER_ERROR, error);
     }
   
-    //인가코드 통해 접근 토큰 얻기
+//    2. 인가 코드 통해 접근 토큰 얻기
     ObjectMapper mapper = new ObjectMapper();
     OAuthToken oAuthToken = new OAuthToken();
     String responseBody = "";
@@ -90,31 +100,64 @@ public class KakaoLoginController {
       
     } catch (JsonProcessingException | NotFoundException e) {
       e.printStackTrace();
-      headers.setLocation(URI.create("/login"));
-      return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 카카오 로그인을 이용 할 수 없습니다.");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 카카오 로그인을 이용 할 수 없습니다.");
     } 
     
-    //접근토큰 통해 고객 정보 얻기
+//    3. 접근토큰 통해 고객 정보 얻기
     KakaoUserInfoResponseDto kakaoUserInfoResponseDto = new KakaoUserInfoResponseDto();
     try {
       kakaoUserInfoResponseDto = kakaoOAuthLoginService.getKakaoUserByToken(oAuthToken);
     } catch (IOException | NotFoundException e) {
       e.printStackTrace();
-      headers.setLocation(URI.create("/login"));
-      return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 카카오 로그인을 이용 할 수 없습니다.");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("현재 카카오 로그인을 이용 할 수 없습니다.");
     }
-     
-    //고객 정보통해 Dao 처리 및 로그인 처리
+
+    HttpSession session = req.getSession();
+//    4. 고객 정보의 이메일을 이용해 기존 계정에 가입된 적 있는지 확인하여 안내하기
+    try {
+      String confirmEmail = kakaoUserInfoResponseDto.getKakao_account().getEmail();
+      UserDto confirmUserDto = userServices.getUserByEmail(confirmEmail);
+      session.setAttribute("confirmUserDto", confirmUserDto);
+      return ResponseEntity.status(HttpStatus.MULTIPLE_CHOICES).headers(headers).body("기존 회원 중 같은 이메일로 가입된 계정이 존재.");
+    } catch (NotFoundException e2) {
+      
+//    5. oauth테이블에서 데이터 확인
     // 계정 고유 id
     String oAuthid = kakaoUserInfoResponseDto.getId()+"";
     
-    HttpSession session = req.getSession();
+    
+    OAuthDto oAuthDto = new OAuthDto(kakaoUserInfoResponseDto);
     try {
       // 계정 고유 id통해 oauth테이블에 데이터 있는지 확인 -> 없으면 NotFoundException 발생
-      OAuthDto oAuthDto = oAuthService.getOAuthByOAuthId("KAKAO", oAuthid);
-        if(oAuthDto.getUserSeq()!=0) {// 데이터 존재 (기존 회원 계정과 소셜 계정이 연동된 계정)
+      oAuthDto = oAuthService.getOAuthByOAuthId("KAKAO", oAuthid);
+    } 
+//    5-1. 처음 이용자
+//    oauth 테이블에 데이터 없음 등록 절차 진행
+    catch (NotFoundException e) {
+      try {
+        System.out.println("OAuth 처음 이용자");
+        int userSeq = oAuthService.registerOAuth("KAKAO", oAuthDto);
+        oAuthDto.setUserSeq(userSeq);
+        session.setAttribute("oAuthDto", oAuthDto);
+        session.setAttribute("oAuthToken", oAuthToken);
+        session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in()) * 1000));
+        headers.setLocation(URI.create("/home"));
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body("회원가입 성공");
+      } catch (SQLException e1) {
+        e1.printStackTrace();
+        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 네이버 로그인을 이용 할 수 없습니다.");
+      }
+    }
+    catch (SQLException e) {
+      e.printStackTrace();
+      headers.setLocation(URI.create("/login"));
+      return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 네이버 로그인을 이용 할 수 없습니다.");
+    }
+    
+    try {
+      if(oAuthDto.getUserSeq()!=0) {// 데이터 존재 (기존 회원 계정과 소셜 계정이 연동된 계정)
         // 해당 데이터의 userSeq 추출 및 user 테이블 데이터 읽기
-        UserDto userDto = userServices.getUserBySeq(oAuthDto.getUserSeq()); // 여기서도 NotFoundException 발생 가능성이 있긴한데 여기서 발생시 로직에 문제가 있는거임.
+        UserDto userDto = userServices.getUserBySeq(oAuthDto.getUserSeq()); // 여기서 NotFoundException 발생 가능성이 있긴한데 여기서 발생시 로직에 문제가 있는거임.
         // 세션에 user 등록
         session.setAttribute("user", userDto);
         }
@@ -126,27 +169,19 @@ public class KakaoLoginController {
       headers.setLocation(URI.create("/home"));
       return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("로그인 성공");
     }
-    
-    catch (NotFoundException e) { //OAuth 처음 이용자 / oauth 테이블에 데이터 없음 등록 절차 진행
-      try {
-        System.out.println("OAuth 처음 이용자");
-        oAuthService.registerOAuth("KAKAO", new OAuthDto(kakaoUserInfoResponseDto));
-        session.setAttribute("oAuthToken", oAuthToken);
-        session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in()) * 1000));
-        headers.setLocation(URI.create("/home"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("회원가입 성공");
-      } catch (SQLException | NotFoundException e1) {
-        e1.printStackTrace();
-        headers.setLocation(URI.create("/login"));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 네이버 로그인을 이용 할 수 없습니다.");
-      }
-    }
-     catch (SQLException e) {
+    catch (NotFoundException e) {
+      // 발생되면 안되는 익셉션
+      // oauth 테이블 데이터에는 userSeq가 등록되어 있고, user 테이블에는 해당 userSeq없는 상황.
       e.printStackTrace();
-      headers.setLocation(URI.create("/login"));
-      return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("현재 네이버 로그인을 이용 할 수 없습니다.");
-
-    }  
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("db 데이터 불일치.");
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("");
+    }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("");
+    }
     
   }
   
@@ -293,6 +328,14 @@ public class KakaoLoginController {
       return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰 유효기간이 지났습니다.");
     }
     return ResponseEntity.ok("성공");
+  }
+  
+  private ResponseEntity<String> handleError(HttpHeaders headers, HttpStatus status, String message) {
+    return ResponseEntity.status(status).headers(headers).body(message);
+  }
+
+  private ResponseEntity<String> handleSuccess(HttpHeaders headers, HttpStatus status, String message) {
+    return ResponseEntity.status(status).headers(headers).body(message);
   }
   
 }

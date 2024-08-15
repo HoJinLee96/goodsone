@@ -88,7 +88,7 @@ public String getKakaoToken(String path, String code) throws NotFoundException {
       if(responseCode==200) {
         return responseBody;
       }else {
-        throw new NotFoundException();
+        throw new NotFoundException("카카오톡 서버에서 받아오지 못함.");
       }
 }
 
@@ -121,7 +121,7 @@ public KakaoUserInfoResponseDto getKakaoUserByToken(OAuthToken token) throws IOE
       if(responseCode==200) {
         return kakaoUserInfoResponseDto;
       }else {
-        throw new NotFoundException();
+        throw new NotFoundException("카카오톡 서버에서 받아오지 못함.");
       }
       
 }
