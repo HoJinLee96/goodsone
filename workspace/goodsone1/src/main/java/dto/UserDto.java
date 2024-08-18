@@ -11,8 +11,12 @@ public class UserDto {
       private String phone;
       private LocalDateTime createdAt;
       private LocalDateTime updatedAt;
-      private String status;
+      private Status status;
       private boolean marketingReceivedStatus;
+      
+      public enum Status {
+        NORMAL, STAY, STOP
+      }
       
       public UserDto() {}
 
@@ -28,39 +32,21 @@ public class UserDto {
         this.marketingReceivedStatus = marketingReceivedStatus;
       }
       
-      //전체생성자
-      public UserDto(int userSeq, String email, String password, String name, String birth,
-          String mobileCarrier, String phone, LocalDateTime createdAt, LocalDateTime updatedAt,
-          String status, boolean marketingReceivedStatus) {
-        super();
-        this.userSeq = userSeq;
-        this.email = email;
-        this.password = password;
-        this.name = name;
-        this.birth = birth;
-        this.mobileCarrier = mobileCarrier;
-        this.phone = phone;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.status = status;
-        this.marketingReceivedStatus = marketingReceivedStatus;
-      }
-
       
-      // Builde
+      // Builder 패턴
       private UserDto(Builder builder) {
-        this.userSeq = builder.userSeq;
-        this.email = builder.email;
-        this.password = builder.password;
-        this.name = builder.name;
-        this.birth = builder.birth;
-        this.mobileCarrier = builder.mobileCarrier;
-        this.phone = builder.phone;
-        this.createdAt = builder.createdAt;
-        this.updatedAt = builder.updatedAt;
-        this.status = builder.status;
-        this.marketingReceivedStatus = builder.marketingReceivedStatus;
-    }
+          this.userSeq = builder.userSeq;
+          this.email = builder.email;
+          this.password = builder.password;
+          this.name = builder.name;
+          this.birth = builder.birth;
+          this.mobileCarrier = builder.mobileCarrier;
+          this.phone = builder.phone;
+          this.createdAt = builder.createdAt;
+          this.updatedAt = builder.updatedAt;
+          this.status = builder.status;
+          this.marketingReceivedStatus = builder.marketingReceivedStatus;
+      }
 
       //Getter
       
@@ -100,7 +86,7 @@ public class UserDto {
         return updatedAt;
       }
 
-      public String getStatus() {
+      public Status getStatus() {
         return status;
       }
 
@@ -109,7 +95,7 @@ public class UserDto {
       }
 
 
-    public static class Builder {
+      public static class Builder {
         private int userSeq;
         private String email;
         private String password;
@@ -119,7 +105,7 @@ public class UserDto {
         private String phone;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
-        private String status;
+        private Status status;  // 변경된 부분: String에서 Status로 수정
         private boolean marketingReceivedStatus;
 
         public Builder userSeq(int userSeq) {
@@ -167,9 +153,9 @@ public class UserDto {
             return this;
         }
 
-        public Builder status(String status) {
-            this.status = status;
-            return this;
+        public Builder status(Status status) {  // 변경된 부분: String에서 Status로 수정
+          this.status = status;
+          return this;
         }
 
         public Builder marketingReceivedStatus(boolean marketingReceivedStatus) {

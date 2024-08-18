@@ -168,14 +168,6 @@ public String updateTokenUrl(String path,String grant_type,OAuthToken oAuthToken
 public String stopKakaoUserBy(OAuthToken oAuthToken) throws URISyntaxException, IOException {
   System.out.println("KakaoOAuthLoginService.deleteTokenUrl() 실행");
   
-  String responseToken = updateTokenUrl("token","refresh_token",oAuthToken);
-  ObjectMapper mapper = new ObjectMapper();
-  JsonNode rootNode = mapper.readTree(responseToken);
-  String access_token = rootNode.get("access_token").asText();
-  String id_token = rootNode.get("id_token").asText();
-  oAuthToken.setAccess_token(access_token);
-  oAuthToken.setId_token(id_token);
-  
   HttpHeaders headers = new HttpHeaders();
   headers.add("Authorization", "Bearer "+oAuthToken.getAccess_token());
   UriComponents uriComponents = UriComponentsBuilder.fromUriString("https://kapi.kakao.com/v1/user/unlink").build();

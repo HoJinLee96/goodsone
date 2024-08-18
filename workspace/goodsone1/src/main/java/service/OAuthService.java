@@ -52,4 +52,12 @@ public class OAuthService {
     int result = oAuthDao.stopOAuthDtoByOAuthId(oAuthId);
     if (result == 0) throw new NotFoundException();
   }
+  
+  // 회원 복구
+  @Transactional
+  public void updateStatusByOAuthId(String oAuthId) throws SQLException, NotFoundException {
+    int result = oAuthDao.updateStatusByOAuthId(oAuthId);
+    if (result == 0) throw new NotFoundException();
+  }
+  
 }

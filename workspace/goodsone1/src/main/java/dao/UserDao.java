@@ -31,7 +31,7 @@ public class UserDao {
   
   public int registerUser(UserDto userDto) throws SQLException {
     String sql =
-        "INSERT INTO user (email, password, name, birth, phone, status, marketing_received_status, created_at) VALUES (?,?,?, ?, ?, ?, ?, ?,?)";
+        "INSERT INTO user (email, password, name, birth, phone, status, marketing_received_status, created_at) VALUES (?,?,?, ?, ?, ?, ?, ?)";
     try (Connection con = dataSource.getConnection();
         PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
       pst.setString(1, userDto.getEmail());
@@ -39,7 +39,7 @@ public class UserDao {
       pst.setString(3, userDto.getName());
       pst.setString(4, userDto.getBirth());
       pst.setString(5, userDto.getPhone());
-      pst.setString(6, "public");
+      pst.setString(6, "NORMAL");
       pst.setBoolean(7, userDto.isMarketingReceivedStatus());;
       pst.setTimestamp(8,Timestamp.valueOf(LocalDateTime.now()));
       pst.executeUpdate();
@@ -67,7 +67,7 @@ public class UserDao {
                     .phone(resultSet.getString("phone"))
                     .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
                     .updatedAt(resultSet.getTimestamp("updated_at").toLocalDateTime())
-                    .status(resultSet.getString("status"))
+                    .status(UserDto.Status.valueOf(resultSet.getString("status"))) // 수정된 부분
                     .marketingReceivedStatus(resultSet.getBoolean("marketing_received_status"))
                     .build();
 
@@ -94,7 +94,7 @@ public class UserDao {
               .phone(resultSet.getString("phone"))
               .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
               .updatedAt(resultSet.getTimestamp("updated_at").toLocalDateTime())
-              .status(resultSet.getString("status"))
+              .status(UserDto.Status.valueOf(resultSet.getString("status"))) 
               .marketingReceivedStatus(resultSet.getBoolean("marketing_received_status"))
               .build();
 
@@ -152,7 +152,7 @@ public class UserDao {
               .phone(resultSet.getString("phone"))
               .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
               .updatedAt(resultSet.getTimestamp("updated_at").toLocalDateTime())
-              .status(resultSet.getString("status"))
+              .status(UserDto.Status.valueOf(resultSet.getString("status"))) // 수정된 부분
               .marketingReceivedStatus(resultSet.getBoolean("marketing_received_status"))
               .build();
 

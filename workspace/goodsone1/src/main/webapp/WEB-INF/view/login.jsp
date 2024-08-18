@@ -90,7 +90,7 @@ padding: 10px 0px;
 
 	<div class ="loginform">
 	    <h2 class = "title">로그인</h2>
-	    <form id = "loginForm">
+		<form action="/loginByEmail" method="post" id="loginForm">
 	        <label for="email">이메일</label>
 	        <input type="email" id=email name="email" required autofocus placeholder="example@example.com"><br>
 	        <label for="password">비밀번호</label>
@@ -113,7 +113,7 @@ padding: 10px 0px;
 
 <%@ include file = "main_footer.jsp" %>
 </body>
-  <script type="text/javascript">
+<%--   <script type="text/javascript">
   var contextPath = '<%= request.getContextPath() %>';
   console.log(contextPath);
     $(document).ready(function() {
@@ -123,7 +123,7 @@ padding: 10px 0px;
             var password = $('#password').val();
             var previousURI = document.referrer;
             $.ajax({
-                url: '/api/loginByEmail',
+                url: '/loginByEmail',
                 type: 'POST',
                 contentType: 'application/plain; charset=UTF-8',
                 data: {
@@ -164,5 +164,14 @@ padding: 10px 0px;
         });
     });
     
+</script> --%>
+
+<script>
+$(document).ready(function() {
+    var message = "${message}";
+    if (message) {
+        alert(message);
+    }
+});
 </script>
 </html>

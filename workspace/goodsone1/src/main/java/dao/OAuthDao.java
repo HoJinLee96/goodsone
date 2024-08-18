@@ -35,7 +35,7 @@ public class OAuthDao {
       pst.setString(4, oAuthDto.getName());
       pst.setString(5, oAuthDto.getBirth());
       pst.setString(6, oAuthDto.getPhone());
-      pst.setString(7, OAuthDto.Status.normal.name());
+      pst.setString(7, OAuthDto.Status.NORMAL.name());
       pst.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
       pst.executeUpdate();
       ResultSet generatedKeys = pst.getGeneratedKeys();
@@ -100,24 +100,25 @@ public class OAuthDao {
     return Optional.empty();
   }
   
-  // 진짜 데이터 삭제
-//  public int deleteOAuthDtoByOAuthId(String oAuthId) throws SQLException{
-//    String sql = "delete from oauth where id =?";
-//    try (Connection con = dataSource.getConnection();
-//        PreparedStatement pst = con.prepareStatement(sql);) {
-//      pst.setString(1, oAuthId);
-//      return pst.executeUpdate();
-//      }
-//  }
-  
   // 회원 탈퇴(status값 stop으로 변경)
   public int stopOAuthDtoByOAuthId(String oAuthId) throws SQLException{
-    String sql = "UPDATE oauth SET status = 'stop' WHERE id = ?";
+    String sql = "UPDATE oauth SET status = 'stop',user_seq=null WHERE id = ?";
         try (Connection con = dataSource.getConnection();
             PreparedStatement pst = con.prepareStatement(sql);) {
           pst.setString(1, oAuthId);
           return pst.executeUpdate();
           }
   }
+  
+  // 계정 복구(status 값 normal로 변경)
+  public int updateStatusByOAuthId(String oAuthId) throws SQLException{
+    String sql = "UPDATE oauth SET status = 'normal' WHERE id = ?";
+    try (Connection con = dataSource.getConnection();
+        PreparedStatement pst = con.prepareStatement(sql);) {
+      pst.setString(1, oAuthId);
+      return pst.executeUpdate();
+      }
+    
+}
 
 }

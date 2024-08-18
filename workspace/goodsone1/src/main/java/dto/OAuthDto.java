@@ -16,7 +16,7 @@ public class OAuthDto {
   private LocalDateTime createdAt;
   
   public enum Status {
-    normal, stay, stop
+    NORMAL, STAY, STOP
   }
   
   public OAuthDto() {

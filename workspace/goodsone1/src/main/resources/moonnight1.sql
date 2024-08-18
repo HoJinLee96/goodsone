@@ -4,12 +4,12 @@ CREATE TABLE `user` (
 	`password`	VARCHAR(100)	NOT NULL,
 	`name`	VARCHAR(100)	NOT NULL,
 	`birth`	VARCHAR(100)	NOT NULL,
-	`mobile_carrier`	ENUM("skt","kt","lg")	,
+	`mobile_carrier`	ENUM("SKT","KT","LG")	,
 	`phone`	VARCHAR(20)	NOT NULL,
+    `status`	ENUM("NORMAL","STAY","STOP")	NOT NULL,
+    `marketing_received_status`	BOOLEAN	NOT NULL,
 	`created_at`	DATETIME	NOT NULL,
-	`updated_at`	DATETIME	,
-	`status`	ENUM("normal","stay","stop")	NOT NULL,
-	`marketing_received_status`	BOOLEAN	NOT NULL
+	`updated_at`	DATETIME
 );
 SELECT * FROM `user`;
 
@@ -55,6 +55,7 @@ ALTER TABLE `verification` AUTO_INCREMENT = 1;
 
 CREATE TABLE `estimate` (
     `estimate_seq` INT AUTO_INCREMENT PRIMARY KEY,  -- 고유한 식별자, 자동 증가
+    `user_seq` INT,
     `name` VARCHAR(100) ,                   -- 이름
     `phone` VARCHAR(20) NOT NULL,                            -- 전화번호
     `email` VARCHAR(100),                           -- 이메일
@@ -66,10 +67,15 @@ CREATE TABLE `estimate` (
     `detailAddress` VARCHAR(255) ,                   -- 상세 주소
     `content` TEXT,                                 -- 내용
     `imagesPath` TEXT,                              -- 이미지 경로
-    `status` ENUM("접수","답변중","완료") DEFAULT '접수',         -- 상태, 기본값은 'pending'
-    `created_at` DATETIME -- 생성일시, 기본값은 현재 시간
+    `status` ENUM("RECEIVED", "IN_PROGRESS", "COMPLETED") NOT NULL,         
+    `created_at` DATETIME NOT NULL -- 생성일시, 기본값은 현재 시간 
 );
-
+ALTER TABLE `estimate` ADD CONSTRAINT `FK_user_TO_estimate_1` FOREIGN KEY (
+	`user_seq`
+)
+REFERENCES `user` (
+	`user_seq`
+);
 SELECT * FROM `estimate`;
 SELECT * FROM estimate ORDER BY created_at DESC LIMIT 50 OFFSET 0;
 
@@ -87,7 +93,7 @@ CREATE TABLE `oauth` (
 	`name`	VARCHAR(50)	,
 	`birth`	VARCHAR(50)	,
 	`phone`	VARCHAR(50)	,
-    `status`	ENUM("normal","stay","stop")	NOT NULL,
+    `status`	ENUM("NORMAL","STAY","STOP")	NOT NULL,
 	`created_at`	DATETIME	NOT NULL
 );
 
