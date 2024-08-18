@@ -17,8 +17,14 @@ public class WebMainController {
 
 
   @GetMapping("/login")
-  public String showLogin(HttpServletRequest req, HttpServletResponse res) {
+  public String showLogin(HttpServletRequest req, HttpServletResponse res,HttpSession session) {
     System.out.println("----------WebMainController.showLogin() 실행----------");
+    // 이전 페이지의 도메인 확인
+   String referer = req.getHeader("Referer");
+   System.out.println("referer = " + referer);
+   if (referer != null && referer.startsWith(req.getScheme() + "://" + req.getServerName()) && !referer.contains("/login")) {
+     session.setAttribute("previousPageUrl", referer);
+   }
     return "login";
   }
 
@@ -29,7 +35,7 @@ public class WebMainController {
     // 세션에서 사용자 정보를 제거하여 로그아웃 처리
 
     if (session != null) {
-      session.removeAttribute("user");
+      session.removeAttribute("userDto");
       session.removeAttribute("oAuthDto");
       session.removeAttribute("oAuthToken");
       session.removeAttribute("oAuthTokenExpiry");
@@ -76,6 +82,12 @@ public class WebMainController {
    public String showReview(HttpServletRequest req, HttpServletResponse res) {
      System.out.println("----------WebMainController.showReview() 실행----------");
      return "review";
+   }
+   
+   @GetMapping("/join/sns/confirm")
+   public String showJoinSnsConfirm(HttpServletRequest req, HttpServletResponse res) {
+     System.out.println("----------WebMainController.showJoinSnsConfirm() 실행----------");
+     return "joinSnsConfirm";
    }
    
 

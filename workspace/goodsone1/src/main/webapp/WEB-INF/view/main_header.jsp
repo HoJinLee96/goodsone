@@ -33,7 +33,7 @@
             max-width: 1920px;
     height:130px;
     margin: 0 auto;
-    background-image: url('static/img/headerBackground2.jpg'); /* 배경 이미지 경로 */
+    background-image: url('http://localhost:8086/static/img/headerBackground2.jpg'); /* 배경 이미지 경로 */
     background-size: cover;
     /* background-position: center; */
     z-index: 1; /* 로고보다 뒤에 배치되도록 z-index 설정 */
@@ -112,7 +112,7 @@ padding-left: 20px;
 
 }
 </style>
-<link rel="stylesheet" href="static/header.css">
+<link rel="stylesheet" href="http://localhost:8086/static/header.css">
 </head>
 <div id ="headerContainer">
         <div class="background-image"></div>
@@ -123,7 +123,7 @@ padding-left: 20px;
 				<li><a href="">고객센터</a></li>
 				
 				<c:choose>
-					<c:when test="${empty sessionScope.user and empty sessionScope.oAuthToken}">
+					<c:when test="${empty sessionScope.userDto and empty sessionScope.oAuthToken}">
 						<!-- 비로그인 상태 -->
 					<li><a href="/login">로그인</a></li>
 					<li><a href="/join">회원가입</a></li>
@@ -139,7 +139,7 @@ padding-left: 20px;
 	</div>
 	<div class = "top_main">
 		<div id="log_div">
-			<a id="logopng" href="/home"><img src="static/img/headerLogo.png" alt="Logo" class="logopng"></a>
+			<a id="logopng" href="/home"><img src="http://localhost:8086/static/img/headerLogo.png" alt="Logo" class="logopng"></a>
 		</div>
 			<div id="main_nav_div">
 			<ul class= "main_nav">

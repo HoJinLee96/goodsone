@@ -100,7 +100,7 @@ public class NaverLoginController {
             // 해당 데이터의 userSeq 추출 및 user 테이블 데이터 읽기
           UserDto userDto = userServices.getUserBySeq(oAuthDto.getUserSeq()); // 여기서도 NotFoundException 발생 가능성이 있긴한데 여기서 발생시 로직에 문제가 있는거임.
           // 세션에 user 등록
-          session.setAttribute("user", userDto);
+          session.setAttribute("userDto", userDto);
           }
           // 세션에 토큰,OAuthDto 등록 (기존 회원에 연동된 계정이든 소셜 전용 계정이든 세션에 토큰 등록)
         session.setAttribute("oAuthDto", oAuthDto);

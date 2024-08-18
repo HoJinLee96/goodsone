@@ -66,7 +66,11 @@ public class UserDao {
                     .birth(resultSet.getString("birth"))
                     .phone(resultSet.getString("phone"))
                     .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
-                    .updatedAt(resultSet.getTimestamp("updated_at").toLocalDateTime())
+                    .updatedAt(
+                        resultSet.getTimestamp("updated_at") != null ? 
+                        resultSet.getTimestamp("updated_at").toLocalDateTime() : 
+                        null
+                    )
                     .status(UserDto.Status.valueOf(resultSet.getString("status"))) // 수정된 부분
                     .marketingReceivedStatus(resultSet.getBoolean("marketing_received_status"))
                     .build();
@@ -93,7 +97,11 @@ public class UserDao {
               .birth(resultSet.getString("birth"))
               .phone(resultSet.getString("phone"))
               .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
-              .updatedAt(resultSet.getTimestamp("updated_at").toLocalDateTime())
+              .updatedAt(
+                  resultSet.getTimestamp("updated_at") != null ? 
+                  resultSet.getTimestamp("updated_at").toLocalDateTime() : 
+                  null
+              )
               .status(UserDto.Status.valueOf(resultSet.getString("status"))) 
               .marketingReceivedStatus(resultSet.getBoolean("marketing_received_status"))
               .build();
@@ -151,7 +159,11 @@ public class UserDao {
               .birth(resultSet.getString("birth"))
               .phone(resultSet.getString("phone"))
               .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
-              .updatedAt(resultSet.getTimestamp("updated_at").toLocalDateTime())
+              .updatedAt(
+                  resultSet.getTimestamp("updated_at") != null ? 
+                  resultSet.getTimestamp("updated_at").toLocalDateTime() : 
+                  null
+              )
               .status(UserDto.Status.valueOf(resultSet.getString("status"))) // 수정된 부분
               .marketingReceivedStatus(resultSet.getBoolean("marketing_received_status"))
               .build();

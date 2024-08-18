@@ -105,8 +105,14 @@ public class KakaoLoginController {
 
       // 4. oauth테이블 통해처음 이용자 인지 기존 이용자인지 확인
       String oAuthid = kakaoUserInfoResponseDto.getId() + "";
-
       Optional<OAuthDto> optionalOAuthDto = getOAuthDtoByoAuthid(oAuthid);
+      
+      // 리다이렉트할 이전 url 확보 및 검사
+      String previousPageUrl = "/home"; 
+      String referer = (String) session.getAttribute("previousPageUrl");
+      if (referer != null && referer.startsWith(req.getScheme() + "://" + req.getServerName()) && !referer.contains("/login")) {
+        previousPageUrl =  referer;
+        } 
 
       // 4-1. 처음 이용자인 경우(oauth테이블에 데이터가 없는 경우)
       if (!optionalOAuthDto.isPresent()) {
@@ -125,7 +131,7 @@ public class KakaoLoginController {
         session.setAttribute("oAuthDto", oAuthDto);
         session.setAttribute("oAuthToken", oAuthToken);
         session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in()) * 1000));
-        headers.setLocation(URI.create("/"));
+        headers.setLocation(URI.create(previousPageUrl));
         return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
       }
       
@@ -137,7 +143,7 @@ public class KakaoLoginController {
         // 해당 데이터의 userSeq 추출 및 user 테이블 데이터 읽기
         UserDto userDto = userServices.getUserBySeq(oAuthDto.getUserSeq()); 
         // 세션에 user 등록
-        session.setAttribute("user", userDto);
+        session.setAttribute("userDto", userDto);
       }
       
       // 4-2-2. 회원 탈퇴 했다가 다시 가입한 유저인 경우
@@ -150,7 +156,7 @@ public class KakaoLoginController {
        session.setAttribute("oAuthDto", oAuthDto);
        session.setAttribute("oAuthToken", oAuthToken);
        session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in()) * 1000));
-       headers.setLocation(URI.create("/"));
+       headers.setLocation(URI.create(previousPageUrl));
        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
        
     } catch ( NotFoundException | SQLException | IOException e) {
