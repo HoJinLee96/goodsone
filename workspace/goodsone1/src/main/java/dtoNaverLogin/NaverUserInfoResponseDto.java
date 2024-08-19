@@ -3,7 +3,7 @@ package dtoNaverLogin;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NaverRes {
+public class NaverUserInfoResponseDto {
 
   private String resultcode;
   private String message;

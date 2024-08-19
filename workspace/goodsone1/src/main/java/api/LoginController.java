@@ -1,7 +1,9 @@
 package api;
 
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -25,7 +27,7 @@ public class LoginController {
 
   @PostMapping("/loginByEmail")
   public String loginByEmail(@RequestParam("email") String reqEmail,
-      @RequestParam("password") String reqPassword, HttpSession session, HttpServletRequest request,
+      @RequestParam("password") String reqPassword, HttpSession session, HttpServletRequest req, HttpServletResponse res,
       RedirectAttributes redirectAttributes) {
     System.out.println("LoginController.loginByEmail() 시작");
 
@@ -36,10 +38,14 @@ public class LoginController {
         UserDto userDto = userServices.getUserBySeq(userCredentials.getUserSeq());
         session.setAttribute("userDto", userDto);
         session.setMaxInactiveInterval(30 * 60); // 세션 만료 시간: 30분
-
+        
+        res.setContentType("text/html; charset=UTF-8");
+//        PrintWriter out = res.getWriter();
+//        out.println("<script>localStorage.setItem('chamRememmberUserId', '" + reqEmail + "'); location.href='" + redirectUrl + "';</script>");
+        
         // 이전 페이지의 도메인 확인
         String referer = (String) session.getAttribute("previousPageUrl");
-        if (referer != null && referer.startsWith(request.getScheme() + "://" + request.getServerName()) && !referer.contains("/login")) {
+        if (referer != null && referer.startsWith(req.getScheme() + "://" + req.getServerName()) && !referer.contains("/login")) {
           return "redirect:" + referer; // 이전 페이지로 리다이렉트
         } else {
           return "redirect:/home"; // 기본 페이지로 리다이렉트

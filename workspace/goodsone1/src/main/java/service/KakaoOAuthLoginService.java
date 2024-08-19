@@ -16,9 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import dto.KakaoUserInfoResponseDto;
+import dtoKakaoLogin.KakaoUserInfoResponseDto;
 import dtoNaverLogin.OAuthToken;
 import exception.NotFoundException;
 
@@ -126,8 +124,8 @@ public KakaoUserInfoResponseDto getKakaoUserByToken(OAuthToken token) throws IOE
       
 }
 
-// 토큰 갱신 및 토큰 만료
-public String updateTokenUrl(String path,String grant_type,OAuthToken oAuthToken) throws URISyntaxException, IOException {
+// 토큰 갱신
+public String updateTokenUrl(String path,String grant_type,OAuthToken oAuthToken) throws IOException {
   System.out.println("KakaoOAuthLoginService.updateTokenUrl() 실행");
   HttpHeaders headers = new HttpHeaders();
   headers.add("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
@@ -139,10 +137,12 @@ public String updateTokenUrl(String path,String grant_type,OAuthToken oAuthToken
   
   if(grant_type.equals("refresh_token")) {
     uriComponentsBuilder.queryParam("refresh_token", oAuthToken.getRefresh_token());
-  }else if(grant_type.equals("logout")){
-    uriComponentsBuilder.queryParam("access_token", URLEncoder.encode(oAuthToken.getAccess_token(),"UTF-8"));
-    uriComponentsBuilder.queryParam("service_provider", "NAVER");
-  }else {
+  }
+//  else if(grant_type.equals("logout")){
+//    uriComponentsBuilder.queryParam("access_token", URLEncoder.encode(oAuthToken.getAccess_token(),"UTF-8"));
+//    uriComponentsBuilder.queryParam("service_provider", "KAKAO");
+//  }
+  else {
     throw new IOException("grant_type 잘못 입력");
   }
   
@@ -164,13 +164,15 @@ public String updateTokenUrl(String path,String grant_type,OAuthToken oAuthToken
 
 }
 
-// 회원 탈퇴
-public String stopKakaoUserBy(OAuthToken oAuthToken) throws URISyntaxException, IOException {
+// path : 로그아웃(logout), 회원 탈퇴(unlink), 토큰 정보 조회(access_token_info), 배송지 조회(shipping_address) 등
+public String executeKakaoUser(String path, OAuthToken oAuthToken) throws IOException {
   System.out.println("KakaoOAuthLoginService.deleteTokenUrl() 실행");
   
   HttpHeaders headers = new HttpHeaders();
   headers.add("Authorization", "Bearer "+oAuthToken.getAccess_token());
-  UriComponents uriComponents = UriComponentsBuilder.fromUriString("https://kapi.kakao.com/v1/user/unlink").build();
+  UriComponents uriComponents = 
+      UriComponentsBuilder
+      .fromUriString("https://kapi.kakao.com/v1/user/"+path).build();
 
   RestTemplate restTemplate = new RestTemplate();
   HttpEntity<String> entity = new HttpEntity<>(headers);
@@ -188,5 +190,7 @@ public String stopKakaoUserBy(OAuthToken oAuthToken) throws URISyntaxException, 
   return response.getBody();
 
 }
+
+
   
 }

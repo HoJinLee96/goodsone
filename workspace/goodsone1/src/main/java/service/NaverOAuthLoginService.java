@@ -12,11 +12,16 @@ import java.net.URLEncoder;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-import dtoNaverLogin.Callback;
 import dtoNaverLogin.OAuthToken;
+import exception.NotFoundException;
 
 @Service
 @PropertySource("classpath:application.properties")
@@ -53,41 +58,41 @@ public class NaverOAuthLoginService {
       return uriComponents.toString();
   }
   
-  public String getTokenUrl(String path,Callback callback) throws URISyntaxException, IOException {
-
+  public String getTokenUrl(String path,String code) throws IOException, NotFoundException {
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Type", "application/json;charset=utf-8");
+    
     UriComponents uriComponents =UriComponentsBuilder
-            .fromUriString(baseUrl + "/" + path)
-            .queryParam("grant_type", "authorization_code")
-            .queryParam("client_id", clientId)
-            .queryParam("client_secret", clientSecret)
-            .queryParam("code", callback.getCode())
-//            .queryParam("state", new URL().)
-            .build();
-            
-        URL url = new URL(uriComponents.toString());
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        con.setRequestMethod("GET");
+        .fromUriString(baseUrl + "/" + path)
+        .queryParam("grant_type", "authorization_code")
+        .queryParam("client_id", clientId)
+        .queryParam("client_secret", clientSecret)
+        .queryParam("code", code)
+//        .queryPa  ram("state", new URL().)
+        .build();
 
-        int responseCode = con.getResponseCode();
-        BufferedReader br;
+        RestTemplate restTemplate = new RestTemplate();
+        HttpEntity<String> entity = new HttpEntity<>(headers);
 
-        if(responseCode==200) { // 정상 호출
-            br = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        } else {  // 에러 발생
-            br = new BufferedReader(new InputStreamReader(con.getErrorStream()));
+        ResponseEntity<String> response = restTemplate.exchange(
+            uriComponents.toUriString(), 
+            HttpMethod.GET, 
+            entity, 
+            String.class
+    );
+        
+        int responseCode = response.getStatusCodeValue();
+        String responseBody = response.getBody();
+        
+        System.out.println("responseCode = " + responseCode);
+        if(responseCode==200) {
+          return responseBody;
+        }else {
+          throw new NotFoundException("네이버 서버에서 받아오지 못함.");
         }
-
-        String inputLine;
-        StringBuffer response = new StringBuffer();
-        while ((inputLine = br.readLine()) != null) {
-            response.append(inputLine);
-        }
-
-        br.close();
-        return response.toString();
    
 }
-  public String updateTokenUrl(String path,String grant_type,OAuthToken oAuthToken) throws URISyntaxException, IOException {
+  public String updateTokenUrl(String path,String grant_type,OAuthToken oAuthToken) throws IOException {
 
         UriComponentsBuilder uriComponentsBuilder =UriComponentsBuilder
                 .fromUriString(baseUrl + "/" + path)
@@ -104,6 +109,7 @@ public class NaverOAuthLoginService {
         }
         
         UriComponents uriComponents = uriComponentsBuilder.build();
+        
         URL url = new URL(uriComponents.toString());
         HttpURLConnection con = (HttpURLConnection)url.openConnection();
         con.setRequestMethod("GET");

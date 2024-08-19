@@ -1,7 +1,8 @@
 package dto;
 
 import java.time.LocalDateTime;
-import dtoNaverLogin.NaverRes;
+import dtoKakaoLogin.KakaoUserInfoResponseDto;
+import dtoNaverLogin.NaverUserInfoResponseDto;
 
 public class OAuthDto {
   private int oauthSeq;
@@ -22,7 +23,7 @@ public class OAuthDto {
   public OAuthDto() {
   }
 
-  public OAuthDto(NaverRes naverUser) {
+  public OAuthDto(NaverUserInfoResponseDto naverUser) {
     this.id = naverUser.getResponse().getId();
     this.email = naverUser.getResponse().getEmail();
     this.name = naverUser.getResponse().getName();

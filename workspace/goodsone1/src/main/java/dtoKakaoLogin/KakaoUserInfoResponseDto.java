@@ -1,4 +1,4 @@
-package dto;
+package dtoKakaoLogin;
 
 public class KakaoUserInfoResponseDto {
     private long id;
