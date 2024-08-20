@@ -1,5 +1,6 @@
 package api;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,8 +27,11 @@ public class LoginController {
   }
 
   @PostMapping("/loginByEmail")
-  public String loginByEmail(@RequestParam("email") String reqEmail,
-      @RequestParam("password") String reqPassword, HttpSession session, HttpServletRequest req, HttpServletResponse res,
+  public String loginByEmail(
+      @RequestParam("email") String reqEmail,
+      @RequestParam("password") String reqPassword,
+      @RequestParam(value = "rememmberIdCheckbox", required = false, defaultValue = "false") boolean rememberId,
+      HttpSession session, HttpServletRequest req, HttpServletResponse res,
       RedirectAttributes redirectAttributes) {
     System.out.println("LoginController.loginByEmail() 시작");
 
@@ -39,20 +43,28 @@ public class LoginController {
         session.setAttribute("userDto", userDto);
         session.setMaxInactiveInterval(30 * 60); // 세션 만료 시간: 30분
         
-        res.setContentType("text/html; charset=UTF-8");
-//        PrintWriter out = res.getWriter();
-//        out.println("<script>localStorage.setItem('chamRememmberUserId', '" + reqEmail + "'); location.href='" + redirectUrl + "';</script>");
-        
         // 이전 페이지의 도메인 확인
         String referer = (String) session.getAttribute("previousPageUrl");
-        if (referer != null && referer.startsWith(req.getScheme() + "://" + req.getServerName()) && !referer.contains("/login")) {
-          return "redirect:" + referer; // 이전 페이지로 리다이렉트
-        } else {
-          return "redirect:/home"; // 기본 페이지로 리다이렉트
+        if (!(referer != null && referer.startsWith(req.getScheme() + "://" + req.getServerName()) && !referer.contains("/login"))) {
+          referer="/home";
+        } 
+        
+        try {
+          res.setContentType("text/html; charset=UTF-8");
+          PrintWriter out = res.getWriter();
+          // 아이디 저장 체크 확인
+          if(rememberId) {
+            out.println("<script>localStorage.setItem('chamRememmberUserId', '" + reqEmail + "'); location.href='" + referer + "';</script>");
+          }else {
+            out.println("<script>localStorage.removeItem('chamRememmberUserId'); location.href='" + referer + "';</script>");
+          }
+        } catch (IOException e) {
+          e.printStackTrace();
         }
+
       } else {
         redirectAttributes.addFlashAttribute("message", "비밀번호가 일치하지 않습니다.");
-        return "redirect:/login"; // 로그인 페이지로 리다이렉트
+        res.sendRedirect("/login");
       }
     } catch (NotFoundException e) {
       redirectAttributes.addFlashAttribute("message", "일치하는 회원정보가 없습니다.");

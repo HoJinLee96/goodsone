@@ -27,15 +27,16 @@ text-align: left;
 padding : 20px 0px;
 margin-bottom: 30px;
 }
-#loginForm label{
-text-align: left;
-	display: block;
-	margin :0px;
-	padding :0px;
+#loginForm label[for="email"],
+#loginForm label[for="password"] {
+    text-align: left;
+    display: block;
+    margin: 0px;
+    padding: 0px;
     margin-top: 15px; /* input과의 간격을 조정 */
-    font-size: 12px;
+    font-size: 14px;
 }
-#loginForm input{
+#email, #password{
     width: 400px;
     height: 40px;
     border: none;
@@ -43,8 +44,8 @@ text-align: left;
     outline: none;
     transition: border-bottom-color 0.3s;
 }
-#loginForm input:focus{
-    border-bottom: 2px solid black;
+#email:focus, #password:focus{
+    border-bottom: 2px solid #20367a;
 }
 #loginForm button{
     width: 400px;
@@ -52,9 +53,9 @@ text-align: left;
     border: none;
     border-radius: 10px;
     background-color: #20367a;
-    color: #fff;
+    color: white;
     font-size: 18px;
-    margin: 50px 0px 10px 0px;
+    margin: 25px 0px 10px 0px;
     cursor: pointer;
 }
 #loginForm button:hover{
@@ -81,6 +82,52 @@ padding: 10px 0px;
     width: 60px;
     height: 60px;
 }
+#rememmberIdCheckbox{
+    appearance: none; /* 기본 스타일 제거 */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: #fff;
+    border: 2px solid #ccc;
+    border-radius: 50%; /* 동그랗게 만들기 */
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    position: relative;
+    outline: none;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+#rememmberIdCheckbox:checked {
+    background-color: #20367a; /* 체크된 배경색 */
+    border-color: #20367a;
+}
+#rememmberIdCheckbox:checked::after {
+    content: '';
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+label[for="rememmberIdCheckbox"]{
+font-size: 14px;
+margin-right: 140px;
+color: #666;
+}
+#findId, #findPassword{
+text-decoration: none;
+color: #666;
+font-size: 14px;
+margin-left: 5px;
+}
+#etcActionDiv{
+    display: flex;
+    align-items: center; 
+margin-top: 20px;
+line-height:normal; 
+}
 </style>
 </head>
 <body>
@@ -92,10 +139,18 @@ padding: 10px 0px;
 	    <h2 class = "title">로그인</h2>
 		<form action="/loginByEmail" method="post" id="loginForm">
 	        <label for="email">이메일</label>
-	        <input type="email" id=email name="email" required autofocus placeholder="example@example.com"><br>
+	        <input type="email" id=email name="email" required autofocus placeholder="example@example.com">
+	        <br>
 	        <label for="password">비밀번호</label>
-	        <input type="password" id="password" name="password" required placeholder="password"><br>
-	        <div id="error"></div>
+	        <input type="password" id="password" name="password" required placeholder="password">
+	        <br>
+	        <!-- <div id="error"></div> -->
+	        <div id ="etcActionDiv">
+	        <input type="checkbox" id="rememmberIdCheckbox" name="rememmberIdCheckbox">
+	        <label for="rememmberIdCheckbox">이메일 저장</label>
+	        <a href="#" id="findId">이메일 찾기</a>
+	        <a href="#" id="findPassword">비밀번호 찾기</a>
+	        </div>
 	        <button type="submit">로그인</button>
 	    </form>
 	    <div id ="OAutoLoginBlcok">
