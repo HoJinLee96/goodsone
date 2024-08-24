@@ -38,7 +38,7 @@ public class JoinController {
       
     try {
       if(userService.isEmailExists(reqEmail)) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).body("가입 불가능한 이메일 입니다.");}
+        return ResponseEntity.status(HttpStatus.MULTI_STATUS).headers(headers).body("가입 불가능한 이메일 입니다.");}
       else {
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body("가입 가능한 이메일 입니다.");
       }
@@ -55,9 +55,9 @@ public class JoinController {
       
     try {
       if(userService.isPhoneExists(reqPhone)) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).body("가입 불가능한 번호 입니다.");}
+        return ResponseEntity.status(HttpStatus.MULTI_STATUS).headers(headers).build();}
       else {
-        return ResponseEntity.status(HttpStatus.OK).headers(headers).body("가입 가능한 번호 입니다.");
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).build();
       }
     } catch (SQLException e) {
       e.printStackTrace();

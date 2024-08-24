@@ -90,5 +90,15 @@ public class WebMainController {
      return "joinSnsConfirm";
    }
    
-
+   @GetMapping("/find/email")
+   public String showFindEmail(HttpServletRequest req, HttpServletResponse res) {
+     System.out.println("----------WebMainController.showFindEmail() 실행----------");
+     return "findEmail";
+   }
+   
+   @GetMapping("/find/password")
+   public String showFindPassword(HttpServletRequest req, HttpServletResponse res) {
+     System.out.println("----------WebMainController.showFindId() 실행----------");
+     return "findPassword";
+   }
 }

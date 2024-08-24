@@ -53,6 +53,11 @@ public class UserServices {
         return userDAO.getUserByEmail(email).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
 
     }
+    
+    public String getEmailByPhone(String phone) throws NotFoundException, SQLException {
+      return userDAO.getEmailByPhone(phone).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
+
+  }
 
     public List<UserDto> getAllUsers() throws SQLException{
             return userDAO.getAllUsers();

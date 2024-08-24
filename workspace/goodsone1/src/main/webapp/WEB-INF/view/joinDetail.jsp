@@ -86,7 +86,7 @@ input[type="number"] {
 
 #detailForm button {
 	border: none;
-	background-color: black;
+	background-color: #20367a;
 	color: white;
 	width: 190px;
 	height: 30px;
@@ -95,7 +95,7 @@ input[type="number"] {
 }
 
 #detailForm button:hover {
-	border: 1px solid #efefef;
+	border: 1px solid #20367a;
 	background-color: white;
 	color: black;
 }
@@ -261,7 +261,7 @@ width: 20px;
 	function verifySmsCode() {
 		var reqCode = document.getElementById("verificationSmsCode").value;
 		var message = document.getElementById("verificationSmsMessage");
-		if (reqCode < 5) {
+		if (reqCode.length < 5) {
 			message.style.color = 'red';
 			message.innerText = "인증번호를 다시 확인해주세요.";
 		} else {
@@ -285,15 +285,14 @@ width: 20px;
 				return true;
 			} else {
 				message.style.color = 'red';
-				if (xhr.status === 404) {
+				if (xhr.status === 408) {
 					message.innerText = xhr.responseText;
-					console.log("휴대폰 인증 실패.(인증 기간 완료)");
+				}else if( xhr.status === 401){
+					message.innerText = xhr.responseText;
 				}else if( xhr.status === 500){
 					message.innerText = xhr.responseText;
-					console.log("휴대폰 인증 실패.(서버 장애)");
 				}else {
 					message.innerText = "알 수 없는 장애 발생.";
-					console.log("휴대폰 인증 실패.(서버 장애)");
 				}
 				return false;
 			}
@@ -354,7 +353,7 @@ function validatePhone() {
 			return true;
 		} else {
 			message.style.color = 'red';
-			if (xhr.status === 401) {
+			if (xhr.status === 207) {
 				console.log("휴대폰 중복 검사 성공.(이미 가입된 휴대폰)");
 				message.innerText = xhr.responseText;
 			} else if(xhr.status === 500){

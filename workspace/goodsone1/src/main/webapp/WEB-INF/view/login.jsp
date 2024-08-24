@@ -116,7 +116,7 @@ font-size: 14px;
 margin-right: 140px;
 color: #666;
 }
-#findId, #findPassword{
+#findEmail, #findPassword{
 text-decoration: none;
 color: #666;
 font-size: 14px;
@@ -148,8 +148,8 @@ line-height:normal;
 	        <div id ="etcActionDiv">
 	        <input type="checkbox" id="rememmberIdCheckbox" name="rememmberIdCheckbox">
 	        <label for="rememmberIdCheckbox">이메일 저장</label>
-	        <a href="#" id="findId">이메일 찾기</a>
-	        <a href="#" id="findPassword">비밀번호 찾기</a>
+<a href="#" id="findEmail" onclick="openFindWindow('/find/email')">이메일 찾기</a>
+<a href="#" id="findPassword" onclick="openFindWindow('/find/password')">비밀번호 찾기</a>
 	        </div>
 	        <button type="submit">로그인</button>
 	    </form>
@@ -222,11 +222,30 @@ line-height:normal;
 </script> --%>
 
 <script>
-$(document).ready(function() {
-    var message = "${message}";
-    if (message) {
-        alert(message);
+document.addEventListener('DOMContentLoaded', function() {
+    const rememberedEmail = localStorage.getItem('chamRememmberUserId');
+    if (rememberedEmail) {
+        document.getElementById('email').value = rememberedEmail;
+        document.getElementById('rememmberIdCheckbox').checked =true;
     }
 });
+
+function openFindWindow(url) {
+    // 새 창의 크기 지정
+    const width = 600;
+    const height = 800;
+
+    // 창의 중앙 위치 계산
+    const left = window.screenX + (window.outerWidth / 2) - (width / 2);
+    const top = window.screenY + (window.outerHeight / 2) - (height / 2);
+
+    // 새로운 창 열기
+    window.open(
+        url,  // 열고자 하는 URL
+        '_blank',  // 새 창의 이름 또는 _blank (새 탭)
+        'width=' + width + ',height=' + height + ',top=' + top + ',left=' + left  // 창의 크기와 위치
+    );
+    return false; // 기본 링크 동작을 막기 위해 false를 반환
+}
 </script>
 </html>

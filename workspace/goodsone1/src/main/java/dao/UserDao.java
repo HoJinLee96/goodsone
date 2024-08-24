@@ -143,6 +143,21 @@ public class UserDao {
     return Optional.empty();
   }
 
+  public Optional<String> getEmailByPhone(String phone) throws SQLException {
+    String sql = "SELECT email FROM user WHERE phone = ?";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement statement = connection.prepareStatement(sql)) {
+      statement.setString(1, phone);
+      try (ResultSet resultSet = statement.executeQuery()) {
+        if (resultSet.next()) {
+          String email = resultSet.getString("email");
+          return Optional.of(email);
+        }
+      }
+    }
+    return Optional.empty();
+  }
+  
   public List<UserDto> getAllUsers() throws SQLException {
     List<UserDto> users = new ArrayList<>();
     String sql = "SELECT * FROM user";

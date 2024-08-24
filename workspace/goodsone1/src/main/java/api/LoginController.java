@@ -27,13 +27,21 @@ public class LoginController {
   }
 
   @PostMapping("/loginByEmail")
-  public String loginByEmail(
+  public void loginByEmail(
       @RequestParam("email") String reqEmail,
       @RequestParam("password") String reqPassword,
       @RequestParam(value = "rememmberIdCheckbox", required = false, defaultValue = "false") boolean rememberId,
       HttpSession session, HttpServletRequest req, HttpServletResponse res,
       RedirectAttributes redirectAttributes) {
     System.out.println("LoginController.loginByEmail() 시작");
+    res.setContentType("text/html; charset=UTF-8");
+    res.setCharacterEncoding("UTF-8");
+    PrintWriter out = null;
+    try {
+      out = res.getWriter();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
 
     try {
       UserCredentials userCredentials = userServices.getPasswordByEmail(reqEmail);
@@ -49,30 +57,27 @@ public class LoginController {
           referer="/home";
         } 
         
-        try {
-          res.setContentType("text/html; charset=UTF-8");
-          PrintWriter out = res.getWriter();
-          // 아이디 저장 체크 확인
-          if(rememberId) {
-            out.println("<script>localStorage.setItem('chamRememmberUserId', '" + reqEmail + "'); location.href='" + referer + "';</script>");
-          }else {
-            out.println("<script>localStorage.removeItem('chamRememmberUserId'); location.href='" + referer + "';</script>");
-          }
-        } catch (IOException e) {
-          e.printStackTrace();
+        res.setContentType("text/html; charset=UTF-8");
+        // 아이디 저장 체크 확인
+        if(rememberId) {
+          out.println("<script>localStorage.setItem('chamRememmberUserId', '" + reqEmail + "'); location.href='" + referer + "';</script>");
+        }else {
+          out.println("<script>localStorage.removeItem('chamRememmberUserId'); location.href='" + referer + "';</script>");
         }
 
       } else {
-        redirectAttributes.addFlashAttribute("message", "비밀번호가 일치하지 않습니다.");
-        res.sendRedirect("/login");
+//        redirectAttributes.addFlashAttribute("message", "비밀번호가 일치하지 않습니다.");
+        out.println("<script>alert('비밀번호가 일치하지 않습니다.'); location.href='/login';</script>");
+        out.println("<script>location.href='/login';</script>");
       }
     } catch (NotFoundException e) {
-      redirectAttributes.addFlashAttribute("message", "일치하는 회원정보가 없습니다.");
-      return "redirect:/login";
+//      redirectAttributes.addFlashAttribute("message", "일치하는 회원정보가 없습니다.");
+//      out.println("<script>location.href='/login';</script>");
+      out.println("<script>alert('일치하는 회원정보가 없습니다.'); location.href='/login';</script>");
     } catch (SQLException e) {
       e.printStackTrace();
-      redirectAttributes.addFlashAttribute("message", "현재 접속할 수 없습니다.");
-      return "redirect:/login";
+//      redirectAttributes.addFlashAttribute("message", "현재 접속할 수 없습니다.");
+      out.println("<script>alert('현재 접속할 수 없습니다.'); location.href='/login';</script>");
     }
   }
 
