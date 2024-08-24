@@ -190,12 +190,14 @@ public class UserDao {
   }
 
   // Update
-  public void updateUser(UserDto user) throws SQLException {
+  public Optional<Integer> updateUser(UserDto user) throws SQLException {
     String sql =
         "UPDATE user SET user_email = ?, user_oldpassword = ?, user_name = ?, user_nickname = ?, user_birth = ?, user_phone_agency = ?, user_phone_number = ?, user_address = ?, updated_at = ?, user_status = ?, user_signtype = ? WHERE user_seq = ?";
-    try (Connection connection = dataSource.getConnection();
-        PreparedStatement statement = connection.prepareStatement(sql)) {
-
+    try (Connection con = dataSource.getConnection();
+        PreparedStatement pst = con.prepareStatement(sql)) {
+      pst.setInt(1, user.getUserSeq());
+      Integer result = pst.executeUpdate();
+      return Optional.ofNullable(result);
     }
   }
 

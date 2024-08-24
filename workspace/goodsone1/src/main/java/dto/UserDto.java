@@ -9,10 +9,10 @@ public class UserDto {
       private String birth;
       private String mobileCarrier;
       private String phone;
-      private LocalDateTime createdAt;
-      private LocalDateTime updatedAt;
       private Status status;
       private boolean marketingReceivedStatus;
+      private LocalDateTime createdAt;
+      private LocalDateTime updatedAt;
       
       public enum Status {
         NORMAL, STAY, STOP

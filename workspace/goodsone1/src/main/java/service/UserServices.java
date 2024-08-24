@@ -1,6 +1,5 @@
 package service;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map.Entry;
@@ -8,15 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import dao.AddressDao;
-import dao.OAuthDao;
 import dao.UserDao;
 import dto.AddressDto;
-import dto.OAuthDto;
 import dto.UserCredentials;
 import dto.UserDto;
-import dtoNaverLogin.OAuthToken;
 import exception.NotFoundException;
-import exception.NullDataException;
 
 @Service
 public class UserServices {
@@ -64,8 +59,8 @@ public class UserServices {
     }
 
     @Transactional
-    public void updateUser(UserDto user) throws SQLException{
-            userDAO.updateUser(user);
+    public Integer updateUser(UserDto user) throws NotFoundException, SQLException{
+      return userDAO.updateUser(user).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
     }
 
     @Transactional

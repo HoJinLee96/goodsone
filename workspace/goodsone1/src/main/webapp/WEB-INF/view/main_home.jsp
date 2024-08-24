@@ -6,6 +6,9 @@
 <meta charset="UTF-8">
 <title>굿즈원</title>
 <style type="text/css">
+body{
+margin: 8px 0px;
+}
 .container {
 	max-width: 1200px;
 	margin: 0 auto;
@@ -82,64 +85,69 @@ display: inline;
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function () {
     const nav = document.querySelector('#speedEstimateContainer');
+    const container = document.querySelector('.container');
     const navOffsetTop = nav.offsetTop;
 
     window.addEventListener('scroll', function () {
-    	console.log(window.scrollY);
+        console.log(window.scrollY);
         if (window.scrollY >= navOffsetTop) {
             nav.classList.add('fixed-top');
+            container.style.paddingTop = '110px';
         } else {
             nav.classList.remove('fixed-top');
+            container.style.paddingTop = '30px';
         }
     });
 });
 </script>
 <body>
-<div id ="speedEstimateContainer">
-<div id="speedEstimate">
-<form id = "estimate">
-   <label for="phone">연락처 </label> <input type ="text" id="phone" name="phone" oninput="formatPhoneNumber(this)" maxlength="15" placeholder="- 없이 기입" required>
-    <label for="cleaningService">청소 서비스 선택 </label>
-    <select id="cleaningService" name="cleaningService">
-        <option value="">선택</option>
-        <option value="신축">신축 입주 청소</option>
-        <option value="이사">이사 입주 청소</option>
-        <option value="거주">거주 청소</option>
-        <option value="리모델링">리모델링 후 청소</option>
-        <option value="준공">준공 청소</option>
-        <option value="상가">상가 청소</option>
-        <option value="오피스">오피스 청소</option>
-        <option value="기타">기타 청소</option>
-    </select>
-    
-    <label for="region">지역 </label>
-    <select id="region" name="region">
-        <option value="">선택</option>
-        <option value="서울">서울특별시</option>
-        <option value="부산">부산광역시</option>
-        <option value="대구">대구광역시</option>
-        <option value="인천">인천광역시</option>
-        <option value="광주">광주광역시</option>
-        <option value="대전">대전광역시</option>
-        <option value="울산">울산광역시</option>
-        <option value="세종">세종특별자치시</option>
-        <option value="경기">경기도</option>
-        <option value="강원">강원도</option>
-        <option value="충북">충청북도</option>
-        <option value="충남">충청남도</option>
-        <option value="전북">전라북도</option>
-        <option value="전남">전라남도</option>
-        <option value="경북">경상북도</option>
-        <option value="경남">경상남도</option>
-        <option value="제주">제주특별자치도</option>
-    </select>
-    <button id="submitButton" type="submit" >간편 견적 신청</button>
-    </form>
-    <div id ="agreeMentDiv">
-    <input type="checkbox" id="agreement" name="greement">
-    <label for="greement" style="font-size: 14px;">개인정보 수집 및 이용 동의</label></div> <a style="font-size:14px;" href="javascript:;" onclick="javascript:footerlayerLoad('static/InfoAgreement.html'); return false;">[원본]</a>
-</div>
-</div>
+	<div id="speedEstimateContainer">
+		<div id="speedEstimate">
+			<form id="estimate">
+				<label for="phone">연락처 </label> <input type="text" id="phone"
+					name="phone" oninput="formatPhoneNumber(this)" maxlength="15"
+					placeholder="- 없이 기입" required> <label
+					for="cleaningService">청소 서비스 선택 </label> <select
+					id="cleaningService" name="cleaningService">
+					<option value="">선택</option>
+					<option value="신축">신축 입주 청소</option>
+					<option value="이사">이사 입주 청소</option>
+					<option value="거주">거주 청소</option>
+					<option value="리모델링">리모델링 후 청소</option>
+					<option value="준공">준공 청소</option>
+					<option value="상가">상가 청소</option>
+					<option value="오피스">오피스 청소</option>
+					<option value="기타">기타 청소</option>
+				</select> <label for="region">지역 </label> <select id="region" name="region">
+					<option value="">선택</option>
+					<option value="서울">서울특별시</option>
+					<option value="부산">부산광역시</option>
+					<option value="대구">대구광역시</option>
+					<option value="인천">인천광역시</option>
+					<option value="광주">광주광역시</option>
+					<option value="대전">대전광역시</option>
+					<option value="울산">울산광역시</option>
+					<option value="세종">세종특별자치시</option>
+					<option value="경기">경기도</option>
+					<option value="강원">강원도</option>
+					<option value="충북">충청북도</option>
+					<option value="충남">충청남도</option>
+					<option value="전북">전라북도</option>
+					<option value="전남">전라남도</option>
+					<option value="경북">경상북도</option>
+					<option value="경남">경상남도</option>
+					<option value="제주">제주특별자치도</option>
+				</select>
+				<button id="submitButton" type="submit">간편 견적 신청</button>
+			</form>
+			<div id="agreeMentDiv">
+				<input type="checkbox" id="agreement" name="greement"> <label
+					for="greement" style="font-size: 14px;">개인정보 수집 및 이용 동의</label>
+			</div>
+			<a style="font-size: 14px;" href="javascript:;"
+				onclick="javascript:footerlayerLoad('static/InfoAgreement.html'); return false;">[원본]</a>
+		</div>
+	</div>
 
 	<div class="container">
 

@@ -21,21 +21,13 @@
 </style>
 <style type="text/css">
 .container {
-	/* display: flex; */
 	max-width: 1200px;
 	margin: 0 auto;
-	padding-top: 50px;
+	padding-top: 20px;
 	min-height: 700px;
 	display: flex;
 	justify-content: center; /* 수평 중앙 정렬 */
-	/* align-items: center; */ /* 수직 중앙 정렬 (필요한 경우) */
-	/* height: 100vh; */
 }
-
-#formDiv {
-	
-}
-
 #loginForm label[for="phone"] {
 	text-align: left;
 	display: block;
@@ -61,8 +53,7 @@
 
 #input-wrapper {
 	position: relative;
-	display: none; /* none <-> block */
-	margin-top: 20px;
+	display: inline-block; /* none <-> inline-block */
 }
 
 #verificationTimeMessage {

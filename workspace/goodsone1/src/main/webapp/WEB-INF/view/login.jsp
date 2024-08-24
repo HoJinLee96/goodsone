@@ -232,7 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function openFindWindow(url) {
     // 새 창의 크기 지정
-    const width = 600;
+    const width = 500;
     const height = 800;
 
     // 창의 중앙 위치 계산
