@@ -122,6 +122,10 @@ color: #666;
 font-size: 14px;
 margin-left: 5px;
 }
+#findEmail:hover, #findPassword:hover{
+color: #20367a;
+cursor:  
+}
 #etcActionDiv{
     display: flex;
     align-items: center; 

@@ -42,7 +42,7 @@ public class UserInfoController {
     }
   }    
   
-  @PostMapping("/boolean/EmailPhone")
+  @PostMapping("/exist/emailPhone")
   public ResponseEntity<?> isEmailPhoneExist(@RequestParam("email") String reqEmail,@RequestParam("phone") String reqPhone) {
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "text/plain; charset=UTF-8");
@@ -70,6 +70,8 @@ public class UserInfoController {
     
       try {
         UserDto userDto = userService.getUserByEmail(reqEmail);
+        
+        
         userService.updateUser(userDto);
         return ResponseEntity.status(HttpStatus.OK).headers(headers).build();
       } catch (NotFoundException e) {

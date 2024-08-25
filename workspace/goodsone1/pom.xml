@@ -48,7 +48,6 @@
 			<artifactId>jstl</artifactId>
 			<version>1.2</version>
 		</dependency>
-
 		
 		<dependency>
 			<groupId>com.mysql</groupId>
@@ -78,6 +77,13 @@
 			<version>1.15</version>
 		</dependency>
 
+		<!-- 비밀번호 암호화 BCryptPasswordEncoder 사용 하기 위해 -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>5.3.10.RELEASE</version>
+		</dependency>
+
 		<!-- Jackson -->
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
@@ -101,7 +107,7 @@
 			<artifactId>httpclient</artifactId>
 			<version>4.5.13</version>
 		</dependency>
-		
+
 		<!-- jackson-datatype-jsr310 -->
 		<!-- LocalDateTime 타입을 직렬화/역직렬화 -->
 		<dependency>
@@ -109,7 +115,7 @@
 			<artifactId>jackson-datatype-jsr310</artifactId>
 			<version>2.14.2</version> <!-- 프로젝트에 맞는 최신 버전으로 설정 -->
 		</dependency>
-		
+
 		<!-- 회원가입 form 에서 휴대폰 인증 요청 제한시 필요 모듈 -->
 		<!-- Redis -->
 		<dependency>
@@ -122,22 +128,22 @@
 			<artifactId>jedis</artifactId>
 			<version>2.10.2</version>
 		</dependency>
-		
+
 		<!-- 파일 업로드 -->
 	    <dependency>
 	        <groupId>commons-fileupload</groupId>
 	        <artifactId>commons-fileupload</artifactId>
 	        <version>1.4</version>
 	    </dependency>
-	    
-	    <!-- 파일을 AWS S3에 저장하기 위한 의존-->
+
+		<!-- 파일을 AWS S3에 저장하기 위한 의존-->
 <dependency>
     <groupId>software.amazon.awssdk</groupId>
     <artifactId>s3</artifactId>
     <version>2.26.1</version>
 </dependency>
 
-<!-- junit 테스트 위한 라이브러리 -->
+		<!-- junit 테스트 위한 라이브러리 -->
     <dependency>
         <groupId>org.junit.jupiter</groupId>
         <artifactId>junit-jupiter-api</artifactId>

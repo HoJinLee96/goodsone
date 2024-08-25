@@ -105,7 +105,7 @@ public class UserDto {
         private String phone;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
-        private Status status;  // 변경된 부분: String에서 Status로 수정
+        private Status status; 
         private boolean marketingReceivedStatus;
 
         public Builder userSeq(int userSeq) {
@@ -153,7 +153,7 @@ public class UserDto {
             return this;
         }
 
-        public Builder status(Status status) {  // 변경된 부분: String에서 Status로 수정
+        public Builder status(Status status) {  
           this.status = status;
           return this;
         }

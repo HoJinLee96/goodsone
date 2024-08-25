@@ -7,10 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,16 +125,15 @@ public class UserDao {
     return Optional.empty();
   }
 
-  public Optional<Map.Entry<Integer, String>> getPasswordByEmail(String email) throws SQLException {
-    String sql = "SELECT user_seq, password FROM user WHERE email = ?";
+  public Optional<String> getPasswordByEmail(String email) throws SQLException {
+    String sql = "SELECT password FROM user WHERE email = ?";
     try (Connection connection = dataSource.getConnection();
         PreparedStatement statement = connection.prepareStatement(sql)) {
       statement.setString(1, email);
       try (ResultSet resultSet = statement.executeQuery()) {
         if (resultSet.next()) {
-          int userSeq = resultSet.getInt("user_seq");
           String password = resultSet.getString("password");
-          return Optional.of(new AbstractMap.SimpleEntry<>(userSeq, password));
+          return Optional.of(password);
         }
       }
     }

@@ -7,11 +7,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import dto.UserCredentials;
 import dto.UserDto;
 import exception.NotFoundException;
 import service.UserServices;
@@ -20,10 +20,13 @@ import service.UserServices;
 public class LoginController {
 
   private UserServices userServices;
+  private BCryptPasswordEncoder passwordEncoder;
 
   @Autowired
-  public LoginController(UserServices userServices) {
+  public LoginController(UserServices userServices, BCryptPasswordEncoder passwordEncoder) {
+    super();
     this.userServices = userServices;
+    this.passwordEncoder = passwordEncoder;
   }
 
   @PostMapping("/loginByEmail")
@@ -44,10 +47,10 @@ public class LoginController {
     }
 
     try {
-      UserCredentials userCredentials = userServices.getPasswordByEmail(reqEmail);
-      if (userCredentials.validatePassword(reqPassword)) {
+      String password = userServices.getPasswordByEmail(reqEmail);
+      if (passwordEncoder.matches(reqPassword, password)) {
         System.out.println("로그인 성공");
-        UserDto userDto = userServices.getUserBySeq(userCredentials.getUserSeq());
+        UserDto userDto = userServices.getUserByEmail(reqEmail);
         session.setAttribute("userDto", userDto);
         session.setMaxInactiveInterval(30 * 60); // 세션 만료 시간: 30분
         
@@ -80,6 +83,5 @@ public class LoginController {
       out.println("<script>alert('현재 접속할 수 없습니다.'); location.href='/login';</script>");
     }
   }
-
 
 }

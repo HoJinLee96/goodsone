@@ -2,14 +2,13 @@ package service;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import dao.AddressDao;
 import dao.UserDao;
 import dto.AddressDto;
-import dto.UserCredentials;
 import dto.UserDto;
 import exception.NotFoundException;
 
@@ -35,9 +34,8 @@ public class UserServices {
       return userDAO.getPasswordBySeq(userSeq).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
     }
     
-    public UserCredentials getPasswordByEmail(String email) throws NotFoundException, SQLException {
-      Entry<Integer, String> opt = userDAO.getPasswordByEmail(email).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
-      return new UserCredentials(opt.getKey(),email,opt.getValue());
+    public String getPasswordByEmail(String email) throws NotFoundException, SQLException {
+      return userDAO.getPasswordByEmail(email).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
     }
     
     public UserDto getUserBySeq(int userSeq) throws NotFoundException, SQLException {

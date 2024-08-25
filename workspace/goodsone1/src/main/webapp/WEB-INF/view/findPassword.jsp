@@ -54,7 +54,7 @@
 
 #input-wrapper {
 	position: relative;
-	display: block; /* none <-> block */
+	display: none; /* none <-> inline-block */
 }
 
 #verificationTimeMessage {
@@ -80,11 +80,12 @@
 #sendSmsButton:hover, #verifySmsCodeButton:hover, #confirmButton:hover {
 	border: 1px solid #20367a;
 	background-color: white;
-	color: black;
+	color: #20367a;
+	cursor: pointer;
 }
 
 #confirmDiv {
-	display: block; /* none <-> block */
+	display: none; /* none <-> block */
 }
 
 #confirmButton {
@@ -114,7 +115,7 @@
 }
 
 .close:hover, .close:focus {
-	color: black;
+	color: #20367a;
 	text-decoration: none;
 	cursor: pointer;
 }
@@ -139,7 +140,7 @@
 			<button class="sendSmsButton" id="sendSmsButton" type="button"onclick="sendSms()">인증번호 발송</button>
 			<br> 
 			<span id="sendSmsMessage"></span> 
-			<br>
+			<br><br>
 			<div id="input-wrapper">
 				<label for="verificationCode">인증번호</label> 
 				<br> 
@@ -175,26 +176,45 @@
 
 </body>
 
-<!-- 휴대폰 번호로 이메일 조회 -->
+<!-- 휴대폰 번호와 이메일 조회 -->
 <script type="text/javascript">
-function changePassword() {
+function isEmailPhoneExist() {
+	var email = document.getElementById("email").value;
+	var phone = document.getElementById("phone").value;
+	
+	var xhr = new XMLHttpRequest();
+	xhr.open('POST', '/exist/emailPhone', false); // 동기식 요청으로 변경
+	xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
+	xhr.send('email=' + encodeURIComponent(email));
+	xhr.send('phone=' + encodeURIComponent(phone));
+    if (xhr.status === 200) {
+        alert("변경할 비밀번호를 입력해 주세요.");
+    } else if (xhr.status === 404) {
+    	alert("일치하는 회원이 없습니다. \n 아이디 찾기 먼저 진행해 주세요.");
+    } else if (xhr.status === 500) {
+    	alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
+    } else {
+    	alert("알 수 없는 오류가 발생했습니다.");
+    }
+}
+
+function updatePassword() {
 	var email = document.getElementById("email").value;
 	var phone = document.getElementById("phone").value;
 	var password = document.getElementById("password").value;
 	var confirmPassword = document.getElementById("confirmPassword").value;
 	
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', '/user/change/password', false); // 동기식 요청으로 변경
+	xhr.open('POST', '/update/password', false); // 동기식 요청으로 변경
 	xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
 	xhr.send('email=' + encodeURIComponent(email));
 	xhr.send('phone=' + encodeURIComponent(phone));
 	xhr.send('password=' + encodeURIComponent(password));
 	xhr.send('confirmPassword=' + encodeURIComponent(confirmPassword));
     if (xhr.status === 200) {
-        alert(비밀번호 변경 완료);
-        windows.close();
+        alert("변경할 비밀번호를 입력해 주세요.");
     } else if (xhr.status === 404) {
-    	alert("해당 번호로 가입된 이메일이 없습니다.");
+    	alert("일치하는 회원이 없습니다. \n 아이디 찾기 먼저 진행해 주세요.");
     } else if (xhr.status === 500) {
     	alert("서버 오류가 발생했습니다. 다시 시도해주세요.");
     } else {

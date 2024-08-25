@@ -53,7 +53,7 @@
 
 #input-wrapper {
 	position: relative;
-	display: inline-block; /* none <-> inline-block */
+	display: none; /* none <-> inline-block */
 }
 
 #verificationTimeMessage {
@@ -79,7 +79,8 @@
 #sendSmsButton:hover, #verifySmsCodeButton:hover, #confirmButton:hover {
 	border: 1px solid #20367a;
 	background-color: white;
-	color: black;
+	color: #20367a;
+	cursor: pointer;
 }
 
 #confirmDiv {
@@ -114,7 +115,7 @@
 }
 
 .close:hover, .close:focus {
-	color: black;
+	color: #20367a;
 	text-decoration: none;
 	cursor: pointer;
 }
@@ -133,8 +134,7 @@
 			<button class="sendSmsButton" id="sendSmsButton" type="button"onclick="sendSms()">인증번호 발송</button>
 			<br> 
 			<span id="sendSmsMessage"></span> 
-			<br>
-			
+			<br><br>
 			<div id="input-wrapper">
 				<label for="verificationCode">인증번호</label> 
 				<br> 
@@ -145,11 +145,12 @@
 				<button class="verifySmsCodeButton" id="verifySmsCodeButton" type="button" onclick="verifySmsCode()" disabled style="display:none;">인증번호 확인</button>
 				<br> 
 				<span id="verificationSmsMessage"></span>
-			
 			<br> <br> <br> <br>
 			<div id="confirmDiv">
-				<span>가입 하신 이메일 </span> <br> <br> <br> <span
-					id="confirmEmail"></span> <br> <br> <br>
+				<span>가입 하신 이메일 </span>
+				<br> <br> <br>
+				<span id="confirmEmail"></span>
+				<br> <br> <br>
 				<button id="confirmButton" type="button" onclick="window.close()">확인</button>
 			</div>
 
