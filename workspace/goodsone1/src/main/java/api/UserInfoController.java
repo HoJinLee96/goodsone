@@ -1,6 +1,11 @@
 package api;
 
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -9,19 +14,59 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import dto.UserDto;
 import exception.NotFoundException;
-import service.UserServices;
+import service.UserService;
 
 @RestController
 @RequestMapping("/user")
 public class UserInfoController {
 
-  private UserServices userService;
+  private UserService userService;
 
   @Autowired
-  public UserInfoController(UserServices userService) {
+  public UserInfoController(UserService userService) {
     this.userService = userService;
+  }
+  
+  @PostMapping("/login/email")
+  public ResponseEntity<?> loginByEmail(
+      @RequestParam("email") String reqEmail,
+      @RequestParam("password") String reqPassword,
+      @RequestParam(value = "rememmberIdCheckbox", required = false, defaultValue = "false") boolean rememberId,
+      HttpSession session, HttpServletRequest req, HttpServletResponse res,
+      RedirectAttributes redirectAttributes) {
+    
+    System.out.println("LoginController.loginByEmail() 시작");
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Type", "application/json; charset=UTF-8");
+    
+    try {
+      if (userService.comparePasswordByEmail(reqEmail, reqPassword)) {
+        UserDto userDto = userService.getUserByEmail(reqEmail);
+        session.setAttribute("userDto", userDto);
+        session.setMaxInactiveInterval(30 * 60); // 세션 만료 시간: 30분
+        
+        // 이전 페이지의 도메인 확인
+        String referer = (String) session.getAttribute("previousPageUrl");
+        if (!(referer != null && referer.startsWith(req.getScheme() + "://" + req.getServerName()) && !referer.contains("/login"))) {
+          referer="/home";
+        } 
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Login successful");
+        response.put("redirectUrl", referer);
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+//        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(referer);
+        }else {
+          return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
+        }
+      }catch (SQLException | NotFoundException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
+
+    }
   }
   
   @PostMapping("/get/emailByPhone")
@@ -70,9 +115,7 @@ public class UserInfoController {
     
       try {
         UserDto userDto = userService.getUserByEmail(reqEmail);
-        
-        
-        userService.updateUser(userDto);
+        userService.updatePassword(userDto.getUserSeq(),reqPassword);
         return ResponseEntity.status(HttpStatus.OK).headers(headers).build();
       } catch (NotFoundException e) {
         e.printStackTrace();

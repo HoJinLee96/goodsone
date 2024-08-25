@@ -20,6 +20,7 @@
 				config.MvcConfig
 				config.WebControllerConfig
 				config.RedisConfig
+				config.EtcConfig
 			</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>

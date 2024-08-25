@@ -25,19 +25,19 @@ import dtoNaverLogin.OAuthToken;
 import exception.NotFoundException;
 import service.KakaoOAuthLoginService;
 import service.OAuthService;
-import service.UserServices;
+import service.UserService;
 
 @Controller
 @RequestMapping("/kakao")
 public class KakaoLoginController {
 
-  private UserServices userServices;
+  private UserService userServices;
   private OAuthService oAuthService;
   private KakaoOAuthLoginService kakaoOAuthLoginService;
   public ObjectMapper mapper = new ObjectMapper();
 
   @Autowired
-  public KakaoLoginController(UserServices userServices, OAuthService oAuthService,
+  public KakaoLoginController(UserService userServices, OAuthService oAuthService,
       KakaoOAuthLoginService kakaoOAuthLoginService) {
     super();
     this.userServices = userServices;

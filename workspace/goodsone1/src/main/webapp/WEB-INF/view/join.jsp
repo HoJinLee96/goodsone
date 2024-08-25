@@ -52,7 +52,7 @@
 }
 
 #registrationForm input:focus {
-	border-bottom: 2px solid black;
+	border-bottom: 2px solid #20367a;
 }
 
 #submitButton{
@@ -61,7 +61,7 @@ width: 150px !important;
 }
 #registrationForm button {
 	border: none;
-	background-color: black;
+	background-color: #20367a;
 	color: white;
 	width: 190px;
 	height: 30px;
@@ -72,7 +72,7 @@ width: 150px !important;
 #registrationForm button:hover {
 	border: 1px solid #efefef;
 	background-color: white;
-	color: black;
+	color: #20367a;
 }
 
 #buttonContainer {
@@ -118,7 +118,7 @@ margin-bottom: 50px;
 			<h2>1 단계 : 계정 생성</h2>
 			<div class="step active" id="step1">
 				<label for="userEmail">이메일</label>
-				<input type="email" id="userEmail" name="userEmail" required autofocus onblur="formatEmail()" placeholder="example@example.com">
+				<input type="email" id="userEmail" name="userEmail" required oninput="formatEmail()" placeholder="example@example.com">
 				<button type="button" class="sendMailButtons" id="sendMailButton" onclick="nextStep()">인증번호 발송</button>
 				<span id="emailMessage"></span>
 			</div>
@@ -199,14 +199,13 @@ margin-bottom: 50px;
 	    if (mailSeq===0) {
 	        message.style.color = 'red';
 	        message.innerText = "인증번호 발송을 해주세요.";
-	    }else if(reqCode<5){
+	    }else if(reqCode.length<5){
 	        message.style.color = 'red';
 	        message.innerText = "인증번호를 다시 확인해주세요.";
 	    }else {
 	        var xhr = new XMLHttpRequest();
 	        xhr.open('POST', '/api/verify/comparecode', false); // 동기식 요청으로 변경
-	        xhr.setRequestHeader('Content-Type',
-	                'application/x-www-form-urlencoded; charset=UTF-8');
+	        xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
 	        xhr.send('reqCode=' + encodeURIComponent(reqCode));
 
 	        if (xhr.status === 200) {

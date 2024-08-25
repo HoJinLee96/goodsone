@@ -27,13 +27,13 @@ public class UserDao {
     this.jdbcTemplate = jdbcTemplate;
   }
   
-  public int registerUser(UserDto userDto) throws SQLException {
+  public int registerUser(UserDto userDto,String encodePassword) throws SQLException {
     String sql =
         "INSERT INTO user (email, password, name, birth, phone, status, marketing_received_status, created_at) VALUES (?,?,?, ?, ?, ?, ?, ?)";
     try (Connection con = dataSource.getConnection();
         PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
       pst.setString(1, userDto.getEmail());
-      pst.setString(2, userDto.getPassword());
+      pst.setString(2, encodePassword);
       pst.setString(3, userDto.getName());
       pst.setString(4, userDto.getBirth());
       pst.setString(5, userDto.getPhone());
@@ -187,12 +187,25 @@ public class UserDao {
   }
 
   // Update
-  public Optional<Integer> updateUser(UserDto user) throws SQLException {
-    String sql =
-        "UPDATE user SET user_email = ?, user_oldpassword = ?, user_name = ?, user_nickname = ?, user_birth = ?, user_phone_agency = ?, user_phone_number = ?, user_address = ?, updated_at = ?, user_status = ?, user_signtype = ? WHERE user_seq = ?";
+//  public Optional<Integer> updateUser(UserDto user) throws SQLException {
+//    String sql =
+//        "UPDATE user SET user_email = ?, user_oldpassword = ?, user_name = ?, user_nickname = ?, user_birth = ?, user_phone_agency = ?, user_phone_number = ?, user_address = ?, updated_at = ?, user_status = ?, user_signtype = ? WHERE user_seq = ?";
+//    try (Connection con = dataSource.getConnection();
+//        PreparedStatement pst = con.prepareStatement(sql)) {
+//      pst.setInt(1, user.getUserSeq());
+//      Integer result = pst.executeUpdate();
+//      return Optional.ofNullable(result);
+//    }
+//  }
+  
+  // update password
+  public Optional<Integer> updatePassword(int userSeq,String newEncodePassword) throws SQLException {
+    String sql = "UPDATE user SET password = ?, updated_at = ? WHERE user_seq = ?";
     try (Connection con = dataSource.getConnection();
         PreparedStatement pst = con.prepareStatement(sql)) {
-      pst.setInt(1, user.getUserSeq());
+      pst.setString(1, newEncodePassword);
+      pst.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+      pst.setInt(3, userSeq);
       Integer result = pst.executeUpdate();
       return Optional.ofNullable(result);
     }

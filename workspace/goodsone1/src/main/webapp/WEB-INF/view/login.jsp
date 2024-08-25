@@ -141,7 +141,7 @@ line-height:normal;
 
 	<div class ="loginform">
 	    <h2 class = "title">로그인</h2>
-		<form action="/loginByEmail" method="post" id="loginForm">
+		<form action="" id="loginForm">
 	        <label for="email">이메일</label>
 	        <input type="email" id=email name="email" required autofocus placeholder="example@example.com">
 	        <br>
@@ -172,60 +172,48 @@ line-height:normal;
 
 <%@ include file = "main_footer.jsp" %>
 </body>
-<%--   <script type="text/javascript">
-  var contextPath = '<%= request.getContextPath() %>';
-  console.log(contextPath);
-    $(document).ready(function() {
-        $('#loginForm').on('submit', function(event) {
-            event.preventDefault();
-            var email = $('#email').val();
-            var password = $('#password').val();
-            var previousURI = document.referrer;
-            $.ajax({
-                url: '/loginByEmail',
-                type: 'POST',
-                contentType: 'application/plain; charset=UTF-8',
-                data: {
-                	reqEmail: email,
-                	reqPassword: password
-                },
-                success: function(response) {
-                	console.log("로그인 성공");
-                	// 현재 사이트의 도메인
-                    var currentDomain = window.location.origin;
-
-                    var previousDomain = "";
-                    var previousPath = "";
-                    try {
-                        // 이전 페이지의 도메인이 유효한지 확인
-                        previousDomain = new URL(previousURI).origin;
-                        previousPath = new URL(previousURI).pathname;
-                    } catch (e) {
-                        console.log("이전페이지 이상 Invalid previous URI:", previousURI);
-                    }
-
-                    // 이전 페이지의 도메인이 현재 사이트와 같은지 확인
-                    if (previousDomain === currentDomain) {
-                    	if(previousPath === "/join"){
-                    		window.location.href = "/home";
-                    	}else{
-                        window.location.href = previousURI;
-                    	}
-                    } else {
-                        window.location.href = "/home";
-                    }
-                },
-                error: function(xhr) {
-                    $('#error').text(xhr.responseText);
-                    /* alert("회원정보가 일치하지 않습니다."); */
+<script type="text/javascript">
+$(document).ready(function() {
+    $('#loginForm').on('submit', function(event) {
+        event.preventDefault();
+        var email = $('#email').val();
+        var password = $('#password').val();
+        var rememberIdCheckbox = $('#rememmberIdCheckbox').is(':checked');
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/user/login/email', true); // 비동기식 요청
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+        
+        // 데이터를 한 번에 전송
+        var data = 'email=' + encodeURIComponent(email) +
+                   '&password=' + encodeURIComponent(password) +
+                   '&rememmberIdCheckbox=' + encodeURIComponent(rememberIdCheckbox);
+        
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+            	var response = JSON.parse(xhr.responseText);
+                if (rememberIdCheckbox) {
+                    localStorage.setItem('chamRememmberUserId', email);
+                } else {
+                    localStorage.removeItem('chamRememmberUserId');
                 }
-            });
-        });
+                location.href = response.redirectUrl;
+            } else if (xhr.status === 401) {
+                alert("일치하는 회원 정보가 없습니다.");
+            } else if (xhr.status === 500) {
+                alert("서버 오류가 발생했습니다. \n 다시 시도해주세요.");
+            } else {
+                alert("알 수 없는 오류가 발생했습니다.");
+            }
+        };
+        
+        xhr.send(data);
     });
+});
     
-</script> --%>
+</script>
 
-<script>
+<script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
     const rememberedEmail = localStorage.getItem('chamRememmberUserId');
     if (rememberedEmail) {

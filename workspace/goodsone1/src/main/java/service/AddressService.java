@@ -8,12 +8,12 @@ import dao.AddressDao;
 import dto.AddressDto;
 
 @Service
-public class AddressServices {
+public class AddressService {
   
   private AddressDao addressDao;
 
   @Autowired
-  public AddressServices(AddressDao addressDao) {
+  public AddressService(AddressDao addressDao) {
     this.addressDao = addressDao;
   }
   

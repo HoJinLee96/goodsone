@@ -26,19 +26,19 @@ import dtoNaverLogin.OAuthToken;
 import exception.NotFoundException;
 import service.NaverOAuthLoginService;
 import service.OAuthService;
-import service.UserServices;
+import service.UserService;
 
 @Controller
 @RequestMapping("/naver")
 public class NaverLoginController {
 
-  private UserServices userServices;
+  private UserService userServices;
   private OAuthService oAuthService;
   private NaverOAuthLoginService naverOAuthLoginService;
   public ObjectMapper mapper = new ObjectMapper();
 
   @Autowired
-  public NaverLoginController(UserServices userServices, OAuthService oAuthService,
+  public NaverLoginController(UserService userServices, OAuthService oAuthService,
       NaverOAuthLoginService naverOAuthLoginService) {
     super();
     this.userServices = userServices;

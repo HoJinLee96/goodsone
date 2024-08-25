@@ -17,17 +17,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.AddressDto;
 import dto.RegisterUserDto;
 import dto.UserDto;
-import service.UserServices;
+import service.UserService;
 
 @RestController
 @RequestMapping("/api")
 public class JoinController {
   
-  
-  private UserServices userService;
+  private UserService userService;
 
   @Autowired
-  public JoinController(UserServices userService) {
+  public JoinController(UserService userService) {
     this.userService = userService;
   }
   
