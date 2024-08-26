@@ -16,15 +16,15 @@ import dto.UserDto;
 import exception.NotFoundException;
 import service.UserService;
 
-@Controller
+//@Controller
 public class LoginController {
 
-  private UserService userServices;
-
-  @Autowired
-  public LoginController(UserService userServices) {
-    this.userServices = userServices;
-  }
+//  private UserService userServices;
+//
+//  @Autowired
+//  public LoginController(UserService userServices) {
+//    this.userServices = userServices;
+//  }
 
 //  @PostMapping("/loginByEmail")
 //  public void loginByEmail(

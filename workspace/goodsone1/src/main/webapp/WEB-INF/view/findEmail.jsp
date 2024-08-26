@@ -307,44 +307,6 @@ function getEmailByPhone() {
     }
 </script>
 
-<!--  휴대폰 중복 검사 api -->
-<!-- <script type="text/javascript">
-function validatePhone() {
-	var reqPhone = document.getElementById("phone").value;
-	var message = document.getElementById("sendSmsMessage");
-	console.log(reqPhone);
-	if (reqPhone.length === 13) {
-		var xhr = new XMLHttpRequest();
-		xhr.open('POST', '/api/validate/phone', false); // 동기식 요청으로 변경
-		xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
-		xhr.send('reqPhone=' + encodeURIComponent(reqPhone));
-
-		if (xhr.status === 207) {
-			message.style.color = 'green';
-			console.log("휴대폰 중복 검사 성공.(가입한 휴대폰)");
-			return true;
-		} else {
-			message.style.color = 'red';
-			if (xhr.status === 200) {
-				console.log("휴대폰 중복 검사 성공.(가입하지 않은 휴대폰)");
-				message.innerText = "가입하지 않은 휴대폰입니다.";
-			} else if(xhr.status === 500){
-				console.log("휴대폰 중복 검사 실패.(SQLEX 서버 장애)");
-				message.innerText = "휴대폰 검사 실패.(SQLEX 서버 장애)";
-			}else {
-				console.log("휴대폰 중복 검사 실패.(서버 장애)");
-				message.innerText = "서버 장애 발생.";
-			}
-			return false;
-		}
-	} else {
-		message.style.color = 'red';
-		message.innerText = "올바른 전화번호 형식을 입력 해주세요.";
-		return false;
-	}
-}
-</script> -->
-
 <script type="text/javascript">
 function formatPhoneNumber(input) {
 	let value = input.value.replace(/[^0-9]/g, ''); // 숫자 이외의 문자를 제거합니다.

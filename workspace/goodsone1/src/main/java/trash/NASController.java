@@ -13,19 +13,19 @@ import org.springframework.web.bind.annotation.RestController;
 //@RequestMapping("/api")
 public class NASController {
   
-  private NaverAddressSearchService NasServices;
+//  private NaverAddressSearchService NasServices;
 
 //  @Autowired
-  public NASController(NaverAddressSearchService nasServices) {
-    super();
-    NasServices = nasServices;
-  } 
+//  public NASController(NaverAddressSearchService nasServices) {
+//    super();
+//    NasServices = nasServices;
+//  } 
   
 //  @PostMapping("/search/address")
-  public ResponseEntity<?> searchAddress(@RequestParam String query){
-    
-    NasServices.searchAddress(query);
-    return null;
-  }
+//  public ResponseEntity<?> searchAddress(@RequestParam String query){
+//    
+//    NasServices.searchAddress(query);
+//    return null;
+//  }
   
 }

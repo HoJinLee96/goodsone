@@ -71,7 +71,7 @@ public class UserService {
     @Transactional
     public Integer updatePassword(int userSeq,String newPassword) throws NotFoundException, SQLException{
       String newEncodePassword = passwordEncoder.encode(newPassword);
-      return userDAO.updatePassword(userSeq,newEncodePassword).orElseThrow(()-> new SQLException("비밀번호 변경 오류 발생."));
+      return userDAO.updatePassword(userSeq,newEncodePassword).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
     }
 
     @Transactional
@@ -79,14 +79,16 @@ public class UserService {
             userDAO.deleteUser(userSeq);
     }
     
-    //user 테이블 이메일 중복 검사
     public boolean isEmailExists(String email) throws SQLException {
       return userDAO.isEmailExists(email);
     }
-    //user 테이블 휴대폰번호 중복 검사
+    
     public boolean isPhoneExists(String phone) throws SQLException {
       return userDAO.isPhoneExists(phone);
     }
     
+    public boolean isEmailPhoneExists(String email, String phone) throws SQLException {
+      return userDAO.isEmailPhoneExists(email, phone);
+    }
 
 }

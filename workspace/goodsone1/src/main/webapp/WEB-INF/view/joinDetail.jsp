@@ -516,7 +516,7 @@ $('#detailForm').on('submit', function(event) {
 		};
 
 		$.ajax({
-			url : '/api/join/public2',
+			url : '/user/join/second',
 			type : 'POST',
 			contentType : 'application/json; charset=UTF-8',
 			data : JSON.stringify({

@@ -230,4 +230,9 @@ public class UserDao {
     int count = jdbcTemplate.queryForObject(sql, new Object[]{phone}, Integer.class);
     return count > 0;
   }
+  public boolean isEmailPhoneExists(String email, String phone) throws SQLException {
+    String sql = "SELECT COUNT(*) FROM `user` WHERE `email` = ? AND `phone` = ?";
+    int count = jdbcTemplate.queryForObject(sql, new Object[]{email, phone}, Integer.class);
+    return count > 0;
+}
 }

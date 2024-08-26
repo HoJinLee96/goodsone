@@ -11,10 +11,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dto.AddressDto;
+import dto.RegisterUserDto;
 import dto.UserDto;
 import exception.NotFoundException;
 import service.UserService;
@@ -58,7 +62,6 @@ public class UserInfoController {
         response.put("redirectUrl", referer);
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
-//        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(referer);
         }else {
           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
         }
@@ -87,19 +90,8 @@ public class UserInfoController {
     }
   }    
   
-  @PostMapping("/exist/emailPhone")
-  public ResponseEntity<?> isEmailPhoneExist(@RequestParam("email") String reqEmail,@RequestParam("phone") String reqPhone) {
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("Content-Type", "text/plain; charset=UTF-8");
-    String email = getEmailByPhone(reqPhone).getBody();
-    if(reqEmail.equals(email)) {
-      return ResponseEntity.status(HttpStatus.OK).headers(headers).build();
-    }
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).build();
-  }
-  
   @PostMapping("/update/password")
-  public ResponseEntity<String> updatePassword(
+  public ResponseEntity<?> updatePassword(
       @RequestParam("email") String reqEmail,
       @RequestParam("phone") String reqPhone,
       @RequestParam("password") String reqPassword,
@@ -109,17 +101,20 @@ public class UserInfoController {
     headers.add("Content-Type", "text/plain; charset=UTF-8");
     
     //두 비밀번호 값 불일치
-    if(!reqPassword.equals(reqConfirmPassword)) {
+    if(!reqPassword.equals(reqConfirmPassword))
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
-    }
     
       try {
         UserDto userDto = userService.getUserByEmail(reqEmail);
+        System.out.println(userDto.getPhone() +"\n" + reqPhone + "\n" + userDto.getPhone().equals(reqPhone));
+        if(!userDto.getPhone().equals(reqPhone))
+          throw new NotFoundException();
+        
         userService.updatePassword(userDto.getUserSeq(),reqPassword);
         return ResponseEntity.status(HttpStatus.OK).headers(headers).build();
+        
       } catch (NotFoundException e) {
         e.printStackTrace();
-        // 이메일에 일치하는 계정 존재 하지 않음.
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
       } catch (SQLException e) {
         e.printStackTrace();
@@ -127,5 +122,85 @@ public class UserInfoController {
       }
 
   } 
+  
+  @PostMapping("/exist/email")
+  public ResponseEntity<String> isEmailExists(@RequestParam String reqEmail) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Type", "text/plain; charset=UTF-8");
+      
+    try {
+      if(userService.isEmailExists(reqEmail)) {
+        return ResponseEntity.status(HttpStatus.MULTI_STATUS).headers(headers).body("가입 불가능한 이메일 입니다.");}
+      else {
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body("가입 가능한 이메일 입니다.");
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("서버 장애 발생.");
+    }
+  }
+  
+  @PostMapping("/exist/phone")
+  public ResponseEntity<String> isPhoneExists(@RequestParam String reqPhone) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Type", "text/plain; charset=UTF-8");
+      
+    try {
+      if(userService.isPhoneExists(reqPhone)) {
+        return ResponseEntity.status(HttpStatus.MULTI_STATUS).headers(headers).build();}
+      else {
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).build();
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("서버 장애 발생.");
+    }
+  }
+  
+  @PostMapping("/exist/emailPhone")
+  public ResponseEntity<?> isEmailPhoneExist(@RequestParam("email") String reqEmail,@RequestParam("phone") String reqPhone) {
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Type", "text/plain; charset=UTF-8");
+    try {
+      if(userService.isEmailPhoneExists(reqEmail, reqPhone)) {
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).build();
+      }
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).build();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
+    }
+  }
+  
+  @PostMapping("/join/once")
+  public ResponseEntity<String> public1(@RequestBody Map<String, Object> request, HttpServletRequest httpServletRequest) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    RegisterUserDto registerUserDto = objectMapper.convertValue(request.get("registerUserDto"), RegisterUserDto.class);
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Type", "text/plain; charset=UTF-8");
+      
+    HttpSession session = httpServletRequest.getSession();
+    session.setAttribute("registerUserDto", registerUserDto);
+    
+    return ResponseEntity.status(HttpStatus.OK).headers(headers).body("계성 생성 완료.");
+
+  }
+
+  @PostMapping("/join/seconde")
+  public ResponseEntity<String> public2(@RequestBody Map<String, Object> reqData, HttpServletRequest req) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    UserDto userDto = objectMapper.convertValue(reqData.get("userDto"), UserDto.class);
+    AddressDto addressDto = objectMapper.convertValue(reqData.get("addressDto"), AddressDto.class);
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Type", "text/plain; charset=UTF-8");
+      
+    try {
+      userService.registerUser(userDto, addressDto);
+      return ResponseEntity.status(HttpStatus.OK).headers(headers).body("회원가입 완료.");
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("가입이 불가능 합니다.");
+      }
+    }
   
 }

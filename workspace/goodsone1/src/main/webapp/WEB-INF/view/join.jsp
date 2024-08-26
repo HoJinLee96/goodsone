@@ -395,7 +395,7 @@ margin-bottom: 50px;
 		};
 
 		$.ajax({
-			url : '/api/join/public1',
+			url : '/user/join/once',
 			type : 'POST',
 			contentType : 'application/json; charset=UTF-8',
 			data : JSON.stringify({
