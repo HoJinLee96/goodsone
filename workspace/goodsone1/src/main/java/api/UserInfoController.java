@@ -54,9 +54,10 @@ public class UserInfoController {
         
         // 이전 페이지의 도메인 확인
         String referer = (String) session.getAttribute("previousPageUrl");
-        if (!(referer != null && referer.startsWith(req.getScheme() + "://" + req.getServerName()) && !referer.contains("/login"))) {
+        if (referer == null || !referer.startsWith(req.getScheme() + "://" + req.getServerName()) || referer.contains("/login") ||referer.contains("/join")) {
           referer="/home";
         } 
+
         Map<String, String> response = new HashMap<>();
         response.put("message", "Login successful");
         response.put("redirectUrl", referer);
