@@ -7,9 +7,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.util.Optional;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,6 +21,9 @@ import dtoNaverLogin.Callback;
 import dtoNaverLogin.NaverUserInfoResponseDto;
 import dtoNaverLogin.OAuthToken;
 import exception.NotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import service.NaverOAuthLoginService;
 import service.OAuthService;
 import service.UserService;
@@ -70,9 +70,17 @@ public class NaverLoginController {
   public ResponseEntity<String> loginNaverCallBack(HttpServletRequest req,
       HttpServletResponse res, Callback callback) {
     /**
-     * 1. 결과 확인 2. 인가 코드 통해 접근 토큰 얻기 3. 접근토큰 통해 고객 정보 얻기 4. oauth 테이블에서 데이터 확인 4-1. 처음 이용자 4-1-1.
-     * user 테이블에 같은 이메일로 가입된 계정 있는 경우 4-1-2. user 테이블에 같은 이메일로 가입된 계정 없는 경우 4-2. 기존 유저 이용자 4-2-1. 기존
-     * 계정과 연동된 sns 계정 이용자 경우 4-2-2. 회원 탈퇴 했다가 다시 가입한 유저인 경우 4-2-3. sns 전용 계정 이용자 경우
+     * 1. 결과 확인
+     * 2. 인가 코드 통해 접근 토큰 얻기
+     * 3. 접근토큰 통해 고객 정보 얻기
+     * 4. oauth 테이블에서 데이터 확인
+     * 4-1. 처음 이용자
+     *  4-1-1. user 테이블에 같은 이메일로 가입된 계정 있는 경우
+     *  4-1-2. user 테이블에 같은 이메일로 가입된 계정 없는 경우
+     * 4-2. 기존 유저 이용자
+     *  4-2-1. 기존계정과 연동된 sns 계정 이용자 경우
+     *  4-2-2. 회원 탈퇴 했다가 다시 가입한 유저인 경우
+     *  4-2-3. sns 전용 계정 이용자 경우
      **/
     System.out.println("NaverLoginController.loginNaverCallBack() 시작");
 
@@ -116,6 +124,7 @@ public class NaverLoginController {
         if (optionalUserDto.isPresent()) {
           headers.setLocation(URI.create("/join/sns/confirm"));
           session.setAttribute("userDto", optionalUserDto.get());
+          System.out.println(optionalUserDto.get().toString());
           return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
         }
         

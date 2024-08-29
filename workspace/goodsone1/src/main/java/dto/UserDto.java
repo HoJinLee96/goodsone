@@ -167,6 +167,17 @@ public class UserDto {
             return new UserDto(this);
         }
     }
+
+
+      @Override
+      public String toString() {
+        return "UserDto [userSeq=" + userSeq + ", email=" + email + ", password=" + password
+            + ", name=" + name + ", birth=" + birth + ", mobileCarrier=" + mobileCarrier
+            + ", phone=" + phone + ", status=" + status + ", marketingReceivedStatus="
+            + marketingReceivedStatus + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt
+            + "]";
+      }
+      
       
       
       // Setter

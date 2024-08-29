@@ -72,16 +72,16 @@ width: 200px !important;
     height: 40px;
     font-size: 14px;
     border: none;
-    background-color: black;
+    background-color: #20367a;
     color: white;
     border-radius: 10px;
 }
 #submit:hover {
-    border: 0;
+    border: 1px solid #20367a;
     border-radius: 5px;
     padding-left: 10px;
     background-color: white;
-    color: black;
+    color: #20367a;
 }
 </style>
 

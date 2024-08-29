@@ -64,7 +64,7 @@ margin-bottom: 30px;
     color:#20367a;
 }
 #OAutoLoginBlcok{
-padding: 10px 0px;
+padding:10px 0px 30px 0px;
     display: flex;
     justify-content: center; /* 아이템 사이에 여백을 넣어 균등 배치 */
     align-items: center; /* 수직 정렬 */
@@ -118,9 +118,14 @@ color: #666;
 }
 #findEmail, #findPassword{
 text-decoration: none;
-color: #666;
+color: #b1b1b1;
 font-size: 14px;
 margin-left: 5px;
+}
+#findEmail::after{
+content: '';
+border-right: 1px solid #e1e1e1;
+padding-left: 5px;
 }
 #findEmail:hover, #findPassword:hover{
 color: #20367a;
@@ -131,6 +136,29 @@ cursor:
     align-items: center; 
 margin-top: 20px;
 line-height:normal; 
+}
+#underline-text{
+width: 400px;
+position: relative;
+display: inline-block;
+margin: 10px 0px;
+}
+#underline-text::after {
+content:"다른 방법 로그인";
+    color: #b1b1b1;
+    background-color: white;
+    padding: 0px 15px;
+    font-size: 15px;
+}
+#underline-text::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    background-color: #e1e1e1;
+    top:10px;
+    left: 0px;
+    z-index: -1;
 }
 </style>
 </head>
@@ -152,12 +180,13 @@ line-height:normal;
 	        <div id ="etcActionDiv">
 	        <input type="checkbox" id="rememmberIdCheckbox" name="rememmberIdCheckbox">
 	        <label for="rememmberIdCheckbox">이메일 저장</label>
-<a href="#" id="findEmail" onclick="openFindWindow('/find/email')">이메일 찾기</a>
-<a href="#" id="findPassword" onclick="openFindWindow('/find/password')">비밀번호 찾기</a>
+<a href="" id="findEmail" onclick="openFindWindow('/find/email')">이메일 찾기</a>
+<a href="" id="findPassword" onclick="openFindWindow('/find/password')">비밀번호 찾기</a>
 	        </div>
 	        <button type="submit">로그인</button>
 	    </form>
-	    <div id ="OAutoLoginBlcok">
+	    <div id = "underline-text"></div>
+	    <div id = "OAutoLoginBlcok">
 	        <a href="/kakao/login/url" id="kakao-login">
         <img src="static/img/kakaoLogin.png" alt="Kakao Login Logo">
     </a>
