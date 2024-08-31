@@ -38,7 +38,6 @@ public class UserInfoController {
   public ResponseEntity<?> loginByEmail(
       @RequestParam("email") String reqEmail,
       @RequestParam("password") String reqPassword,
-      @RequestParam(value = "rememmberIdCheckbox", required = false, defaultValue = "false") boolean rememberId,
       HttpSession session, HttpServletRequest req, HttpServletResponse res,
       RedirectAttributes redirectAttributes) {
     
@@ -67,6 +66,29 @@ public class UserInfoController {
           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
         }
       }catch (SQLException | NotFoundException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
+
+    }
+  }
+  
+  @PostMapping("/login/email/simple")
+  public ResponseEntity<?> loginByEmailSimple(
+      @RequestParam("email") String reqEmail,
+      @RequestParam("password") String reqPassword,
+      HttpSession session, HttpServletRequest req, HttpServletResponse res,
+      RedirectAttributes redirectAttributes) {
+    System.out.println("LoginController.loginByEmail() 시작");
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Type", "application/json; charset=UTF-8");
+
+    try {
+      if (userService.comparePasswordByEmail(reqEmail, reqPassword)) {
+        return ResponseEntity.status(HttpStatus.OK).build();
+      } else {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
+      }
+    } catch (SQLException e) {
       e.printStackTrace();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
 
@@ -142,19 +164,20 @@ public class UserInfoController {
   }
   
   @PostMapping("/exist/phone")
-  public ResponseEntity<String> isPhoneExists(@RequestParam String reqPhone) {
+  public ResponseEntity<?> isPhoneExists(@RequestParam String reqPhone) {
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "text/plain; charset=UTF-8");
       
     try {
       if(userService.isPhoneExists(reqPhone)) {
-        return ResponseEntity.status(HttpStatus.MULTI_STATUS).headers(headers).build();}
+        return ResponseEntity.status(HttpStatus.MULTI_STATUS).headers(headers).build();
+      }
       else {
         return ResponseEntity.status(HttpStatus.OK).headers(headers).build();
       }
     } catch (SQLException e) {
       e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("서버 장애 발생.");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
     }
   }
   

@@ -21,10 +21,28 @@ public class WebMainController {
     System.out.println("----------WebMainController.showLogin() 실행----------");
     // 이전 페이지의 도메인 확인
    String referer = req.getHeader("Referer");
-   System.out.println("referer = " + referer);
-   if (referer != null && referer.startsWith(req.getScheme() + "://" + req.getServerName()) && !referer.contains("/login")) {
+   if (referer != null && referer.startsWith(req.getScheme() + "://" + req.getServerName()) && !referer.contains("/login") && !referer.contains("/join")) {
      session.setAttribute("previousPageUrl", referer);
    }
+    return "login";
+  }
+  
+  @GetMapping("/loginBlank")
+  public String showLoginBlank(HttpServletRequest req, HttpServletResponse res,HttpSession session) {
+    System.out.println("----------WebMainController.showLoginBlank() 실행----------");
+    return "loginBlank";
+  }
+  
+  @GetMapping("/clearLogin")
+  public String showClearLogin(HttpServletRequest req, HttpServletResponse res,HttpSession session) {
+    System.out.println("----------WebMainController.showClearLogin() 실행----------");
+    
+    // 기존 세션이 존재하면 무효화
+    if (session != null) {
+        session.invalidate();  // 기존 세션 무효화
+        System.out.println("기존 세션 무효화");
+    }
+
     return "login";
   }
 

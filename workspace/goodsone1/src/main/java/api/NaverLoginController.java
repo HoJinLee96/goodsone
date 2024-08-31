@@ -123,21 +123,22 @@ public class NaverLoginController {
         // 4-1-1. user 테이블에 같은 이메일로 가입된 계정 있는 경우
         if (optionalUserDto.isPresent()) {
           headers.setLocation(URI.create("/join/sns/confirm"));
-          session.setAttribute("userDto", optionalUserDto.get());
-          System.out.println(optionalUserDto.get().toString());
+          session.setAttribute("confirmUserDto", optionalUserDto.get());
+          session.setAttribute("naverUserInfoResponseDto", naverUserInfoResponseDto);
+          session.removeAttribute("kakaoUserInfoResponseDto");
           return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
         }
         
         // 4-1-2. user 테이블에 같은 이메일로 가입된 계정 없는 경우
         OAuthDto oAuthDto = new OAuthDto(naverUserInfoResponseDto);
-        int userSeq = oAuthService.registerOAuth("KAKAO", oAuthDto);
-        oAuthDto.setUserSeq(userSeq);
+        int oauthSeq = oAuthService.registerOAuth("NAVER", oAuthDto);
+        oAuthDto.setOauthSeq(oauthSeq);
         
-        session.setAttribute("oAuthDto", oAuthDto);
-        session.setAttribute("oAuthToken", oAuthToken);
-        session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in()) * 1000));
-        headers.setLocation(URI.create(previousPageUrl));
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
+//        session.setAttribute("oAuthDto", oAuthDto);
+//        session.setAttribute("oAuthToken", oAuthToken);
+//        session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in()) * 1000));
+//        headers.setLocation(URI.create(previousPageUrl));
+//        return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
       }
       
       // 4-2. 기존 유저 이용자(oauth테이블에 데이터가 있는 경우)

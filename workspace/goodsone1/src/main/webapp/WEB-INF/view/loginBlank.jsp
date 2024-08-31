@@ -3,15 +3,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <title>로그인</title>
+<meta charset="UTF-8">
+<title>로그인</title>
+<style type="text/css">
+@font-face {
+	font-family: 'SF_HambakSnow';
+	src:
+		url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2106@1.1/SF_HambakSnow.woff')
+		format('woff');
+	font-weight: normal;
+	font-style: normal;
+}
+
+* {
+	font-family: 'SF_HambakSnow', sans-serif;
+}
+</style>
 <style type="text/css">
 .container {
-	/* display: flex; */
 	max-width: 1200px;
 	margin: 0 auto;
-	padding-top: 50px;
-	min-height: 1080px;
+	padding-top: 20px;
+	min-height: 700px;
+	display: flex;
+	justify-content: center; /* 수평 중앙 정렬 */
 }
 .loginform{
 	max-width: 400px;
@@ -162,14 +177,12 @@ content:"다른 방법 로그인";
 }
 </style>
 </head>
+
 <body>
-<%@ include file = "main_header.jsp" %>
-
-<div class ="container">
-
-	<div class ="loginform">
-	    <h2 class = "title">로그인</h2>
-		<form action="" id="loginForm">
+	<div class="container">
+		<div id="formDiv">
+		<h2 class = "title">로그인</h2>
+		<form id="loginForm">
 	        <label for="email">이메일</label>
 	        <input type="email" id=email name="email" required autofocus placeholder="example@example.com">
 	        <br>
@@ -180,67 +193,17 @@ content:"다른 방법 로그인";
 	        <div id ="etcActionDiv">
 	        <input type="checkbox" id="rememmberIdCheckbox" name="rememmberIdCheckbox">
 	        <label for="rememmberIdCheckbox">이메일 저장</label>
-<a href="" id="findEmail" onclick="openFindWindow('/find/email')">이메일 찾기</a>
-<a href="" id="findPassword" onclick="openFindWindow('/find/password')">비밀번호 찾기</a>
+			<a href="" id="findEmail" onclick="openFindWindow('/find/email')">이메일 찾기</a>
+			<a href="" id="findPassword" onclick="openFindWindow('/find/password')">비밀번호 찾기</a>
 	        </div>
 	        <button type="submit">로그인</button>
 	    </form>
-	    <div id = "underline-text"></div>
-	    <div id = "OAutoLoginBlcok">
-	        <a href="/kakao/login/url" id="kakao-login">
-        <img src="static/img/kakaoLogin.png" alt="Kakao Login Logo">
-    </a>
-	 <a href="/naver/login/url" id="naver-login">
-        <img src="static/img/naverLogin.png" alt="Naver Login Logo">
-    </a>
 
-    </div>
-    </div>
-    
-</div>
+		</div>
+	</div>
 
-<%@ include file = "main_footer.jsp" %>
 </body>
-<script type="text/javascript">
-$(document).ready(function() {
-    $('#loginForm').on('submit', function(event) {
-        event.preventDefault();
-        var email = $('#email').val();
-        var password = $('#password').val();
-        var rememberIdCheckbox = $('#rememmberIdCheckbox').is(':checked');
-        
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', '/user/login/email', true); // 비동기식 요청
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-        
-        // 데이터를 한 번에 전송
-        var data = 'email=' + encodeURIComponent(email) +
-                   '&password=' + encodeURIComponent(password);
-        
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-            	var response = JSON.parse(xhr.responseText);
-                if (rememberIdCheckbox) {
-                    localStorage.setItem('chamRememmberUserId', email);
-                } else {
-                    localStorage.removeItem('chamRememmberUserId');
-                }
-                location.href = response.redirectUrl;
-            } else if (xhr.status === 401) {
-                alert("일치하는 회원 정보가 없습니다.");
-            } else if (xhr.status === 500) {
-                alert("서버 오류가 발생했습니다. \n 다시 시도해주세요.");
-            } else {
-                alert("알 수 없는 오류가 발생했습니다.");
-            }
-        };
-        
-        xhr.send(data);
-    });
-});
-    
-</script>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function() {
     const rememberedEmail = localStorage.getItem('chamRememmberUserId');
@@ -250,10 +213,45 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+$(document).ready(function() {
+    $('#loginForm').on('submit', function(event) {
+        event.preventDefault();
+        var email = $('#email').val();
+        var password = $('#password').val();
+        var rememberIdCheckbox = $('#rememmberIdCheckbox').is(':checked');
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/user/login/email/simple', true); // 비동기식 요청
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+        
+        // 데이터를 한 번에 전송
+        var data = 'email=' + encodeURIComponent(email) +
+                   '&password=' + encodeURIComponent(password);
+        
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                if (rememberIdCheckbox) {
+                    localStorage.setItem('chamRememmberUserId', email);
+                } else {
+                    localStorage.removeItem('chamRememmberUserId');
+                }
+                window.opener.postMessage({ status: xhr.status }, "*");
+                window.close();
+            } else if (xhr.status === 401) {
+                alert("일치하는 회원 정보가 없습니다.");
+            } else if (xhr.status === 500) {
+                alert("서버 오류가 발생했습니다. \n 다시 시도해주세요.");
+            } else {
+                alert("알 수 없는 오류가 발생했습니다.");
+            }
+        };
+        xhr.send(data);
+    });
+});
 function openFindWindow(url) {
     // 새 창의 크기 지정
     const width = 500;
-    const height = 800;
+    const height = 600;
 
     // 창의 중앙 위치 계산
     const left = window.screenX + (window.outerWidth / 2) - (width / 2);

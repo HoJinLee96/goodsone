@@ -143,8 +143,8 @@ padding-left: 20px;
 		</div>
 			<div id="main_nav_div">
 			<ul class= "main_nav">
-				<li><a href="estimate">견적신청</a></li>
-				<li><a href="review">현장사진</a></li>
+				<li><a href="/estimate">견적신청</a></li>
+				<li><a href="/review">현장사진</a></li>
 			</ul>
 		</div>
 	</div>
