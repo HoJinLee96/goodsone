@@ -235,7 +235,7 @@ $(document).ready(function() {
                 } else {
                     localStorage.removeItem('chamRememmberUserId');
                 }
-                window.opener.postMessage({ status: xhr.status }, "*");
+                window.opener.postMessage({ loginStatus: xhr.status }, "*");
                 window.close();
             } else if (xhr.status === 401) {
                 alert("일치하는 회원 정보가 없습니다.");

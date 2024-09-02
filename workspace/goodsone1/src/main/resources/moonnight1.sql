@@ -12,6 +12,7 @@ CREATE TABLE `user` (
 	`updated_at`	DATETIME
 );
 SELECT * FROM `user`;
+SELECT COUNT(*) FROM `user` WHERE `email` = 'st2035@naver.com' AND `phone` = '010-9611-1382';
 
 DELETE FROM `user`;
 DROP TABLE IF EXISTS `user`;

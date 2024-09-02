@@ -23,13 +23,13 @@ public class OAuthDao {
     this.dataSource = dataSource;
   }
 
-  // 유저등록
-  public int registerOAuth(String provider, OAuthDto oAuthDto) throws SQLException {
+  // 유저등록 
+  public int registerOAuth(OAuthDto oAuthDto) throws SQLException {
     String sql =
         "INSERT INTO oauth (provider,id,email,name,birth,phone,status,created_at) VALUES(?,?,?,?,?,?,?,?)";
     try (Connection con = dataSource.getConnection();
         PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
-      pst.setString(1, provider);
+      pst.setString(1, oAuthDto.getProvider());
       pst.setString(2, oAuthDto.getId());
       pst.setString(3, oAuthDto.getEmail());
       pst.setString(4, oAuthDto.getName());
@@ -37,6 +37,30 @@ public class OAuthDao {
       pst.setString(6, oAuthDto.getPhone());
       pst.setString(7, OAuthDto.Status.NORMAL.name());
       pst.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
+      pst.executeUpdate();
+      ResultSet generatedKeys = pst.getGeneratedKeys();
+      if (generatedKeys.next()) {
+        return generatedKeys.getInt(1);
+      } else
+        throw new SQLException("서버 장애 발생.(키 생성되지 않음)");
+    }
+  }
+  
+  // 유저등록 userSeq 포함
+  public int registerOAuth(OAuthDto oAuthDto, int userSeq) throws SQLException {
+    String sql =
+        "INSERT INTO oauth (provider,id,email,name,birth,phone,status,created_at,user_seq) VALUES(?,?,?,?,?,?,?,?,?)";
+    try (Connection con = dataSource.getConnection();
+        PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
+      pst.setString(1, oAuthDto.getProvider());
+      pst.setString(2, oAuthDto.getId());
+      pst.setString(3, oAuthDto.getEmail());
+      pst.setString(4, oAuthDto.getName());
+      pst.setString(5, oAuthDto.getBirth());
+      pst.setString(6, oAuthDto.getPhone());
+      pst.setString(7, OAuthDto.Status.NORMAL.name());
+      pst.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
+      pst.setInt(9, userSeq);
       pst.executeUpdate();
       ResultSet generatedKeys = pst.getGeneratedKeys();
       if (generatedKeys.next()) {
@@ -118,7 +142,17 @@ public class OAuthDao {
       pst.setString(1, oAuthId);
       return pst.executeUpdate();
       }
-    
 }
+  
+  // user_seq 업데이트
+  public int updateUserSeqByOAuthSeq(int userSeq, int oAuthSeq) throws SQLException {
+    String sql = "UPDATE oauth SET user_seq = ? WHERE oauth_seq = ?";
+    try (Connection con = dataSource.getConnection();
+        PreparedStatement pst = con.prepareStatement(sql);) {
+      pst.setInt(1, userSeq);
+      pst.setInt(2, oAuthSeq);
+      return pst.executeUpdate();
+    }
+  }
 
 }

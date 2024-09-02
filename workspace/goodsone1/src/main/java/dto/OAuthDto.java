@@ -29,12 +29,14 @@ public class OAuthDto {
     this.name = naverUser.getResponse().getName();
     this.birth = naverUser.getResponse().getBirthyear()+naverUser.getResponse().getBirthday();
     this.phone = naverUser.getResponse().getMobile();
+    this.provider = "NAVER";
   }
   
   public OAuthDto(KakaoUserInfoResponseDto kakaoUser) {
     this.id = kakaoUser.getId()+"";
     this.email = kakaoUser.getKakao_account().getEmail();
     this.name = kakaoUser.getKakao_account().getProfile().getNickname();
+    this.provider = "KAKAO";
   }
 
   

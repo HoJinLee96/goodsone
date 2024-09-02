@@ -33,8 +33,16 @@ public class OAuthService {
   
   // 계정 등록
   @Transactional
-  public int registerOAuth(String provider, OAuthDto oAuthDto) throws SQLException {
-    int result = oAuthDao.registerOAuth(provider,oAuthDto);
+  public int registerOAuth(OAuthDto oAuthDto) throws SQLException {
+    int result = oAuthDao.registerOAuth(oAuthDto);
+    if (result == 0) throw new SQLException("정상적으로 등록되었으나 시퀀스값이 없음.");
+    return result;
+  }
+  
+  // 계정 등록 userSeq 포함
+  @Transactional
+  public int registerOAuth(OAuthDto oAuthDto,int userSeq) throws SQLException {
+    int result = oAuthDao.registerOAuth(oAuthDto,userSeq);
     if (result == 0) throw new SQLException("정상적으로 등록되었으나 시퀀스값이 없음.");
     return result;
   }

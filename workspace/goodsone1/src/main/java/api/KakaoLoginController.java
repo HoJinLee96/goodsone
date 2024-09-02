@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -119,19 +120,20 @@ public class KakaoLoginController {
       if (!optionalOAuthDto.isPresent()) {
         String email = kakaoUserInfoResponseDto.getKakao_account().getEmail();
         Optional<UserDto> optionalUserDto = getUserDtoByEmail(email);
+        OAuthDto oAuthDto = new OAuthDto(kakaoUserInfoResponseDto);
 
         // 4-1-1. user 테이블에 같은 이메일로 가입된 계정 있는 경우
         if (optionalUserDto.isPresent()) {
           headers.setLocation(URI.create("/join/sns/confirm"));
           session.setAttribute("confirmUserDto", optionalUserDto.get());
-          session.setAttribute("kakaoUserInfoResponseDto", kakaoUserInfoResponseDto);
-          session.removeAttribute("naverUserInfoResponseDto");
+          session.setAttribute("confirmKakaoOAuthDto", oAuthDto);
+          session.setAttribute("confirmOAuthToken", oAuthToken);
+          session.setAttribute("confirmOAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in()) * 1000));
           return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
         }
         
         // 4-1-2. user 테이블에 같은 이메일로 가입된 계정 없는 경우
-        OAuthDto oAuthDto = new OAuthDto(kakaoUserInfoResponseDto);
-        int oauthSeq = oAuthService.registerOAuth("KAKAO", oAuthDto);
+        int oauthSeq = oAuthService.registerOAuth(oAuthDto);
         oAuthDto.setUserSeq(oauthSeq);
         
 //        session.setAttribute("oAuthDto", oAuthDto);
@@ -279,6 +281,58 @@ public class KakaoLoginController {
     }
     return null;
   }
+  
+  @PostMapping("/register")
+  public ResponseEntity<?> register(HttpSession session){
+    
+    ResponseEntity<?> sessionConfirmResult = sessionConfirm2(session);
+    
+    if (sessionConfirmResult.getStatusCode() != HttpStatus.OK)
+      return sessionConfirmResult;
+    
+    OAuthDto oAuthDto = (OAuthDto)session.getAttribute("confirmKakaoOAuthDto");
+    OAuthToken oAuthToken = (OAuthToken)session.getAttribute("confirmOAuthToken");
+    
+    try {
+      int oAuthSeq = oAuthService.registerOAuth(oAuthDto);
+      oAuthDto.setOauthSeq(oAuthSeq);
+      session.setAttribute("oAuthDto", oAuthDto);
+      session.setAttribute("oAuthToken", oAuthToken);
+      session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in()) * 1000));
+      sessionDelete(session);
+      return ResponseEntity.status(HttpStatus.OK).build();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+  
+  @PostMapping("/register/connect")
+  public ResponseEntity<?> registerConnect(HttpSession session){
+    
+    ResponseEntity<?> sessionConfirmResult = sessionConfirm2(session);
+    
+    if (sessionConfirmResult.getStatusCode() != HttpStatus.OK)
+      return sessionConfirmResult;
+    
+    UserDto userDto = (UserDto)session.getAttribute("confirmUserDto");
+    OAuthDto oAuthDto = (OAuthDto)session.getAttribute("confirmKakaoOAuthDto");
+    OAuthToken oAuthToken = (OAuthToken)session.getAttribute("confirmOAuthToken");
+    
+    try {
+      int oAuthSeq = oAuthService.registerOAuth(oAuthDto, userDto.getUserSeq());
+      oAuthDto.setOauthSeq(oAuthSeq);
+      session.setAttribute("userDto", userDto);
+      session.setAttribute("oAuthDto", oAuthDto);
+      session.setAttribute("oAuthToken", oAuthToken);
+      session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in()) * 1000));
+      sessionDelete(session);
+      return ResponseEntity.status(HttpStatus.OK).build();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
 
   // 세션 데이터 여부 확인
   private ResponseEntity<String> sessionConfirm(HttpSession session, HttpHeaders headers) {
@@ -302,6 +356,28 @@ public class KakaoLoginController {
       return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).body("토큰 유효기간이 지났습니다.");
     }
     return ResponseEntity.ok("성공");
+  }
+  
+  // 컨펌세션 검사
+  private ResponseEntity<?> sessionConfirm2(HttpSession session) {
+
+    UserDto userDto = (UserDto) session.getAttribute("confirmUserDto");
+    OAuthDto oAuthDto = (OAuthDto) session.getAttribute("confirmKakaoOAuthDto");
+    OAuthToken oAuthToken = (OAuthToken) session.getAttribute("confirmOAuthToken");
+    Long oAuthTokenExpiry = (Long) session.getAttribute("confirmOAuthTokenExpiry");
+
+    if(userDto==null || oAuthDto==null || oAuthToken==null || oAuthTokenExpiry == null || System.currentTimeMillis() > oAuthTokenExpiry)
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    
+    return ResponseEntity.ok("성공");
+  }
+  
+  // 컨펌세션 삭제
+  private void sessionDelete(HttpSession session) {
+    session.removeAttribute("confirmUserDto");
+    session.removeAttribute("confirmKakaoOAuthDto");
+    session.removeAttribute("confirmOAuthToken");
+    session.removeAttribute("confirmOAuthTokenExpiry");
   }
 
   private Optional<OAuthDto> getOAuthDtoByoAuthid(String oAuthid) throws SQLException {

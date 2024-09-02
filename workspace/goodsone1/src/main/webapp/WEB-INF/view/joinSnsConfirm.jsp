@@ -50,13 +50,34 @@ String dayPart = createAtParts[0];
 	<tr><td><span id="email"><%= encryptedEmail %></span></td></tr>
 	<tr><td><span id="email">가입 날짜 :  <%= dayPart %></span></td></tr>
 	<tr><td>&nbsp;</td></tr> <!-- 빈 줄 -->
-	<tr><td><button id="linkExistingUserButton" >기존 계정과 연동하기</button></td></tr>
 	<c:choose>
-	<c:when test="${!empty sessionScope.naverUserInfoResponseDto}">
-	<tr><td><button id="createNewNaverOauthButton" >네이버 신규 계정으로 가입하기</button></td></tr>
+	<c:when test="${!empty sessionScope.confirmNaverOAuthDto}">
+	<tr><td><button id="linkExistingUserButton" >네이버와 기존 계정 연동하기</button></td></tr>
+	<tr><td><button id="createNewNaverOauthButton" >네이버로 신규 계정 가입하기</button></td></tr>
+	    <script>
+        window.addEventListener('message', function(event) {
+            if (event.data.loginStatus === 200) {
+            	naverRegisterConnect();
+            }
+        });
+        document.getElementById("createNewNaverOauthButton").addEventListener("click", function(){
+        	naverRegister();
+          });
+    </script>
 	</c:when>
-	<c:when test="${!empty sessionScope.kakaoUserInfoResponseDto}">
-	<tr><td><button id="createNewKakaoOauthButton" >카카오 신규 계정으로 가입하기</button></td></tr>
+	<c:when test="${!empty sessionScope.confirmKakaoOAuthDto}">
+	<tr><td><button id="linkExistingUserButton" >카카오와 기존 계정 연동하기</button></td></tr>
+	<tr><td><button id="createNewKakaoOauthButton" >카카오로 신규 계정 가입하기</button></td></tr>
+		    <script>
+        window.addEventListener('message', function(event) {
+            if (event.data.loginStatus === 200) {
+            	kakaoRegisterConnect();
+            }
+        });
+        document.getElementById("createNewKakaoOauthButton").addEventListener("click", function(){
+        	kakaoRegister();
+          });
+    </script>
 	</c:when>
 	</c:choose>
 	</tbody>
@@ -69,12 +90,6 @@ String dayPart = createAtParts[0];
 <script type="text/javascript">
 document.getElementById("linkExistingUserButton").addEventListener("click",function(){
 	openFindWindow("/loginBlank")
-});
-
-window.addEventListener('message', function(event) {
-    if (event.data.status === 200) {
-    	
-    }
 });
 
 function openFindWindow(url) {
@@ -95,5 +110,143 @@ function openFindWindow(url) {
     return false; // 기본 링크 동작을 막기 위해 false를 반환
 }
 
+function naverRegisterConnect(){
+        event.preventDefault();
+        
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/naver/register/connect', true); // 비동기식 요청
+        
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+            	naverTokenRefresh();
+            } else if (xhr.status === 404) {
+                alert("재로그인 후 다시 시도해주세요.");
+                location.href = "/logout";
+            } else if (xhr.status === 500) {
+                alert("서버 오류가 발생했습니다. \n 잠시 후 다시 시도해주세요.");
+                location.href = "/logout";
+            } else {
+                alert("알 수 없는 오류가 발생했습니다.");
+                location.href = "/logout";
+            }
+        };
+        xhr.send();
+    }
+    
+	function naverRegister(){
+	    event.preventDefault();
+	    
+	    var xhr = new XMLHttpRequest();
+	    xhr.open('POST', '/naver/register', true); // 비동기식 요청
+	    
+	    xhr.onload = function() {
+	        if (xhr.status === 200) {
+	        	naverTokenRefresh();
+	        } else if (xhr.status === 404) {
+	            alert("재로그인 후 다시 시도해주세요.");
+	            location.href = "/logout";
+	        } else if (xhr.status === 500) {
+	            alert("서버 오류가 발생했습니다. \n 잠시 후 다시 시도해주세요.");
+	            location.href = "/logout";
+	        } else {
+	            alert("알 수 없는 오류가 발생했습니다.");
+	            location.href = "/logout";
+	        }
+	    };
+	    xhr.send();
+	}
+    
+function naverTokenRefresh(){
+    event.preventDefault();
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/naver/token/refresh', true); // 비동기식 요청
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+        	alert("성공적으로 연동 되었습니다.");
+            location.href = "/home";
+        } else if (xhr.status === 404) {
+            alert("재로그인 후 다시 시도해주세요.");
+            location.href = "/logout";
+        } else if (xhr.status === 500) {
+            alert("서버 오류가 발생했습니다. \n 잠시 후 다시 시도해주세요.");
+            location.href = "/logout";
+        } else {
+            alert("알 수 없는 오류가 발생했습니다.");
+            location.href = "/logout";
+        }
+    };
+    xhr.send();
+}
+function kakaoRegisterConnect(){
+    event.preventDefault();
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/kakao/register/connect', true); // 비동기식 요청
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+        	kakaoTokenRefresh();
+        } else if (xhr.status === 404) {
+            alert("재로그인 후 다시 시도해주세요.");
+            location.href = "/logout";
+        } else if (xhr.status === 500) {
+            alert("서버 오류가 발생했습니다. \n 잠시 후 다시 시도해주세요.");
+            location.href = "/logout";
+        } else {
+            alert("알 수 없는 오류가 발생했습니다.");
+            location.href = "/logout";
+        }
+    };
+    xhr.send();
+}
+
+function kakaoRegister(){
+    event.preventDefault();
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/kakao/register', true); // 비동기식 요청
+    
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+        	kakaoTokenRefresh();
+        } else if (xhr.status === 404) {
+            alert("재로그인 후 다시 시도해주세요.");
+            location.href = "/logout";
+        } else if (xhr.status === 500) {
+            alert("서버 오류가 발생했습니다. \n 잠시 후 다시 시도해주세요.");
+            location.href = "/logout";
+        } else {
+            alert("알 수 없는 오류가 발생했습니다.");
+            location.href = "/logout";
+        }
+    };
+    xhr.send();
+}
+
+function kakaoTokenRefresh(){
+	event.preventDefault();
+
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', '/kakao/token/refresh', true); // 비동기식 요청
+	
+	xhr.onload = function() {
+	    if (xhr.status === 200) {
+	    	alert("성공적으로 연동 되었습니다.");
+	        location.href = "/home";
+	    } else if (xhr.status === 404) {
+	        alert("재로그인 후 다시 시도해주세요.");
+	        location.href = "/logout";
+	    } else if (xhr.status === 500) {
+	        alert("서버 오류가 발생했습니다. \n 잠시 후 다시 시도해주세요.");
+	        location.href = "/logout";
+	    } else {
+	        alert("알 수 없는 오류가 발생했습니다.");
+	        location.href = "/logout";
+	    }
+	};
+	xhr.send();
+}
 </script>
 </html>

@@ -15,12 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.AddressDto;
+import dto.OAuthDto;
 import dto.RegisterUserDto;
 import dto.UserDto;
+import dtoNaverLogin.OAuthToken;
 import exception.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import service.OAuthService;
 import service.UserService;
 
 @RestController
@@ -28,10 +31,12 @@ import service.UserService;
 public class UserInfoController {
 
   private UserService userService;
+  private OAuthService oAuthService;
 
   @Autowired
-  public UserInfoController(UserService userService) {
+  public UserInfoController(UserService userService,OAuthService oAuthService) {
     this.userService = userService;
+    this.oAuthService = oAuthService;
   }
   
   @PostMapping("/login/email")
@@ -143,8 +148,40 @@ public class UserInfoController {
         e.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
       }
-
-  } 
+  }
+  
+  @PostMapping("/ouath/connect")
+  public ResponseEntity<?> registerConnect(HttpSession session){
+    
+    UserDto userDto = (UserDto)session.getAttribute("confirmUserDto");
+    if(userDto==null)
+      userDto = (UserDto)session.getAttribute("userDto");
+    
+    OAuthDto oAuthDto = (OAuthDto)session.getAttribute("naverUserInfoResponseDto");
+      if(oAuthDto==null)
+        oAuthDto = (OAuthDto)session.getAttribute("oAuthDto");
+      
+    OAuthToken oAuthToken = (OAuthToken)session.getAttribute("oAuthToken");
+    
+    Long oAuthTokenExpiry = (Long) session.getAttribute("oAuthTokenExpiry");
+    
+    if(userDto==null || oAuthDto==null || oAuthToken==null || oAuthTokenExpiry == null || System.currentTimeMillis() > oAuthTokenExpiry)
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    
+    try {
+      int oAuthSeq = oAuthService.registerOAuth(oAuthDto, userDto.getUserSeq());
+      oAuthDto.setOauthSeq(oAuthSeq);
+      session.setAttribute("userDto", userDto);
+      session.setAttribute("oAuthDto", oAuthDto);
+      session.setAttribute("oAuthToken", oAuthToken);
+      session.setAttribute("oAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in()) * 1000));
+      return ResponseEntity.status(HttpStatus.OK).build();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+  
   
   @PostMapping("/exist/email")
   public ResponseEntity<String> isEmailExists(@RequestParam String reqEmail) {
