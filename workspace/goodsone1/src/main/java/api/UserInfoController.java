@@ -23,8 +23,10 @@ import exception.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import service.LoginLogService;
 import service.OAuthService;
 import service.UserService;
+import util.HttpUtil;
 
 @RestController
 @RequestMapping("/user")
@@ -32,11 +34,15 @@ public class UserInfoController {
 
   private UserService userService;
   private OAuthService oAuthService;
+  private LoginLogService loginLogService;
+  private HttpUtil httpUtil;
 
   @Autowired
-  public UserInfoController(UserService userService,OAuthService oAuthService) {
+  public UserInfoController(UserService userService,OAuthService oAuthService,LoginLogService loginLogService,HttpUtil httpUtil) {
     this.userService = userService;
     this.oAuthService = oAuthService;
+    this.loginLogService = loginLogService;
+    this.httpUtil = httpUtil;
   }
   
   @PostMapping("/login/email")
@@ -65,6 +71,10 @@ public class UserInfoController {
         Map<String, String> response = new HashMap<>();
         response.put("message", "Login successful");
         response.put("redirectUrl", referer);
+        
+        String ip = HttpUtil.getClientIp(req);
+        loginLogService.loginSuccess(userDto, ip);
+        System.out.println("로그인 성공");
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
         }else {
@@ -247,7 +257,7 @@ public class UserInfoController {
 
   }
 
-  @PostMapping("/join/seconde")
+  @PostMapping("/join/second")
   public ResponseEntity<String> public2(@RequestBody Map<String, Object> reqData, HttpServletRequest req) {
     ObjectMapper objectMapper = new ObjectMapper();
     UserDto userDto = objectMapper.convertValue(reqData.get("userDto"), UserDto.class);
@@ -263,5 +273,7 @@ public class UserInfoController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("가입이 불가능 합니다.");
       }
     }
+  
+
   
 }

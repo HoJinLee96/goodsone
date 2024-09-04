@@ -1,7 +1,7 @@
 package dto;
 import java.time.LocalDateTime;
 
-public class UserDto {
+public class UserDto extends User {
       private int userSeq;
       private String email;
       private String password;
@@ -14,9 +14,6 @@ public class UserDto {
       private LocalDateTime createdAt;
       private LocalDateTime updatedAt;
       
-      public enum Status {
-        NORMAL, STAY, STOP
-      }
       
       public UserDto() {}
 
@@ -168,7 +165,6 @@ public class UserDto {
         }
     }
 
-
       @Override
       public String toString() {
         return "UserDto [userSeq=" + userSeq + ", email=" + email + ", password=" + password
@@ -176,6 +172,11 @@ public class UserDto {
             + ", phone=" + phone + ", status=" + status + ", marketingReceivedStatus="
             + marketingReceivedStatus + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt
             + "]";
+      }
+
+      @Override
+      public String getProvider() {
+        return "PUBLIC";
       }
       
       

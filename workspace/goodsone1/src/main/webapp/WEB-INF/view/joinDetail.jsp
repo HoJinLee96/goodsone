@@ -343,7 +343,7 @@ function validatePhone() {
 	console.log(reqPhone);
 	if (reqPhone.length === 13) {
 		var xhr = new XMLHttpRequest();
-		xhr.open('POST', '/api/validate/phone', false); // 동기식 요청으로 변경
+		xhr.open('POST', '/user/exist/phone', false); // 동기식 요청으로 변경
 		xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
 		xhr.send('reqPhone=' + encodeURIComponent(reqPhone));
 
@@ -493,47 +493,55 @@ function validateForm() {
 }
 
 // ***** 회원가입 *****
-$('#detailForm').on('submit', function(event) {
-	event.preventDefault();
-	
-	if(validateForm()){
-		// User 데이터 수집
-		var userDto = {
-			email : $("#email").val(),
-			password : $("#password").val(),
-			name : $("#name").val(),
-			birth : $("#birth").val(),
-			phone : $("#phone").val(),
-			marketingReceivedStatus : $("#marketingReceivedStatus").is(":checked")
-		};
-		
-		// Address 데이터 수집
-		var addressDto = {
-			userSeq : null, 
-			postcode : $("#postcode").val(),
-			mainAddress : $("#mainAddress").val(),
-			detailAddress : $("#detailAddress").val()
-		};
+document.getElementById('detailForm').addEventListener('submit', function(event) {
+    event.preventDefault();
 
-		$.ajax({
-			url : '/user/join/second',
-			type : 'POST',
-			contentType : 'application/json; charset=UTF-8',
-			data : JSON.stringify({
-				userDto : userDto,
-				addressDto : addressDto
-			}),
-			success : function(response) {
-		        window.location.href = '/joinSuccess';
-			},
-			error : function(xhr, status, error) {
-				console.error(error);
-				// 에러 처리
-			}
-		});
-		}else{
-			
-		}
+    if (validateForm()) {
+        // User 데이터 수집
+        var userDto = {
+            email: document.getElementById("email").value,
+            password: document.getElementById("password").value,
+            name: document.getElementById("name").value,
+            birth: document.getElementById("birth").value,
+            phone: document.getElementById("phone").value,
+            marketingReceivedStatus: document.getElementById("marketingReceivedStatus").checked
+        };
+
+        // Address 데이터 수집
+        var addressDto = {
+            userSeq: null, 
+            postcode: document.getElementById("postcode").value,
+            mainAddress: document.getElementById("mainAddress").value,
+            detailAddress: document.getElementById("detailAddress").value
+        };
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/user/join/second', true);
+        xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) { // 요청 완료
+                if (xhr.status === 200) { // 성공
+                    window.location.href = '/joinSuccess';
+                } else {
+                    console.error(xhr.statusText);
+                    // 에러 처리
+                }
+            }
+        };
+
+        xhr.onerror = function() {
+            console.error('Request failed');
+            // 네트워크 오류 또는 기타 문제 처리
+        };
+
+        var data = JSON.stringify({
+            userDto: userDto,
+            addressDto: addressDto
+        });
+
+        xhr.send(data);
+    }
 });
 </script>
 

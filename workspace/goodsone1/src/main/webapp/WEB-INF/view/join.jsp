@@ -160,10 +160,10 @@ margin-bottom: 50px;
 		if (validateEmail()) {
 			var xhr = new XMLHttpRequest();
 			xhr.open('POST', '/api/verify/sendmail', false); // 동기식 요청으로 변경
-			xhr.setRequestHeader('Content-Type',
-					'application/x-www-form-urlencoded; charset=UTF-8');
-			xhr.send('reqEmail=' + encodeURIComponent(reqEmail));
-
+			xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
+	        var data = 'reqEmail=' + encodeURIComponent(reqEmail);
+	        xhr.send(data);
+			
 			if (xhr.status === 200) {
 				alert("인증번호 발송 완료");
 				message.style.color = 'green';
@@ -280,12 +280,12 @@ margin-bottom: 50px;
 		var message = document.getElementById("emailMessage");
 		if (formatEmail()) {
 			var xhr = new XMLHttpRequest();
-			xhr.open('POST', '/api/validate/email', false); // 동기식 요청으로 변경
-			xhr.setRequestHeader('Content-Type',
-					'application/x-www-form-urlencoded; charset=UTF-8');
-			xhr.send('reqEmail=' + encodeURIComponent(reqEmail));
+			xhr.open('POST', '/user/exist/email', false); // 동기식 요청으로 변경
+			xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
+			var data = 'reqEmail=' + encodeURIComponent(reqEmail);
+            xhr.send(data);
 
-			if (xhr.status === 200) {
+        	if (xhr.status === 200) {
 				console.log("이메일 중복 검사 완료.(성공)")
 				return true;
 			}  else {

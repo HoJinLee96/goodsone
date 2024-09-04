@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import dtoKakaoLogin.KakaoUserInfoResponseDto;
 import dtoNaverLogin.NaverUserInfoResponseDto;
 
-public class OAuthDto {
+public class OAuthDto extends User {
   private int oauthSeq;
   private int userSeq;
   private String provider; // "NAVER" 또는 "KAKAO"
@@ -15,10 +15,6 @@ public class OAuthDto {
   private String phone;
   private Status status;
   private LocalDateTime createdAt;
-  
-  public enum Status {
-    NORMAL, STAY, STOP
-  }
   
   public OAuthDto() {
   }
@@ -46,6 +42,7 @@ public class OAuthDto {
   public int getUserSeq() {
     return userSeq;
   }
+  @Override
   public String getProvider() {
     return provider;
   }

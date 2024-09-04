@@ -59,20 +59,19 @@
 	<div class="container">
 		<nav class="sidebar">
 			<ul>
-				<li class="category-title"><h3>쇼핑 정보</h3>
+				<li><a href="/my/cart">문의 내역</a></li>
+<!-- 				<li class="category-title"><h3>쇼핑 정보</h3>
 					<ul>
 						<li><a href="/my/purchase-history">구매내역</a></li>
 						<li><a href="/my/favorites">관심</a></li>
-						<li><a href="/my/cart">문의내역</a></li>
-					</ul></li>
+					</ul>
+				</li> -->
 				<li class="category-title"><h3>내정보</h3>
 					<ul>
 						<li><a href="/my/login-info">로그인 정보</a></li>
 						<li><a href="/my/profile">프로필 관리</a></li>
-						<li><a href="/my/membership">멤버십</a></li>
 						<li><a href="/my/address-book">주소록</a></li>
 						<li><a href="/my/payment-info">결제정보</a></li>
-						<li><a href="/my/coupons">쿠폰</a></li>
 					</ul></li>
 			</ul>
 		</nav>

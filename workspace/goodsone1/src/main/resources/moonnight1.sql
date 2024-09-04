@@ -110,3 +110,32 @@ SELECT * FROM `oauth`;
 DELETE FROM `oauth`;
 DROP TABLE IF EXISTS `oauth`;
 ALTER TABLE `oauth` AUTO_INCREMENT = 1;
+
+
+create table `login_success_log`(
+	`login_success_seq` int auto_increment primary key,
+    `provider` varchar(20) not null,
+    `id` VARCHAR(255) not null,
+    `ip` VARCHAR(45),
+    `create_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+SELECT * FROM `login_success_log`;
+
+DELETE FROM `login_success_log`;
+DROP TABLE IF EXISTS `login_success_log`;
+ALTER TABLE `login_success_log` AUTO_INCREMENT = 1;
+
+create table `login_fail_log`(
+	`login_fail_seq` int auto_increment primary key,
+    `provider` varchar(20) not null,
+    `id` VARCHAR(255) not null,
+    `ip` VARCHAR(45) NOT NULL,
+    `reason` VARCHAR(255) NOT NULL,
+    `after_success_seq` int,
+    `create_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+SELECT * FROM `login_fail_log`;
+
+DELETE FROM `login_fail_log`;
+DROP TABLE IF EXISTS `login_fail_log`;
+ALTER TABLE `login_fail_log` AUTO_INCREMENT = 1;
