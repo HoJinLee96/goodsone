@@ -51,7 +51,7 @@ String dayPart = createAtParts[0];
 	<tr><td><span id="email">가입 날짜 :  <%= dayPart %></span></td></tr>
 	<tr><td>&nbsp;</td></tr> <!-- 빈 줄 -->
 	<c:choose>
-	<c:when test="${!empty sessionScope.confirmNaverOAuthDto}">
+	<c:when test="${sessionScope.confirmOAuthDto.provider =='NAVER'}">
 	<tr><td><button id="linkExistingUserButton" >네이버와 기존 계정 연동하기</button></td></tr>
 	<tr><td><button id="createNewNaverOauthButton" >네이버로 신규 계정 가입하기</button></td></tr>
 	    <script>
@@ -65,7 +65,7 @@ String dayPart = createAtParts[0];
           });
     </script>
 	</c:when>
-	<c:when test="${!empty sessionScope.confirmKakaoOAuthDto}">
+	<c:when test="${sessionScope.confirmOAuthDto.provider == 'KAKAO'}">
 	<tr><td><button id="linkExistingUserButton" >카카오와 기존 계정 연동하기</button></td></tr>
 	<tr><td><button id="createNewKakaoOauthButton" >카카오로 신규 계정 가입하기</button></td></tr>
 		    <script>
@@ -164,7 +164,6 @@ function naverTokenRefresh(){
     
     xhr.onload = function() {
         if (xhr.status === 200) {
-        	alert("성공적으로 연동 되었습니다.");
             location.href = "/home";
         } else if (xhr.status === 404) {
             alert("재로그인 후 다시 시도해주세요.");
@@ -233,7 +232,6 @@ function kakaoTokenRefresh(){
 	
 	xhr.onload = function() {
 	    if (xhr.status === 200) {
-	    	alert("성공적으로 연동 되었습니다.");
 	        location.href = "/home";
 	    } else if (xhr.status === 404) {
 	        alert("재로그인 후 다시 시도해주세요.");

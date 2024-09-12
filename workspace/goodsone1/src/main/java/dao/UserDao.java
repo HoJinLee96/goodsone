@@ -12,9 +12,11 @@ import java.util.List;
 import java.util.Optional;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import dto.UserDto;
+import exception.NotFoundException;
 
 @Repository
 public class UserDao {
@@ -220,19 +222,36 @@ public class UserDao {
     }
   }
   
-  public boolean isEmailExists(String email) throws SQLException{
+  public String getUserStatusByEmail(String email) throws NotFoundException{
+    try {
+    String sql = "SELECT `status` FROM `user` WHERE `email` =?";
+    return jdbcTemplate.queryForObject(sql, String.class, email);
+    }catch (EmptyResultDataAccessException e) {
+      throw new NotFoundException();
+    }
+  }
+  
+  public boolean isEmailExists(String email){
     String sql = "SELECT COUNT(*) FROM `user` WHERE `email` = ?";
-    int count = jdbcTemplate.queryForObject(sql, new Object[]{email}, Integer.class);
+    int count = jdbcTemplate.queryForObject(sql, Integer.class, email);
     return count > 0;
   }
-  public boolean isPhoneExists(String phone) throws SQLException{
+  
+  public boolean isPhoneExists(String phone){
     String sql = "SELECT COUNT(*) FROM `user` WHERE `phone` = ?";
-    int count = jdbcTemplate.queryForObject(sql, new Object[]{phone}, Integer.class);
+    int count = jdbcTemplate.queryForObject(sql, Integer.class, phone);
     return count > 0;
   }
-  public boolean isEmailPhoneExists(String email, String phone) throws SQLException {
+  
+  public boolean isEmailPhoneExists(String email, String phone) {
     String sql = "SELECT COUNT(*) FROM `user` WHERE `email` = ? AND `phone` = ?";
-    int count = jdbcTemplate.queryForObject(sql, new Object[]{email, phone}, Integer.class);
+    int count = jdbcTemplate.queryForObject(sql, Integer.class, email, phone);
     return count > 0;
-}
+  }
+  
+  public Integer countLoginFail(String id) {
+    String sql = "SELECT COUNT(*) FROM `login_fail_log` WHERE `id` = ? AND `success_after_fail_seq` IS NULL;";
+    return jdbcTemplate.queryForObject(sql, Integer.class, id);
+  }
+  
 }

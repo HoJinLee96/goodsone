@@ -126,7 +126,7 @@ public class KakaoLoginController {
         if (optionalUserDto.isPresent()) {
           headers.setLocation(URI.create("/join/sns/confirm"));
           session.setAttribute("confirmUserDto", optionalUserDto.get());
-          session.setAttribute("confirmKakaoOAuthDto", oAuthDto);
+          session.setAttribute("confirmOAuthDto", oAuthDto);
           session.setAttribute("confirmOAuthToken", oAuthToken);
           session.setAttribute("confirmOAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in()) * 1000));
           return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
@@ -290,7 +290,7 @@ public class KakaoLoginController {
     if (sessionConfirmResult.getStatusCode() != HttpStatus.OK)
       return sessionConfirmResult;
     
-    OAuthDto oAuthDto = (OAuthDto)session.getAttribute("confirmKakaoOAuthDto");
+    OAuthDto oAuthDto = (OAuthDto)session.getAttribute("confirmOAuthDto");
     OAuthToken oAuthToken = (OAuthToken)session.getAttribute("confirmOAuthToken");
     
     try {
@@ -316,7 +316,7 @@ public class KakaoLoginController {
       return sessionConfirmResult;
     
     UserDto userDto = (UserDto)session.getAttribute("confirmUserDto");
-    OAuthDto oAuthDto = (OAuthDto)session.getAttribute("confirmKakaoOAuthDto");
+    OAuthDto oAuthDto = (OAuthDto)session.getAttribute("confirmOAuthDto");
     OAuthToken oAuthToken = (OAuthToken)session.getAttribute("confirmOAuthToken");
     
     try {
@@ -362,7 +362,7 @@ public class KakaoLoginController {
   private ResponseEntity<?> sessionConfirm2(HttpSession session) {
 
     UserDto userDto = (UserDto) session.getAttribute("confirmUserDto");
-    OAuthDto oAuthDto = (OAuthDto) session.getAttribute("confirmKakaoOAuthDto");
+    OAuthDto oAuthDto = (OAuthDto) session.getAttribute("confirmOAuthDto");
     OAuthToken oAuthToken = (OAuthToken) session.getAttribute("confirmOAuthToken");
     Long oAuthTokenExpiry = (Long) session.getAttribute("confirmOAuthTokenExpiry");
 
@@ -375,7 +375,7 @@ public class KakaoLoginController {
   // 컨펌세션 삭제
   private void sessionDelete(HttpSession session) {
     session.removeAttribute("confirmUserDto");
-    session.removeAttribute("confirmKakaoOAuthDto");
+    session.removeAttribute("confirmOAuthDto");
     session.removeAttribute("confirmOAuthToken");
     session.removeAttribute("confirmOAuthTokenExpiry");
   }

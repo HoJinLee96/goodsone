@@ -126,7 +126,7 @@ public class NaverLoginController {
         if (optionalUserDto.isPresent()) {
           headers.setLocation(URI.create("/join/sns/confirm"));
           session.setAttribute("confirmUserDto", optionalUserDto.get());
-          session.setAttribute("confirmNaverOAuthDto", oAuthDto);
+          session.setAttribute("confirmOAuthDto", oAuthDto);
           session.setAttribute("confirmOAuthToken", oAuthToken);
           session.setAttribute("confirmOAuthTokenExpiry", System.currentTimeMillis() + (Integer.parseInt(oAuthToken.getExpires_in()) * 1000));
           return ResponseEntity.status(HttpStatus.SEE_OTHER).headers(headers).build();
@@ -273,7 +273,7 @@ public class NaverLoginController {
     if (sessionConfirmResult.getStatusCode() != HttpStatus.OK)
       return sessionConfirmResult;
     
-    OAuthDto oAuthDto = (OAuthDto)session.getAttribute("confirmNaverOAuthDto");
+    OAuthDto oAuthDto = (OAuthDto)session.getAttribute("confirmOAuthDto");
     OAuthToken oAuthToken = (OAuthToken)session.getAttribute("confirmOAuthToken");
     
     try {
@@ -299,7 +299,7 @@ public class NaverLoginController {
       return sessionConfirmResult;
     
     UserDto userDto = (UserDto)session.getAttribute("confirmUserDto");
-    OAuthDto oAuthDto = (OAuthDto)session.getAttribute("confirmNaverOAuthDto");
+    OAuthDto oAuthDto = (OAuthDto)session.getAttribute("confirmOAuthDto");
     OAuthToken oAuthToken = (OAuthToken)session.getAttribute("confirmOAuthToken");
     
     try {
@@ -345,7 +345,7 @@ public class NaverLoginController {
   private ResponseEntity<?> sessionConfirm2(HttpSession session) {
 
     UserDto userDto = (UserDto) session.getAttribute("confirmUserDto");
-    OAuthDto oAuthDto = (OAuthDto) session.getAttribute("confirmNaverOAuthDto");
+    OAuthDto oAuthDto = (OAuthDto) session.getAttribute("confirmOAuthDto");
     OAuthToken oAuthToken = (OAuthToken) session.getAttribute("confirmOAuthToken");
     Long oAuthTokenExpiry = (Long) session.getAttribute("confirmOAuthTokenExpiry");
 
@@ -358,7 +358,7 @@ public class NaverLoginController {
   // 컨펌세션 삭제
   private void sessionDelete(HttpSession session) {
     session.removeAttribute("confirmUserDto");
-    session.removeAttribute("confirmNaverOAuthDto");
+    session.removeAttribute("confirmOAuthDto");
     session.removeAttribute("confirmOAuthToken");
     session.removeAttribute("confirmOAuthTokenExpiry");
   }

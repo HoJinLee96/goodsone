@@ -33,15 +33,13 @@ public class UserService {
       return userSeq;
     }
     
-    public boolean comparePasswordBySeq(int userSeq, String reqPassword) throws SQLException {
-      // 혹여나 특정 계정을 유추 할수 있을까봐 NotFoundException 삭제
-      String password = userDAO.getPasswordBySeq(userSeq).orElse("");
+    public boolean comparePasswordBySeq(int userSeq, String reqPassword) throws SQLException, NotFoundException {
+      String password = userDAO.getPasswordBySeq(userSeq).orElseThrow(()->new NotFoundException());
       return passwordEncoder.matches(reqPassword, password);
     }
     
-    public boolean comparePasswordByEmail(String email,String reqPassword) throws SQLException {
-      // 혹여나 특정 계정을 유추 할수 있을까봐 NotFoundException 삭제
-      String password = userDAO.getPasswordByEmail(email).orElse("");
+    public boolean comparePasswordByEmail(String email,String reqPassword) throws SQLException, NotFoundException {
+      String password = userDAO.getPasswordByEmail(email).orElseThrow(()->new NotFoundException());
       return passwordEncoder.matches(reqPassword, password);
     }
     
@@ -79,16 +77,24 @@ public class UserService {
             userDAO.deleteUser(userSeq);
     }
     
-    public boolean isEmailExists(String email) throws SQLException {
+    public String getUserStatusByEmail(String email) throws NotFoundException {
+      return userDAO.getUserStatusByEmail(email);
+    }
+    
+    public boolean isEmailExists(String email) {
       return userDAO.isEmailExists(email);
     }
     
-    public boolean isPhoneExists(String phone) throws SQLException {
+    public boolean isPhoneExists(String phone) {
       return userDAO.isPhoneExists(phone);
     }
     
-    public boolean isEmailPhoneExists(String email, String phone) throws SQLException {
+    public boolean isEmailPhoneExists(String email, String phone){
       return userDAO.isEmailPhoneExists(email, phone);
+    }
+    
+    public int countLoginFail(String id) {
+      return userDAO.countLoginFail(id);
     }
 
 }

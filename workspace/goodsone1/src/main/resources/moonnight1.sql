@@ -131,7 +131,7 @@ create table `login_fail_log`(
     `id` VARCHAR(255) not null,
     `ip` VARCHAR(45) NOT NULL,
     `reason` VARCHAR(255) NOT NULL,
-    `after_success_seq` int,
+    `success_seq` int,
     `create_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 SELECT * FROM `login_fail_log`;

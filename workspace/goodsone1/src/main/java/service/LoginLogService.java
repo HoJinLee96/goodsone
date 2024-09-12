@@ -16,9 +16,12 @@ public class LoginLogService {
     this.loginLogDao = loginLogDao;
   }
   
-  public int loginSuccess(User user,String ip) throws SQLException {
-    return loginLogDao.loginSuccess(user, ip);
+  public void loginSuccess(User user,String ip) throws SQLException {
+    loginLogDao.loginSuccess(user, ip);
   }
   
+  public int loginFail(String provider, String id, String ip, String reason) throws SQLException {
+    return loginLogDao.loginFail(provider, id, ip, reason);
+  }
   
 }

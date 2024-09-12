@@ -1,9 +1,12 @@
 package api;
 
+import java.net.URI;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,7 @@ import dto.OAuthDto;
 import dto.RegisterUserDto;
 import dto.UserDto;
 import dtoNaverLogin.OAuthToken;
+import exception.FailReason;
 import exception.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -49,13 +53,35 @@ public class UserInfoController {
   public ResponseEntity<?> loginByEmail(
       @RequestParam("email") String reqEmail,
       @RequestParam("password") String reqPassword,
-      HttpSession session, HttpServletRequest req, HttpServletResponse res,
-      RedirectAttributes redirectAttributes) {
+      HttpSession session, HttpServletRequest req) {
     
     System.out.println("LoginController.loginByEmail() 시작");
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "application/json; charset=UTF-8");
+    String ip = HttpUtil.getClientIp(req);
     
+    //로그인 유효 계정 여부 확인
+    String status = "";
+    try {
+      status = userService.getUserStatusByEmail(reqEmail);
+    } catch (NotFoundException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
+    }
+    
+    try {
+      if ("STAY".equals(status)) {
+        loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.ACCOUNT_LOCKED.name());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+      } else if ("STOP".equals(status)) {
+        loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.ACCOUNT_INACTIVE.name());
+        return ResponseEntity.status(HttpStatus.GONE).build();
+      }
+    }catch(SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
+    }
+    
+    //로그인 진행
     try {
       if (userService.comparePasswordByEmail(reqEmail, reqPassword)) {
         UserDto userDto = userService.getUserByEmail(reqEmail);
@@ -72,41 +98,72 @@ public class UserInfoController {
         response.put("message", "Login successful");
         response.put("redirectUrl", referer);
         
-        String ip = HttpUtil.getClientIp(req);
         loginLogService.loginSuccess(userDto, ip);
         System.out.println("로그인 성공");
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
         }else {
+          loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.INVALID_PASSWORD.name());
           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
         }
-      }catch (SQLException | NotFoundException e) {
-      e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
-
-    }
+      }catch (SQLException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
+      }catch(NotFoundException e){
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
+      }
   }
   
+  // simple은 기존 로그인과 다르게 세션에 아무것도 저장 안함.
   @PostMapping("/login/email/simple")
   public ResponseEntity<?> loginByEmailSimple(
       @RequestParam("email") String reqEmail,
       @RequestParam("password") String reqPassword,
-      HttpSession session, HttpServletRequest req, HttpServletResponse res,
-      RedirectAttributes redirectAttributes) {
+      HttpServletRequest req) {
+    
     System.out.println("LoginController.loginByEmail() 시작");
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "application/json; charset=UTF-8");
+    String ip = HttpUtil.getClientIp(req);
+    
+    //로그인 유효 계정 여부 확인
+    String status = "";
+    try {
+      status = userService.getUserStatusByEmail(reqEmail);
+    } catch (NotFoundException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
+    }
+    
+    try {
+      if ("STAY".equals(status)) {
+        loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.ACCOUNT_LOCKED.name());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+      } else if ("STOP".equals(status)) {
+        loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.ACCOUNT_INACTIVE.name());
+        return ResponseEntity.status(HttpStatus.GONE).build();
+      }
+    }catch(SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
+    }
 
+    //로그인 진행
     try {
       if (userService.comparePasswordByEmail(reqEmail, reqPassword)) {
+        UserDto userDto = userService.getUserByEmail(reqEmail);
+        loginLogService.loginSuccess(userDto, ip);
         return ResponseEntity.status(HttpStatus.OK).build();
       } else {
+        loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.INVALID_PASSWORD.name());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
       }
     } catch (SQLException e) {
       e.printStackTrace();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
-
+    } catch (NotFoundException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
     }
   }
   
@@ -167,13 +224,13 @@ public class UserInfoController {
     if(userDto==null)
       userDto = (UserDto)session.getAttribute("userDto");
     
-    OAuthDto oAuthDto = (OAuthDto)session.getAttribute("naverUserInfoResponseDto");
+    OAuthDto oAuthDto = (OAuthDto)session.getAttribute("confirmOAuthDto");
       if(oAuthDto==null)
         oAuthDto = (OAuthDto)session.getAttribute("oAuthDto");
       
-    OAuthToken oAuthToken = (OAuthToken)session.getAttribute("oAuthToken");
+    OAuthToken oAuthToken = (OAuthToken)session.getAttribute("confirmOAuthToken");
     
-    Long oAuthTokenExpiry = (Long) session.getAttribute("oAuthTokenExpiry");
+    Long oAuthTokenExpiry = (Long) session.getAttribute("confirmOAuthTokenExpiry");
     
     if(userDto==null || oAuthDto==null || oAuthToken==null || oAuthTokenExpiry == null || System.currentTimeMillis() > oAuthTokenExpiry)
       return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -192,21 +249,19 @@ public class UserInfoController {
     }
   }
   
-  
   @PostMapping("/exist/email")
   public ResponseEntity<String> isEmailExists(@RequestParam String reqEmail) {
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Type", "text/plain; charset=UTF-8");
-      
+
     try {
-      if(userService.isEmailExists(reqEmail)) {
-        return ResponseEntity.status(HttpStatus.MULTI_STATUS).headers(headers).body("가입 불가능한 이메일 입니다.");}
-      else {
-        return ResponseEntity.status(HttpStatus.OK).headers(headers).body("가입 가능한 이메일 입니다.");
-      }
-    } catch (SQLException e) {
+      if (userService.isEmailExists(reqEmail)) {
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).build();
+      } 
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).build();
+    } catch (DataAccessException e) {
       e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("서버 장애 발생.");
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
     }
   }
   
@@ -217,12 +272,10 @@ public class UserInfoController {
       
     try {
       if(userService.isPhoneExists(reqPhone)) {
-        return ResponseEntity.status(HttpStatus.MULTI_STATUS).headers(headers).build();
-      }
-      else {
         return ResponseEntity.status(HttpStatus.OK).headers(headers).build();
       }
-    } catch (SQLException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).build();
+    } catch (DataAccessException e) {
       e.printStackTrace();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
     }
@@ -237,7 +290,7 @@ public class UserInfoController {
         return ResponseEntity.status(HttpStatus.OK).headers(headers).build();
       }
       return ResponseEntity.status(HttpStatus.NOT_FOUND).headers(headers).build();
-    } catch (SQLException e) {
+    } catch (DataAccessException e) {
       e.printStackTrace();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
     }
@@ -274,6 +327,14 @@ public class UserInfoController {
       }
     }
   
-
+  private boolean verifyLoginUser(String email) throws SQLException,NotFoundException {
+    if(!userService.isEmailExists(email)) {
+      throw new NotFoundException();
+    }
+    if(userService.countLoginFail(email)>4)
+      return false;
+    else
+      return true;
+  }
   
 }
