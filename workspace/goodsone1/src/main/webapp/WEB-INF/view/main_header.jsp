@@ -76,7 +76,7 @@
 	text-decoration: none;
 	color: white;
 	padding-left: 10px;
-	font-size: 12px;
+	font-size: 14px;
 	font-weight: 300;
 
 }

@@ -25,7 +25,7 @@ public class LoginLogDao {
   
   public void loginSuccess(User user,String ip) throws SQLException {
 
-    String sql = "insert into login_success_log (provider,id,ip) values (?,?,?);";
+    String sql = "insert into login_success_log (provider,id,ip) values (?,?,?)";
     try (Connection con = dataSource.getConnection();
         PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
       pst.setString(1, user.getProvider());
@@ -46,7 +46,7 @@ public class LoginLogDao {
     }
   
   public int loginFail(String provider, String id, String ip, String reason) throws SQLException {
-    String sql = "insert into login_fail_log (provider,id,ip,reason) values (?,?,?,?);";
+    String sql = "insert into login_fail_log (provider,id,ip,reason) values (?,?,?,?)";
     try (Connection con = dataSource.getConnection();
         PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
       pst.setString(1, provider);
@@ -59,6 +59,16 @@ public class LoginLogDao {
         return generatedKeys.getInt(1);
       }else
         throw new SQLException("서버 장애 발생.");
+      }
+  }
+  
+  public void failLogInit(String id, int reason) throws SQLException {
+    String sql = "update `login_fail_log` set `success_seq`=  ? where `id` = ? AND `success_seq` is null";
+    try (Connection con = dataSource.getConnection();
+        PreparedStatement pst = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);) {
+      pst.setInt(1, reason);
+      pst.setString(2, id);
+      pst.executeUpdate();
       }
   }
   

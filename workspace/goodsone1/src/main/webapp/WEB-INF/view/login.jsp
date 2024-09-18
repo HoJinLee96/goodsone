@@ -201,6 +201,8 @@ content:"다른 방법 로그인";
 
 <%@ include file = "main_footer.jsp" %>
 </body>
+
+<!-- 로그인 -->
 <script type="text/javascript">
 $(document).ready(function() {
     $('#loginForm').on('submit', function(event) {
@@ -226,12 +228,18 @@ $(document).ready(function() {
                     localStorage.removeItem('chamRememmberUserId');
                 }
                 location.href = response.redirectUrl;
-            } else if (xhr.status === 401) {
+            } else if (xhr.status === 401 || xhr.status === 410) {
                 alert("일치하는 회원 정보가 없습니다.");
+                location.href = "/clearLogin";
+            } else if (xhr.status === 403) {
+                alert("본인인증이 필요한 계정입니다.");
+                location.href = "/verifyUser";
             } else if (xhr.status === 500) {
                 alert("서버 오류가 발생했습니다. \n 다시 시도해주세요.");
+                location.href = "/clearLogin";
             } else {
                 alert("알 수 없는 오류가 발생했습니다.");
+            	location.href = "/clearLogin";
             }
         };
         xhr.send(data);

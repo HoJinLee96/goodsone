@@ -28,25 +28,27 @@ public class UserDto extends User {
         this.phone = phone;
         this.marketingReceivedStatus = marketingReceivedStatus;
       }
-      
-      
-      // Builder 패턴
-      private UserDto(Builder builder) {
-          this.userSeq = builder.userSeq;
-          this.email = builder.email;
-          this.password = builder.password;
-          this.name = builder.name;
-          this.birth = builder.birth;
-          this.mobileCarrier = builder.mobileCarrier;
-          this.phone = builder.phone;
-          this.createdAt = builder.createdAt;
-          this.updatedAt = builder.updatedAt;
-          this.status = builder.status;
-          this.marketingReceivedStatus = builder.marketingReceivedStatus;
+
+      public UserDto(int userSeq, String email, String name, String birth, String phone,
+          Status status, boolean marketingReceivedStatus, LocalDateTime createdAt,
+          LocalDateTime updatedAt) {
+        super();
+        this.userSeq = userSeq;
+        this.email = email;
+        this.name = name;
+        this.birth = birth;
+        this.phone = phone;
+        this.status = status;
+        this.marketingReceivedStatus = marketingReceivedStatus;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
       }
 
-      //Getter
-      
+      @Override
+      public String getProvider() {
+        return "PUBLIC";
+      }
+
       public int getUserSeq() {
         return userSeq;
       }
@@ -75,14 +77,6 @@ public class UserDto extends User {
         return phone;
       }
 
-      public LocalDateTime getCreatedAt() {
-        return createdAt;
-      }
-
-      public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-      }
-
       public Status getStatus() {
         return status;
       }
@@ -91,97 +85,24 @@ public class UserDto extends User {
         return marketingReceivedStatus;
       }
 
-
-      public static class Builder {
-        private int userSeq;
-        private String email;
-        private String password;
-        private String name;
-        private String birth;
-        private String mobileCarrier;
-        private String phone;
-        private LocalDateTime createdAt;
-        private LocalDateTime updatedAt;
-        private Status status; 
-        private boolean marketingReceivedStatus;
-
-        public Builder userSeq(int userSeq) {
-            this.userSeq = userSeq;
-            return this;
-        }
-
-        public Builder email(String email) {
-            this.email = email;
-            return this;
-        }
-
-        public Builder password(String password) {
-            this.password = password;
-            return this;
-        }
-
-        public Builder name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public Builder birth(String birth) {
-            this.birth = birth;
-            return this;
-        }
-
-        public Builder mobileCarrier(String mobileCarrier) {
-            this.mobileCarrier = mobileCarrier;
-            return this;
-        }
-
-        public Builder phone(String phone) {
-            this.phone = phone;
-            return this;
-        }
-
-        public Builder createdAt(LocalDateTime createdAt) {
-            this.createdAt = createdAt;
-            return this;
-        }
-
-        public Builder updatedAt(LocalDateTime updatedAt) {
-            this.updatedAt = updatedAt;
-            return this;
-        }
-
-        public Builder status(Status status) {  
-          this.status = status;
-          return this;
-        }
-
-        public Builder marketingReceivedStatus(boolean marketingReceivedStatus) {
-            this.marketingReceivedStatus = marketingReceivedStatus;
-            return this;
-        }
-
-        public UserDto build() {
-            return new UserDto(this);
-        }
-    }
-
-      @Override
-      public String toString() {
-        return "UserDto [userSeq=" + userSeq + ", email=" + email + ", password=" + password
-            + ", name=" + name + ", birth=" + birth + ", mobileCarrier=" + mobileCarrier
-            + ", phone=" + phone + ", status=" + status + ", marketingReceivedStatus="
-            + marketingReceivedStatus + ", createdAt=" + createdAt + ", updatedAt=" + updatedAt
-            + "]";
+      public LocalDateTime getCreatedAt() {
+        return createdAt;
       }
 
-      @Override
-      public String getProvider() {
-        return "PUBLIC";
+      public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+      }
+
+      
+      // setter
+      
+      public void setStatus(Status status) {
+        this.status = status;
       }
       
       
       
-      // Setter
+      
       
     
 }

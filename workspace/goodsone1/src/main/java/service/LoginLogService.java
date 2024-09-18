@@ -24,4 +24,8 @@ public class LoginLogService {
     return loginLogDao.loginFail(provider, id, ip, reason);
   }
   
+  public void failLogInit(String id, int reason) throws SQLException {
+    loginLogDao.failLogInit(id,reason);
+  }
+  
 }

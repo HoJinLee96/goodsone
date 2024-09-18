@@ -28,18 +28,21 @@ margin: 8px 0px;
 #speedEstimateContainer{
 display:flex;
 	max-width: 1920px;
-	min-width: 1080px;
+	min-width: 800px;
 	height:80px;
 	background-color: #dbf1fd;
 	font-size: 15px;
 	margin: 0px auto;
 }
 #speedEstimate{
-display:inline-block;
-	margin:auto;
+margin:auto;
+min-width: 950px;
 }
 #speedEstimate form{
 display: inline;
+}
+#phone{
+width:140px;
 }
 #phone, #cleaningService, #region{
 outline: none;
@@ -68,6 +71,8 @@ color: #20367a;
 }
 #agreement{
 margin: 0px;
+position: relative;
+top: 1.5px;
 }
 .fixed-top {
 	width:100%;
@@ -103,22 +108,22 @@ document.addEventListener('DOMContentLoaded', function () {
 <body>
 	<div id="speedEstimateContainer">
 		<div id="speedEstimate">
-			<form id="estimate">
-				<label for="phone">연락처 </label> <input type="text" id="phone"
-					name="phone" oninput="formatPhoneNumber(this)" maxlength="15"
-					placeholder="- 없이 기입" required> <label
-					for="cleaningService">청소 서비스 선택 </label> <select
-					id="cleaningService" name="cleaningService">
+				<label for="phone">연락처 </label>
+				<input type="text" id="phone" name="phone" oninput="formatPhoneNumber(this)" maxlength="15" placeholder="- 없이 기입" required>
+				<label for="cleaningService">청소 서비스 선택 </label>
+				<select id="cleaningService" name="cleaningService">
 					<option value="">선택</option>
 					<option value="신축">신축 입주 청소</option>
 					<option value="이사">이사 입주 청소</option>
 					<option value="거주">거주 청소</option>
-					<option value="리모델링">리모델링 후 청소</option>
+					<option value="리모델링">리모델링 청소</option>
 					<option value="준공">준공 청소</option>
 					<option value="상가">상가 청소</option>
 					<option value="오피스">오피스 청소</option>
 					<option value="기타">기타 청소</option>
-				</select> <label for="region">지역 </label> <select id="region" name="region">
+				</select> 
+				<label for="region">지역 </label>
+				<select id="region" name="region">
 					<option value="">선택</option>
 					<option value="서울">서울특별시</option>
 					<option value="부산">부산광역시</option>
@@ -138,11 +143,10 @@ document.addEventListener('DOMContentLoaded', function () {
 					<option value="경남">경상남도</option>
 					<option value="제주">제주특별자치도</option>
 				</select>
-				<button id="submitButton" type="submit">간편 견적 신청</button>
-			</form>
+				<button id="submitButton">간편 견적 신청</button>
 			<div id="agreeMentDiv">
-				<input type="checkbox" id="agreement" name="greement"> <label
-					for="greement" style="font-size: 14px;">개인정보 수집 및 이용 동의</label>
+				<input type="checkbox" id="agreement" name="agreement">
+				<label for="agreement" style="font-size: 14px;">개인정보 수집 및 이용 동의</label>
 			</div>
 			<a style="font-size: 14px;" href="javascript:;"
 				onclick="javascript:footerlayerLoad('static/InfoAgreement.html'); return false;">[원본]</a>
@@ -167,10 +171,10 @@ document.addEventListener('DOMContentLoaded', function () {
 <script type="text/javascript">
 
 //개인동의 쉽게 체크하기
-document.getElementById('agreeMentDiv').addEventListener('click', function () {
+/* document.getElementById('agreeMentDiv').addEventListener('click', function () {
     const checkbox = document.getElementById('agreement');
     checkbox.checked = !checkbox.checked;
-});
+}); */
 
 //휴대폰 번호 규칙
 function formatPhoneNumber(input) {
@@ -179,13 +183,13 @@ function formatPhoneNumber(input) {
 	input.value = formattedValue;
 }
 
-$('#estimate').on('submit', function(event) {
+$('#submitButton').on('click', function(event) {
 	event.preventDefault();
     
     var phone = $('#phone').val().trim();
     var cleaningService = $('#cleaningService').val();
     var region = $('#region').val();
-    var agreement = $('#agreement').val();
+    var agreement = $('#agreement');
 
     if (phone === '') {
         alert('연락처를 입력해주세요.');
@@ -202,29 +206,31 @@ $('#estimate').on('submit', function(event) {
         return;
     }
     
-    if(!agreement.checked){
-    	alert('개인정보 수집 및 이용 동의 체크해주세요.');
+    if (!agreement.prop('checked')) {
+        alert('개인정보 수집 및 이용 동의 체크해주세요.');
         return;
     }
 
-    var formData = new FormData(this);
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/estimate/speedRegister', true); // 비동기식 요청
+    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+    
+    var data = 'phone=' + encodeURIComponent(phone) +
+               '&cleaningService=' + encodeURIComponent(cleaningService)+
+               '&region=' + encodeURIComponent(region);
+    
+	xhr.onload = function() {
+	    if (xhr.status === 200) {
+	        alert("신청해 주셔서 감사합니다. \n빠르게 연락 드리겠습니다.");
+	    } else if (xhr.status === 500) {
+	        alert("서버 오류가 발생했습니다. \n잠시 후 다시 시도해주세요.");
+	    } else {
+	        alert("오류가 발생했습니다. \n잠시 후 다시 시도해주세요.");
+	    }
+		location.href = "/home";
+    };
+    xhr.send(data);
 
-    $.ajax({
-        url: '/estimate/speedRegister',
-        type: 'POST',
-        processData: false,
-        contentType: false,
-        data: formData,
-        success: function(response) {
-            alert("감사합니다 고객님.\n빠른 답변 드리겠습니다.");
-            window.location.href = '/home';
-        },
-        error: function(xhr, status, error) {
-            console.log(xhr);
-            console.log(status);
-            console.error(error);
-        }
-    });
 });
 	</script>
 </html>

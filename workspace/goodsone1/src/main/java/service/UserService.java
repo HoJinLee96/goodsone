@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import dao.AddressDao;
 import dao.UserDao;
 import dto.AddressDto;
+import dto.User;
 import dto.UserDto;
 import exception.NotFoundException;
 
@@ -44,21 +45,23 @@ public class UserService {
     }
     
     public UserDto getUserBySeq(int userSeq) throws NotFoundException, SQLException {
-    	return userDAO.getUserBySeq(userSeq).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
+      return userDAO.getUserBySeq(userSeq).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
     }
 
     public UserDto getUserByEmail(String email) throws NotFoundException, SQLException {
-        return userDAO.getUserByEmail(email).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
-
+      return userDAO.getUserByEmail(email).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
     }
     
     public String getEmailByPhone(String phone) throws NotFoundException, SQLException {
       return userDAO.getEmailByPhone(phone).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
-
-  }
+    }
 
     public List<UserDto> getAllUsers() throws SQLException{
-            return userDAO.getAllUsers();
+      return userDAO.getAllUsers();
+    }
+    
+    public String getUserStatusByEmail(String email) throws NotFoundException {
+      return userDAO.getUserStatusByEmail(email);
     }
 
 //    @Transactional
@@ -71,14 +74,15 @@ public class UserService {
       String newEncodePassword = passwordEncoder.encode(newPassword);
       return userDAO.updatePassword(userSeq,newEncodePassword).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
     }
+    
+    @Transactional
+    public Integer updateStatus(User reqUser) throws NotFoundException, SQLException{
+      return userDAO.updateStatus(reqUser.getEmail(), reqUser.getStatus().name()).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
+    }
 
     @Transactional
     public void deleteUser(int userSeq) throws SQLException {
             userDAO.deleteUser(userSeq);
-    }
-    
-    public String getUserStatusByEmail(String email) throws NotFoundException {
-      return userDAO.getUserStatusByEmail(email);
     }
     
     public boolean isEmailExists(String email) {

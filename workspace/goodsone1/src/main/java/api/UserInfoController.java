@@ -1,12 +1,10 @@
 package api;
 
-import java.net.URI;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,17 +13,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.AddressDto;
 import dto.OAuthDto;
 import dto.RegisterUserDto;
+import dto.User;
+import dto.User.Status;
 import dto.UserDto;
 import dtoNaverLogin.OAuthToken;
 import exception.FailReason;
 import exception.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import service.LoginLogService;
 import service.OAuthService;
@@ -60,7 +58,7 @@ public class UserInfoController {
     headers.add("Content-Type", "application/json; charset=UTF-8");
     String ip = HttpUtil.getClientIp(req);
     
-    //로그인 유효 계정 여부 확인
+    //계정 상태 얻기
     String status = "";
     try {
       status = userService.getUserStatusByEmail(reqEmail);
@@ -68,9 +66,11 @@ public class UserInfoController {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
     }
     
+    //계정 상태 검사
     try {
       if ("STAY".equals(status)) {
         loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.ACCOUNT_LOCKED.name());
+        session.setAttribute("stayEmail", reqEmail);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       } else if ("STOP".equals(status)) {
         loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.ACCOUNT_INACTIVE.name());
@@ -81,10 +81,10 @@ public class UserInfoController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
     }
     
-    //로그인 진행
+    //계정 비밀번호 확인
     try {
+      UserDto userDto = userService.getUserByEmail(reqEmail);
       if (userService.comparePasswordByEmail(reqEmail, reqPassword)) {
-        UserDto userDto = userService.getUserByEmail(reqEmail);
         session.setAttribute("userDto", userDto);
         session.setMaxInactiveInterval(30 * 60); // 세션 만료 시간: 30분
         
@@ -104,6 +104,10 @@ public class UserInfoController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
         }else {
           loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.INVALID_PASSWORD.name());
+          if(userService.countLoginFail(reqEmail)>4) {
+            userDto.setStatus(Status.STAY);
+            userService.updateStatus(userDto);
+          }
           return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
         }
       }catch (SQLException e) {
@@ -127,7 +131,7 @@ public class UserInfoController {
     headers.add("Content-Type", "application/json; charset=UTF-8");
     String ip = HttpUtil.getClientIp(req);
     
-    //로그인 유효 계정 여부 확인
+    //계정 상태 얻기
     String status = "";
     try {
       status = userService.getUserStatusByEmail(reqEmail);
@@ -135,6 +139,7 @@ public class UserInfoController {
       return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
     }
     
+    //계정 상태 검사
     try {
       if ("STAY".equals(status)) {
         loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.ACCOUNT_LOCKED.name());
@@ -148,14 +153,18 @@ public class UserInfoController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
     }
 
-    //로그인 진행
+    //계정 비밀번호 확인
     try {
+      UserDto userDto = userService.getUserByEmail(reqEmail);
       if (userService.comparePasswordByEmail(reqEmail, reqPassword)) {
-        UserDto userDto = userService.getUserByEmail(reqEmail);
         loginLogService.loginSuccess(userDto, ip);
         return ResponseEntity.status(HttpStatus.OK).build();
       } else {
         loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.INVALID_PASSWORD.name());
+        if(userService.countLoginFail(reqEmail)>4) {
+          userDto.setStatus(Status.STAY);
+          userService.updateStatus(userDto);
+        }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
       }
     } catch (SQLException e) {
@@ -188,34 +197,51 @@ public class UserInfoController {
   @PostMapping("/update/password")
   public ResponseEntity<?> updatePassword(
       @RequestParam("email") String reqEmail,
-      @RequestParam("phone") String reqPhone,
       @RequestParam("password") String reqPassword,
       @RequestParam("confirmPassword") String reqConfirmPassword) {
     
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("Content-Type", "text/plain; charset=UTF-8");
-    
     //두 비밀번호 값 불일치
     if(!reqPassword.equals(reqConfirmPassword))
-      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     
       try {
+        //user 테이블 데이터 get
         UserDto userDto = userService.getUserByEmail(reqEmail);
-        System.out.println(userDto.getPhone() +"\n" + reqPhone + "\n" + userDto.getPhone().equals(reqPhone));
-        if(!userDto.getPhone().equals(reqPhone))
-          throw new NotFoundException();
         
+        //비밀번호 변경
         userService.updatePassword(userDto.getUserSeq(),reqPassword);
-        return ResponseEntity.status(HttpStatus.OK).headers(headers).build();
+        
+        //상태 변경
+        userDto.setStatus(Status.NORMAL);
+        userService.updateStatus(userDto);
+        
+        //로그인 실패 로그에 비밀번호 변경 했다고 기록, "-1" 로 비밀번호 변경을 의미
+        loginLogService.failLogInit(reqEmail, -1);
+        
+        return ResponseEntity.status(HttpStatus.OK).build();
         
       } catch (NotFoundException e) {
         e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
       } catch (SQLException e) {
         e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
       }
   }
+  
+//  @PostMapping("/update/status")
+//  public ResponseEntity<?> updateStatus(@RequestBody UserDto reqUserDto) {
+//    try {
+//      userService.updateStatus((User)reqUserDto);
+//      return ResponseEntity.status(HttpStatus.OK).build();
+//    } catch (NotFoundException e) {
+//      e.printStackTrace();
+//      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//    } catch (SQLException e) {
+//      e.printStackTrace();
+//      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//    }
+//  }
   
   @PostMapping("/ouath/connect")
   public ResponseEntity<?> registerConnect(HttpSession session){

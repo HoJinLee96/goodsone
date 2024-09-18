@@ -45,8 +45,7 @@ public class WebMainController {
 
     return "login";
   }
-
-
+  
   @GetMapping("/logout")
   public String logout(HttpServletRequest req, HttpServletResponse res,HttpSession session) {
     System.out.println("----------WebMainController.logout() 실행----------");
@@ -111,12 +110,24 @@ public class WebMainController {
    @GetMapping("/find/email")
    public String showFindEmail(HttpServletRequest req, HttpServletResponse res) {
      System.out.println("----------WebMainController.showFindEmail() 실행----------");
-     return "findEmail";
+     return "findEmailBlank";
    }
    
    @GetMapping("/find/password")
    public String showFindPassword(HttpServletRequest req, HttpServletResponse res) {
      System.out.println("----------WebMainController.showFindId() 실행----------");
-     return "findPassword";
+     return "findPasswordBlank";
+   }
+   
+   @GetMapping("/verifyUser")
+   public String loginVerify(HttpServletRequest req, HttpServletResponse res) {
+     System.out.println("----------WebMainController.loginVerify() 실행----------");
+     return "verifyUser";
+   }
+
+   @GetMapping("/verify/phone/blank")
+   public String verifyPhoneBlank(HttpServletRequest req, HttpServletResponse res) {
+     System.out.println("----------WebMainController.verifyPhoneBlank() 실행----------");
+     return "verifyPhoneBlank";
    }
 }

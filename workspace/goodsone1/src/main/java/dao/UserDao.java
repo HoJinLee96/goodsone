@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import dto.User;
 import dto.UserDto;
 import exception.NotFoundException;
 
@@ -58,23 +59,17 @@ public class UserDao {
         statement.setInt(1, userSeq);
         try (ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next()) {
-                UserDto userDto = new UserDto.Builder()
-                    .userSeq(resultSet.getInt("user_seq"))
-                    .email(resultSet.getString("email"))
-                    // .password(resultSet.getString("password")) // 패스워드는 설정하지 않음
-                    .name(resultSet.getString("name"))
-                    .birth(resultSet.getString("birth"))
-                    .phone(resultSet.getString("phone"))
-                    .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
-                    .updatedAt(
-                        resultSet.getTimestamp("updated_at") != null ? 
-                        resultSet.getTimestamp("updated_at").toLocalDateTime() : 
-                        null
-                    )
-                    .status(UserDto.Status.valueOf(resultSet.getString("status"))) // 수정된 부분
-                    .marketingReceivedStatus(resultSet.getBoolean("marketing_received_status"))
-                    .build();
-
+              UserDto userDto = new UserDto(
+                  resultSet.getInt(userSeq),
+                  resultSet.getString("email"),
+                  resultSet.getString("name"),
+                  resultSet.getString("birth"),
+                  resultSet.getString("phone"),
+                  User.Status.valueOf(resultSet.getString("status")),
+                  resultSet.getBoolean("marketing_received_status"),
+                  resultSet.getTimestamp("created_at").toLocalDateTime(),
+                  resultSet.getTimestamp("updated_at") != null ? resultSet.getTimestamp("updated_at").toLocalDateTime() : null
+              );
                 return Optional.ofNullable(userDto);
             }
         }
@@ -89,22 +84,17 @@ public class UserDao {
       statement.setString(1, email);
       try (ResultSet resultSet = statement.executeQuery()) {
         if (resultSet.next()) {
-          UserDto userDto = new UserDto.Builder()
-              .userSeq(resultSet.getInt("user_seq"))
-              .email(resultSet.getString("email"))
-              // .password(resultSet.getString("password")) // 패스워드는 설정하지 않음
-              .name(resultSet.getString("name"))
-              .birth(resultSet.getString("birth"))
-              .phone(resultSet.getString("phone"))
-              .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
-              .updatedAt(
-                  resultSet.getTimestamp("updated_at") != null ? 
-                  resultSet.getTimestamp("updated_at").toLocalDateTime() : 
-                  null
-              )
-              .status(UserDto.Status.valueOf(resultSet.getString("status"))) 
-              .marketingReceivedStatus(resultSet.getBoolean("marketing_received_status"))
-              .build();
+          UserDto userDto = new UserDto(
+              resultSet.getInt("user_seq"),
+              resultSet.getString("email"),
+              resultSet.getString("name"),
+              resultSet.getString("birth"),
+              resultSet.getString("phone"),
+              User.Status.valueOf(resultSet.getString("status")),
+              resultSet.getBoolean("marketing_received_status"),
+              resultSet.getTimestamp("created_at").toLocalDateTime(),
+              resultSet.getTimestamp("updated_at") != null ? resultSet.getTimestamp("updated_at").toLocalDateTime() : null
+          );
 
           return Optional.ofNullable(userDto);
         }
@@ -165,42 +155,33 @@ public class UserDao {
         ResultSet resultSet = statement.executeQuery()) {
 
       while (resultSet.next()) {
-          UserDto userDto = new UserDto.Builder()
-              .userSeq(resultSet.getInt("user_seq"))
-              .email(resultSet.getString("email"))
-              // .password(resultSet.getString("password")) // 패스워드는 설정하지 않음
-              .name(resultSet.getString("name"))
-              .birth(resultSet.getString("birth"))
-              .phone(resultSet.getString("phone"))
-              .createdAt(resultSet.getTimestamp("created_at").toLocalDateTime())
-              .updatedAt(
-                  resultSet.getTimestamp("updated_at") != null ? 
-                  resultSet.getTimestamp("updated_at").toLocalDateTime() : 
-                  null
-              )
-              .status(UserDto.Status.valueOf(resultSet.getString("status"))) // 수정된 부분
-              .marketingReceivedStatus(resultSet.getBoolean("marketing_received_status"))
-              .build();
+        UserDto userDto = new UserDto(
+            resultSet.getInt("user_seq"),
+            resultSet.getString("email"),
+            resultSet.getString("name"),
+            resultSet.getString("birth"),
+            resultSet.getString("phone"),
+            User.Status.valueOf(resultSet.getString("status")),
+            resultSet.getBoolean("marketing_received_status"),
+            resultSet.getTimestamp("created_at").toLocalDateTime(),
+            resultSet.getTimestamp("updated_at") != null ? resultSet.getTimestamp("updated_at").toLocalDateTime() : null
+        );
 
         users.add(userDto);
       }
     }
     return users;
   }
-
-  // Update
-//  public Optional<Integer> updateUser(UserDto user) throws SQLException {
-//    String sql =
-//        "UPDATE user SET user_email = ?, user_oldpassword = ?, user_name = ?, user_nickname = ?, user_birth = ?, user_phone_agency = ?, user_phone_number = ?, user_address = ?, updated_at = ?, user_status = ?, user_signtype = ? WHERE user_seq = ?";
-//    try (Connection con = dataSource.getConnection();
-//        PreparedStatement pst = con.prepareStatement(sql)) {
-//      pst.setInt(1, user.getUserSeq());
-//      Integer result = pst.executeUpdate();
-//      return Optional.ofNullable(result);
-//    }
-//  }
   
-  // update password
+  public String getUserStatusByEmail(String email) throws NotFoundException{
+    try {
+    String sql = "SELECT `status` FROM `user` WHERE `email` =?";
+    return jdbcTemplate.queryForObject(sql, String.class, email);
+    }catch (EmptyResultDataAccessException e) {
+      throw new NotFoundException();
+    }
+  }
+  
   public Optional<Integer> updatePassword(int userSeq,String newEncodePassword) throws SQLException {
     String sql = "UPDATE user SET password = ?, updated_at = ? WHERE user_seq = ?";
     try (Connection con = dataSource.getConnection();
@@ -212,6 +193,21 @@ public class UserDao {
       return Optional.ofNullable(result);
     }
   }
+  
+  public Optional<Integer> updateStatus(String email,String status) throws SQLException {
+    String sql = "UPDATE `user` SET `status` = ?, updated_at = ? WHERE email = ?";
+    try (Connection con = dataSource.getConnection();
+        PreparedStatement pst = con.prepareStatement(sql)) {
+      pst.setString(1, status);
+      pst.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+      pst.setString(3, email);
+      Integer result = pst.executeUpdate();
+      if(result == 0) {
+        return Optional.empty();
+      }
+      return Optional.of(result);
+    }
+  }
 
   public void deleteUser(int userSeq) throws SQLException {
     String sql = "DELETE FROM user WHERE user_seq = ?";
@@ -219,15 +215,6 @@ public class UserDao {
         PreparedStatement statement = connection.prepareStatement(sql)) {
       statement.setInt(1, userSeq);
       statement.executeUpdate();
-    }
-  }
-  
-  public String getUserStatusByEmail(String email) throws NotFoundException{
-    try {
-    String sql = "SELECT `status` FROM `user` WHERE `email` =?";
-    return jdbcTemplate.queryForObject(sql, String.class, email);
-    }catch (EmptyResultDataAccessException e) {
-      throw new NotFoundException();
     }
   }
   
@@ -250,7 +237,7 @@ public class UserDao {
   }
   
   public Integer countLoginFail(String id) {
-    String sql = "SELECT COUNT(*) FROM `login_fail_log` WHERE `id` = ? AND `success_after_fail_seq` IS NULL;";
+    String sql = "SELECT COUNT(*) FROM `login_fail_log` WHERE `id` = ? AND `success_seq` IS NULL;";
     return jdbcTemplate.queryForObject(sql, Integer.class, id);
   }
   

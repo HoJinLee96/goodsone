@@ -179,7 +179,7 @@ width: 20px;
 					required> 
 				</div>
 				<span id="nameBirthMessage"></span>
-				<label for="phone">전화번호</label>
+				<label for="phone">휴대폰</label>
 				<input type="text" id="phone" name="phone" required oninput="formatPhoneNumber(this)" maxlength="13" value="010-">
 				<button class="sendSmsButton" id="sendSmsButton" type="button" onclick="sendSms()">인증번호 발송</button>
 				<span id="sendSmsMessage"></span>

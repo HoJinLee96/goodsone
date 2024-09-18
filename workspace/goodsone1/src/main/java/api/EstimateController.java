@@ -62,7 +62,7 @@ public class EstimateController {
     estimateDTO.setDetailAddress(detailAddress);
     estimateDTO.setContent(content);
     estimateDTO.setImages(images);
-    estimateDTO.setStatus(Status.접수);
+    estimateDTO.setStatus(Status.RECEIVED);
       
     System.out.println(estimateDTO.toString()); 
     
@@ -84,31 +84,19 @@ public class EstimateController {
       @RequestParam("phone") String phone,
       @RequestParam("cleaningService") String cleaningService,
       @RequestParam("region") String region) {
-    
     System.out.println("EstimateController.speedRegisterEstimate() 실행");
-    HttpHeaders headers = new HttpHeaders();
-    headers.add("Content-Type", "text/plain; charset=UTF-8");
-      
-
-    EstimateDto estimateDTO = new EstimateDto();
-    estimateDTO.setPhone(phone);
-    estimateDTO.setContent(cleaningService);
-    estimateDTO.setMainAddress(region);
-    estimateDTO.setStatus(Status.접수);
-      
-    System.out.println(estimateDTO.toString()); 
+    
+    EstimateDto estimateDTO = new EstimateDto(phone, cleaningService, region, Status.RECEIVED);
     
     try {
       estimateService.registerEstimate(estimateDTO);
-    } catch (SQLException e) {
+      return ResponseEntity.status(HttpStatus.OK).build();
+      
+    } catch (SQLException | IOException e) {
       e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("서버 장애 발생.");
-    } catch (IOException e) {
-      e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("서버 장애 발생.");
-    }
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    } 
     
-      return ResponseEntity.ok("성공");
   }
 
   @GetMapping("/getAllEstimate")

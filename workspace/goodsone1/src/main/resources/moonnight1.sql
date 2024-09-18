@@ -55,21 +55,22 @@ DROP TABLE IF EXISTS `verification`;
 ALTER TABLE `verification` AUTO_INCREMENT = 1;
 
 CREATE TABLE `estimate` (
-    `estimate_seq` INT AUTO_INCREMENT PRIMARY KEY,  -- 고유한 식별자, 자동 증가
+    `estimate_seq` INT AUTO_INCREMENT PRIMARY KEY,
     `user_seq` INT,
-    `name` VARCHAR(100) ,                   -- 이름
-    `phone` VARCHAR(20) NOT NULL,                            -- 전화번호
-    `email` VARCHAR(100),                           -- 이메일
-    `emailAgree` BOOLEAN DEFAULT FALSE,             -- 이메일 동의 여부, 기본값은 FALSE
-    `smsAgree` BOOLEAN DEFAULT FALSE,               -- SMS 동의 여부, 기본값은 FALSE
-    `callAgree` BOOLEAN DEFAULT FALSE,              -- 전화 동의 여부, 기본값은 FALSE
-    `postcode` VARCHAR(10) ,                         -- 우편번호
-    `mainAddress` VARCHAR(255) NOT NULL,                     -- 메인 주소
-    `detailAddress` VARCHAR(255) ,                   -- 상세 주소
-    `content` TEXT,                                 -- 내용
-    `imagesPath` TEXT,                              -- 이미지 경로
-    `status` ENUM("RECEIVED", "IN_PROGRESS", "COMPLETED") NOT NULL,         
-    `created_at` DATETIME NOT NULL -- 생성일시, 기본값은 현재 시간 
+    `name` VARCHAR(100),
+    `phone` VARCHAR(20) NOT NULL,
+    `email` VARCHAR(100),
+    `emailAgree` BOOLEAN DEFAULT FALSE,
+    `smsAgree` BOOLEAN DEFAULT FALSE,
+    `callAgree` BOOLEAN DEFAULT FALSE,
+    `postcode` VARCHAR(10),
+    `mainAddress` VARCHAR(255) NOT NULL,
+    `detailAddress` VARCHAR(255),
+    `content` TEXT,
+    `imagesPath` TEXT,
+    `status` ENUM("RECEIVED", "IN_PROGRESS", "COMPLETED") NOT NULL,
+    `created_at` DATETIME NOT NULL, 
+    `updated_at` DATETIME
 );
 ALTER TABLE `estimate` ADD CONSTRAINT `FK_user_TO_estimate_1` FOREIGN KEY (
 	`user_seq`
@@ -122,7 +123,7 @@ create table `login_success_log`(
 SELECT * FROM `login_success_log`;
 
 DELETE FROM `login_success_log`;
-DROP TABLE IF EXISTS `login_success_log`;
+DROP TABLE IF EXISTS `login_success_log`;	
 ALTER TABLE `login_success_log` AUTO_INCREMENT = 1;
 
 create table `login_fail_log`(
@@ -139,3 +140,5 @@ SELECT * FROM `login_fail_log`;
 DELETE FROM `login_fail_log`;
 DROP TABLE IF EXISTS `login_fail_log`;
 ALTER TABLE `login_fail_log` AUTO_INCREMENT = 1;
+
+update `login_fail_log` set `success_seq`= "-1" where `id` = "st2035@naver.com" AND `success_seq` is null;

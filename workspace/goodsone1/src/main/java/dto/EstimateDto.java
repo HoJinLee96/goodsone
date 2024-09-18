@@ -24,10 +24,15 @@ public class EstimateDto {
   }
   // enum 선언
   public enum Status {
-    접수, 답변중, 완료
+    RECEIVED, IN_PROGRESS, COMPLETED
   }
-
-  
+  public EstimateDto(String phone, String mainAddress, String content, Status status) {
+    super();
+    this.phone = phone;
+    this.mainAddress = mainAddress;
+    this.content = content;
+    this.status = status;
+  }
   public String getPhone() {
     return phone;
   }
