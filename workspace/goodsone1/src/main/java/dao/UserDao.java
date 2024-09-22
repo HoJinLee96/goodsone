@@ -209,11 +209,11 @@ public class UserDao {
     }
   }
 
-  public void deleteUser(int userSeq) throws SQLException {
-    String sql = "DELETE FROM user WHERE user_seq = ?";
+  public void stopUser(String email) throws SQLException {
+    String sql = "update `user` set `status` = 'STOP' WHERE email = ?";
     try (Connection connection = dataSource.getConnection();
         PreparedStatement statement = connection.prepareStatement(sql)) {
-      statement.setInt(1, userSeq);
+      statement.setString(1, email);
       statement.executeUpdate();
     }
   }

@@ -259,7 +259,7 @@ function updatePassword() {
 			var xhr = new XMLHttpRequest();
 			xhr.open('POST', '/api/verify/sendsms', false);
 			xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
-			xhr.send('reqPhone=' + encodeURIComponent(reqPhone));
+			
 		    xhr.onload = function() {
 				if (xhr.status === 200) {
 					alert("인증번호 발송 완료");
@@ -282,6 +282,7 @@ function updatePassword() {
 					}
 				}
 		    };
+	    xhr.send('reqPhone=' + encodeURIComponent(reqPhone));
 		}
 	}
 
@@ -296,7 +297,6 @@ function updatePassword() {
 			var xhr = new XMLHttpRequest();
 			xhr.open('POST', '/api/verify/comparecode', false); 
 			xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
-			xhr.send('reqCode=' + encodeURIComponent(reqCode));
 
 		    xhr.onload = function() {
 				if (xhr.status === 200) {
@@ -330,6 +330,7 @@ function updatePassword() {
 					return false;
 				}
 			};
+		xhr.send('reqCode=' + encodeURIComponent(reqCode));
 		}
 	}
 	

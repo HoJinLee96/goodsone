@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.support.HttpRequestHandlerServlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.AddressDto;
 import dto.OAuthDto;
 import dto.RegisterUserDto;
-import dto.User;
 import dto.User.Status;
 import dto.UserDto;
 import dtoNaverLogin.OAuthToken;
@@ -67,56 +67,43 @@ public class UserInfoController {
     }
     
     //계정 상태 검사
-    try {
       if ("STAY".equals(status)) {
-        loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.ACCOUNT_LOCKED.name());
         session.setAttribute("stayEmail", reqEmail);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       } else if ("STOP".equals(status)) {
-        loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.ACCOUNT_INACTIVE.name());
         return ResponseEntity.status(HttpStatus.GONE).build();
       }
-    }catch(SQLException e) {
-      e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
-    }
     
-    //계정 비밀번호 확인
+    // 계정 비밀번호 확인
     try {
-      UserDto userDto = userService.getUserByEmail(reqEmail);
-      if (userService.comparePasswordByEmail(reqEmail, reqPassword)) {
+      if (userService.comparePasswordByEmail(reqEmail, reqPassword, ip)) {
+        UserDto userDto = userService.getUserByEmail(reqEmail);
         session.setAttribute("userDto", userDto);
-        session.setMaxInactiveInterval(30 * 60); // 세션 만료 시간: 30분
-        
+        session.setAttribute("userDtoExpiry", System.currentTimeMillis() + (30 * 60 * 1000));
+
         // 이전 페이지의 도메인 확인
         String referer = (String) session.getAttribute("previousPageUrl");
-        if (referer == null || !referer.startsWith(req.getScheme() + "://" + req.getServerName()) || referer.contains("/login") ||referer.contains("/join")) {
-          referer="/home";
-        } 
+        if (referer == null || !referer.startsWith(req.getScheme() + "://" + req.getServerName())
+            || referer.contains("/login") || referer.contains("/join")) {
+          referer = "/home";
+        }
 
         Map<String, String> response = new HashMap<>();
         response.put("message", "Login successful");
         response.put("redirectUrl", referer);
-        
-        loginLogService.loginSuccess(userDto, ip);
-        System.out.println("로그인 성공");
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
-        }else {
-          loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.INVALID_PASSWORD.name());
-          if(userService.countLoginFail(reqEmail)>4) {
-            userDto.setStatus(Status.STAY);
-            userService.updateStatus(userDto);
-          }
-          return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
-        }
-      }catch (SQLException e) {
-        e.printStackTrace();
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
-      }catch(NotFoundException e){
-        e.printStackTrace();
+
+      } else {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
       }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
+    } catch (NotFoundException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
+    }
   }
   
   // simple은 기존 로그인과 다르게 세션에 아무것도 저장 안함.
@@ -140,31 +127,17 @@ public class UserInfoController {
     }
     
     //계정 상태 검사
-    try {
       if ("STAY".equals(status)) {
-        loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.ACCOUNT_LOCKED.name());
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
       } else if ("STOP".equals(status)) {
-        loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.ACCOUNT_INACTIVE.name());
         return ResponseEntity.status(HttpStatus.GONE).build();
       }
-    }catch(SQLException e) {
-      e.printStackTrace();
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).build();
-    }
 
     //계정 비밀번호 확인
     try {
-      UserDto userDto = userService.getUserByEmail(reqEmail);
-      if (userService.comparePasswordByEmail(reqEmail, reqPassword)) {
-        loginLogService.loginSuccess(userDto, ip);
+      if (userService.comparePasswordByEmail(reqEmail, reqPassword, ip)) {
         return ResponseEntity.status(HttpStatus.OK).build();
       } else {
-        loginLogService.loginFail("PUBLIC", reqEmail, ip, FailReason.INVALID_PASSWORD.name());
-        if(userService.countLoginFail(reqEmail)>4) {
-          userDto.setStatus(Status.STAY);
-          userService.updateStatus(userDto);
-        }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).build();
       }
     } catch (SQLException e) {
@@ -352,6 +325,26 @@ public class UserInfoController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).headers(headers).body("가입이 불가능 합니다.");
       }
     }
+  
+  @PostMapping("/stop")
+  public ResponseEntity<String> stopUser(@RequestParam("email") String reqEmail,@RequestParam("password") String reqPassword,HttpSession session, HttpServletRequest req){
+    
+    String ip = HttpUtil.getClientIp(req);
+    
+    try {
+      
+        userService.stopUser(reqEmail,reqPassword,ip);
+        return ResponseEntity.status(HttpStatus.OK).build();
+        
+      }catch (SQLException e) {
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+      }catch(NotFoundException e){
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+      }
+    
+  }
   
   private boolean verifyLoginUser(String email) throws SQLException,NotFoundException {
     if(!userService.isEmailExists(email)) {

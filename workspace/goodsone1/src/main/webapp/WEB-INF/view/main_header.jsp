@@ -17,20 +17,18 @@
 
 <style type="text/css">
 #headerContainer{
-	max-width:1920px;
-	min-width:800px;
-	margin: 0px auto;
-	border-bottom: 1.5px solid #efefef;
-	padding-bottom: 15px;
+	max-width: 1890px;
+	min-width: 1690px;
+	margin: 0 auto;
 }
 .background-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            min-width: 800px;
-            max-width: 1920px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+	max-width: 1890px;
+	min-width: 1690px;
     height:130px;
     margin: 0 auto;
     background-image: url('http://localhost:8086/static/img/headerBackground2.jpg'); /* 배경 이미지 경로 */
@@ -54,10 +52,10 @@
 .top_inner{
     display: flex;
     justify-content: flex-end;
-	padding: 0px 20px;
-	max-width: 1500px;
+	padding: 8px 20px 0px 20px;
+	max-width: 1550px;
+	min-width: 1350px;
 	margin: 0 auto;
-	min-width: 800px;
 	z-index: 3;
 }
 .top_nav{
@@ -82,8 +80,8 @@
 }
 .top_main {
 	display: flex;
-	max-width: 1500px;
-	min-width: 800px;
+	max-width: 1550px;
+	min-width: 1350px;
 	margin: 0 auto;
 	padding: 0px 20px;
 	justify-content: space-between;

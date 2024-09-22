@@ -1,6 +1,7 @@
 package dto;
 
 public abstract class User {
+  private int userSeq;
   private String email;
   private Status status;
 
@@ -9,6 +10,10 @@ public abstract class User {
     
   }
 
+  public int getUserSeq() {
+    return userSeq;
+  }
+  
   public String getEmail() {
     return email;
   }

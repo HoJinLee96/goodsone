@@ -9,14 +9,14 @@
 <style type="text/css">
 
 #mainContainer{
-	max-width: 1200px;
+	max-width: 1400px;
 	margin: 0 auto;
 	padding-top: 30px;
 	min-height: 1080px;
 }
 #formContainer{
 	display:flex;
-	max-width: 1200px;
+	max-width: 1400px;
 	margin: 0px auto;
 	min-width: 400px;
 }
@@ -298,7 +298,7 @@ document.querySelectorAll('.imgPreview').forEach(function(preview) {
 });
 
 document.querySelectorAll('.fileInput').forEach(function(input, index) {
-    input.addEventListener('change', function(event) {
+    input.addEventListener('input', function(event) {
         document.getElementById('overlay').style.display = 'flex';
         const file = event.target.files[0];
         const maxSizeMB = 10;

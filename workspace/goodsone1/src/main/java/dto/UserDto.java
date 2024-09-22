@@ -9,6 +9,7 @@ public class UserDto extends User {
       private String birth;
       private String mobileCarrier;
       private String phone;
+      private int addressSeq;
       private Status status;
       private boolean marketingReceivedStatus;
       private LocalDateTime createdAt;
@@ -92,7 +93,10 @@ public class UserDto extends User {
       public LocalDateTime getUpdatedAt() {
         return updatedAt;
       }
-
+      
+      public int getAddressSeq() {
+        return addressSeq;
+      }
       
       // setter
       

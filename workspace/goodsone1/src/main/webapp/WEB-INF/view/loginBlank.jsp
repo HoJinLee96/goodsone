@@ -239,10 +239,13 @@ $(document).ready(function() {
                 window.close();
             } else if (xhr.status === 401) {
                 alert("일치하는 회원 정보가 없습니다.");
+                location.reload();
             } else if (xhr.status === 500) {
                 alert("서버 오류가 발생했습니다. \n 다시 시도해주세요.");
+                location.reload();
             } else {
                 alert("알 수 없는 오류가 발생했습니다.");
+                location.reload();
             }
         };
         xhr.send(data);

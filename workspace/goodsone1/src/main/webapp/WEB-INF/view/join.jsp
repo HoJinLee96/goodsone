@@ -397,7 +397,7 @@ margin-bottom: 50px;
 		$.ajax({
 			url : '/user/join/once',
 			type : 'POST',
-			contentType : 'application/json; charset=UTF-8',
+			contentType : 'application/x-www-form-urlencoded; charset=UTF-8',
 			data : JSON.stringify({
 				registerUserDto : registerUserDto
 			}),

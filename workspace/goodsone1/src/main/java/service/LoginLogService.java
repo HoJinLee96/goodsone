@@ -20,8 +20,8 @@ public class LoginLogService {
     loginLogDao.loginSuccess(user, ip);
   }
   
-  public int loginFail(String provider, String id, String ip, String reason) throws SQLException {
-    return loginLogDao.loginFail(provider, id, ip, reason);
+  public int loginFail(User user, String ip, String reason) throws SQLException {
+    return loginLogDao.loginFail(user, ip, reason);
   }
   
   public void failLogInit(String id, int reason) throws SQLException {

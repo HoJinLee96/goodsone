@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class WebMainController {
-
+  
   @GetMapping({"/", "/home"})
   public String showHome(HttpServletRequest req, HttpServletResponse res) {
     System.out.println("----------WebMainController.showHome() 실행----------");
@@ -129,5 +129,11 @@ public class WebMainController {
    public String verifyPhoneBlank(HttpServletRequest req, HttpServletResponse res) {
      System.out.println("----------WebMainController.verifyPhoneBlank() 실행----------");
      return "verifyPhoneBlank";
+   }
+   
+   @GetMapping("/my/loginInfo")
+   public String showMyLoginInfo(HttpServletRequest req, HttpServletResponse res) {
+     System.out.println("----------WebMainController.showMyLoginInfo() 실행----------");
+     return "myLoginInfo";
    }
 }

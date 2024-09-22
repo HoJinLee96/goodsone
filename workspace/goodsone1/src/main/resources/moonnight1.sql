@@ -6,6 +6,7 @@ CREATE TABLE `user` (
 	`birth`	VARCHAR(100)	NOT NULL,
 	`mobile_carrier`	ENUM("SKT","KT","LG")	,
 	`phone`	VARCHAR(20)	NOT NULL,
+    `address_seq` INT,
     `status`	ENUM("NORMAL","STAY","STOP")	NOT NULL,
     `marketing_received_status`	BOOLEAN	NOT NULL,
 	`created_at`	DATETIME	NOT NULL,
@@ -24,7 +25,9 @@ CREATE TABLE `address` (
 	`user_seq`	INT	NOT NULL,
 	`postcode`	INT	NOT NULL,
 	`main_address`	VARCHAR(255)	NOT NULL,
-	`detail_address`	VARCHAR(255)	NOT NULL
+	`detail_address`	VARCHAR(255)	NOT NULL,
+    `created_at`	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`updated_at`	DATETIME
 );
 
 ALTER TABLE `address` ADD CONSTRAINT `FK_user_TO_address_1` FOREIGN KEY (
