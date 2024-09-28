@@ -4,7 +4,6 @@
 <html>
 <head>
 <title>마이페이지</title>
-<link rel="stylesheet" type="text/css" href="../../static/mypageContainer.css">
 <style type="text/css">
 
 </style>

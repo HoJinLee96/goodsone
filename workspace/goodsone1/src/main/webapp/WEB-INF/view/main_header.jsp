@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -17,7 +18,7 @@
 
 <style type="text/css">
 #headerContainer{
-	max-width: 1890px;
+	max-width: 1920px;
 	min-width: 1690px;
 	margin: 0 auto;
 }
@@ -27,7 +28,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-	max-width: 1890px;
+	max-width: 1920px;
 	min-width: 1690px;
     height:130px;
     margin: 0 auto;

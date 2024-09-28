@@ -58,6 +58,7 @@
 #submitButton{
 height: 40px  !important;
 width: 150px !important;
+cursor: pointer;
 }
 #registrationForm button {
 	border: none;
@@ -285,19 +286,16 @@ margin-bottom: 50px;
 			var data = 'reqEmail=' + encodeURIComponent(reqEmail);
             xhr.send(data);
 
-        	if (xhr.status === 200) {
+        	if (xhr.status === 404) {
 				console.log("이메일 중복 검사 완료.(성공)")
 				return true;
 			}  else {
 				message.style.color = 'red';
-				if (xhr.status === 401) {
-					console.log("이메일 중복 검사 성공.(이미 가입된 이메일)");
-					message.innerText = xhr.responseText;
+				if (xhr.status === 200) {
+					message.innerText = "해당 계정으로 가입할 수 없습니다.";
 				} else if(xhr.status === 500){
-					console.log("이메일 중복 검사 실패.(서버 장애)");
-					message.innerText = xhr.responseText;
+					message.innerText = "서버 장애 발생. \n잠시 후 시도해 주세요.";
 				}else {
-					console.log("이메일 중복 검사 실패.(서버 장애)");
 					message.innerText = "서버 장애 발생.";
 				}
 				return false;
@@ -397,7 +395,7 @@ margin-bottom: 50px;
 		$.ajax({
 			url : '/user/join/once',
 			type : 'POST',
-			contentType : 'application/x-www-form-urlencoded; charset=UTF-8',
+			contentType : 'application/json; charset=UTF-8',
 			data : JSON.stringify({
 				registerUserDto : registerUserDto
 			}),

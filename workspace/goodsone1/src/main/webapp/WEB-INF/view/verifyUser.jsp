@@ -8,8 +8,7 @@
 </head>
 <body>
 	<%@ include file="main_header.jsp"%>
-	<input type="hidden" id="email" value="<%= session.getAttribute("stayEmail") %>">
-	<a href="" id="findEmail" onclick="openFindWindow('/verify/phone/blank')">휴대폰 인증</a>
+	<a href="" onclick="openFindWindow('/update/password/blank')">비밀번호 변경</a>
 	
 	<%@ include file="main_footer.jsp"%>
 </body>

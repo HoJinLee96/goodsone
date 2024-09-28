@@ -84,20 +84,20 @@ public class UserService {
       return userDao.getUserStatusByEmail(email);
     }
 
-//    @Transactional
-//    public Integer updateUser(UserDto user) throws NotFoundException, SQLException{
-//      return userDao.updateUser(user).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
-//    }
+    @Transactional
+    public void updateInfo(UserDto userDto) throws SQLException{
+      userDao.updateInfo(userDto);
+    }
 
     @Transactional
-    public Integer updatePassword(int userSeq,String newPassword) throws NotFoundException, SQLException{
+    public void updatePassword(int userSeq,String newPassword) throws SQLException{
       String newEncodePassword = passwordEncoder.encode(newPassword);
-      return userDao.updatePassword(userSeq,newEncodePassword).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
+      userDao.updatePassword(userSeq,newEncodePassword);
     }
     
     @Transactional
-    public Integer updateStatus(User reqUser) throws NotFoundException, SQLException{
-      return userDao.updateStatus(reqUser.getEmail(), reqUser.getStatus().name()).orElseThrow(()-> new NotFoundException("일치하는 회원이 없습니다."));
+    public void updateStatus(User reqUser) throws SQLException{
+      userDao.updateStatus(reqUser.getEmail(), reqUser.getStatus().name());
     }
 
     @Transactional

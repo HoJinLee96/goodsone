@@ -117,6 +117,7 @@ margin-bottom: 50px;
 #submitButton{
 height: 40px  !important;
 width: 150px !important;
+cursor: pointer;
 }
 #marketingReceivedStatus, #agreeToTerms{
 height: 20px;
@@ -347,20 +348,15 @@ function validatePhone() {
 		xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
 		xhr.send('reqPhone=' + encodeURIComponent(reqPhone));
 
-		if (xhr.status === 200) {
-			message.style.color = 'green';
-			console.log("휴대폰 중복 검사 성공.(성공)");
+		if (xhr.status === 404) {
 			return true;
 		} else {
 			message.style.color = 'red';
-			if (xhr.status === 207) {
-				console.log("휴대폰 중복 검사 성공.(이미 가입된 휴대폰)");
-				message.innerText = xhr.responseText;
+			if (xhr.status === 200) {
+				message.innerText = "이미 가입된 휴대폰 번호 입니다.";
 			} else if(xhr.status === 500){
-				console.log("휴대폰 중복 검사 실패.(서버 장애)");
-				message.innerText = xhr.responseText;
+				message.innerText = "서버 장애 발생.\n잠시 후 다시 시도해 주세요.";
 			}else {
-				console.log("휴대폰 중복 검사 실패.(서버 장애)");
 				message.innerText = "서버 장애 발생.";
 			}
 			return false;
@@ -510,6 +506,7 @@ document.getElementById('detailForm').addEventListener('submit', function(event)
         // Address 데이터 수집
         var addressDto = {
             userSeq: null, 
+            name: document.getElementById("name").value,
             postcode: document.getElementById("postcode").value,
             mainAddress: document.getElementById("mainAddress").value,
             detailAddress: document.getElementById("detailAddress").value

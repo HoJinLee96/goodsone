@@ -181,7 +181,7 @@ content:"다른 방법 로그인";
 	        <input type="checkbox" id="rememmberIdCheckbox" name="rememmberIdCheckbox">
 	        <label for="rememmberIdCheckbox">이메일 저장</label>
 <a href="" id="findEmail" onclick="openFindWindow('/find/email')">이메일 찾기</a>
-<a href="" id="findPassword" onclick="openFindWindow('/find/password')">비밀번호 찾기</a>
+<a href="" id="findPassword" onclick="openFindWindow('/update/password/blank')">비밀번호 찾기</a>
 	        </div>
 	        <button type="submit">로그인</button>
 	    </form>

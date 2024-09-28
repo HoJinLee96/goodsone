@@ -1,13 +1,22 @@
 package controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import dto.UserDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import service.AddressService;
 
 @Controller
 public class WebMainController {
+  
+  @Autowired
+  AddressService addressService;
   
   @GetMapping({"/", "/home"})
   public String showHome(HttpServletRequest req, HttpServletResponse res) {
@@ -120,20 +129,52 @@ public class WebMainController {
    }
    
    @GetMapping("/verifyUser")
-   public String loginVerify(HttpServletRequest req, HttpServletResponse res) {
+   public String showLoginVerify(HttpServletRequest req, HttpServletResponse res) {
      System.out.println("----------WebMainController.loginVerify() 실행----------");
+     res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+     res.setHeader("Pragma", "no-cache");
+     res.setHeader("Expires", "0");
      return "verifyUser";
    }
 
+   @GetMapping("/update/password/blank")
+   public String showUpdatePasswordBlank(HttpServletRequest req, HttpServletResponse res) {
+     System.out.println("----------WebMainController.verifyPhoneBlank() 실행----------");
+     return "updatePasswordBlank";
+   }
+   
    @GetMapping("/verify/phone/blank")
-   public String verifyPhoneBlank(HttpServletRequest req, HttpServletResponse res) {
+   public String showUpdatePhoneBlank(HttpServletRequest req, HttpServletResponse res) {
      System.out.println("----------WebMainController.verifyPhoneBlank() 실행----------");
      return "verifyPhoneBlank";
    }
    
    @GetMapping("/my/loginInfo")
-   public String showMyLoginInfo(HttpServletRequest req, HttpServletResponse res) {
+   public String showMyLoginInfo(HttpServletRequest req, HttpServletResponse res,HttpSession session) {
      System.out.println("----------WebMainController.showMyLoginInfo() 실행----------");
+     UserDto userDto = (UserDto)session.getAttribute("userDto");
+     ObjectMapper mapper = new ObjectMapper();
+     mapper.registerModule(new JavaTimeModule());
+     try {
+      String json = mapper.writeValueAsString(userDto);
+      session.setAttribute("userJson", json);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+      session.invalidate();
+      return "login";
+    }
      return "myLoginInfo";
    }
+   
+   @GetMapping("/my/withdrawal")
+   public String showWithdrawal(HttpServletRequest req, HttpServletResponse res,HttpSession session) {
+     System.out.println("----------WebMainController.showWithdrawal() 실행----------");
+     return "withdrawal";
+   }
+   @GetMapping("/my/withdrawalOAuth")
+   public String showWithdrawalOAuth(HttpServletRequest req, HttpServletResponse res,HttpSession session) {
+     System.out.println("----------WebMainController.showWithdrawalOAuth() 실행----------");
+     return "withdrawalOAuth";
+   }
+   
 }

@@ -6,7 +6,7 @@ CREATE TABLE `user` (
 	`birth`	VARCHAR(100)	NOT NULL,
 	`mobile_carrier`	ENUM("SKT","KT","LG")	,
 	`phone`	VARCHAR(20)	NOT NULL,
-    `address_seq` INT,
+    `address_seq` INT NOT NULL,
     `status`	ENUM("NORMAL","STAY","STOP")	NOT NULL,
     `marketing_received_status`	BOOLEAN	NOT NULL,
 	`created_at`	DATETIME	NOT NULL,
@@ -23,11 +23,12 @@ ALTER TABLE `user` AUTO_INCREMENT = 1;
 CREATE TABLE `address` (
 	`address_seq`	INT	AUTO_INCREMENT PRIMARY KEY,
 	`user_seq`	INT	NOT NULL,
+    `name` VARCHAR(50),
 	`postcode`	INT	NOT NULL,
 	`main_address`	VARCHAR(255)	NOT NULL,
 	`detail_address`	VARCHAR(255)	NOT NULL,
     `created_at`	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	`updated_at`	DATETIME
+	`updated_at`	DATETIME NOT NuLL
 );
 
 ALTER TABLE `address` ADD CONSTRAINT `FK_user_TO_address_1` FOREIGN KEY (
@@ -36,7 +37,9 @@ ALTER TABLE `address` ADD CONSTRAINT `FK_user_TO_address_1` FOREIGN KEY (
 REFERENCES `user` (
 	`user_seq`
 );
-
+update address set `updated_at` = CURRENT_TIMESTAMP where address_seq=1;
+update address set `detail_address` = '805동502호 가나다라마바사아자차카타파하가나다라마바사아자차카타파하' where address_seq=1;
+INSERT INTO address (user_seq, name, postcode, main_address, detail_address,updated_at) VALUES (1, "이호진", "12345", "월드컵로42길 12", "805-502",CURRENT_TIMESTAMP);
 SELECT * FROM `address`;
 
 DELETE FROM `address`;

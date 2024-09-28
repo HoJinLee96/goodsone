@@ -60,7 +60,7 @@ public class UserDao {
         try (ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next()) {
               UserDto userDto = new UserDto(
-                  resultSet.getInt(userSeq),
+                  userSeq,
                   resultSet.getString("email"),
                   resultSet.getString("name"),
                   resultSet.getString("birth"),
@@ -182,6 +182,21 @@ public class UserDao {
     }
   }
   
+  public Optional<Integer> updateInfo(UserDto userDto) throws SQLException {
+    String sql = "UPDATE user SET phone = ?, address_seq = ?, status = ?, marketing_received_status = ?, updated_at = ? WHERE user_seq = ?";
+    try (Connection con = dataSource.getConnection();
+        PreparedStatement pst = con.prepareStatement(sql)) {
+      pst.setString(1, userDto.getPhone());
+      pst.setInt(2, userDto.getAddressSeq());
+      pst.setString(3, userDto.getStatus().name());
+      pst.setBoolean(4, userDto.isMarketingReceivedStatus());
+      pst.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+      pst.setInt(6, userDto.getUserSeq());
+      Integer result = pst.executeUpdate();
+      return Optional.of(result);
+    }
+  }
+  
   public Optional<Integer> updatePassword(int userSeq,String newEncodePassword) throws SQLException {
     String sql = "UPDATE user SET password = ?, updated_at = ? WHERE user_seq = ?";
     try (Connection con = dataSource.getConnection();
@@ -190,7 +205,7 @@ public class UserDao {
       pst.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
       pst.setInt(3, userSeq);
       Integer result = pst.executeUpdate();
-      return Optional.ofNullable(result);
+      return Optional.of(result);
     }
   }
   

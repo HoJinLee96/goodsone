@@ -2,6 +2,7 @@ package api;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.context.support.HttpRequestHandlerServlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.AddressDto;
 import dto.OAuthDto;
@@ -21,10 +21,10 @@ import dto.RegisterUserDto;
 import dto.User.Status;
 import dto.UserDto;
 import dtoNaverLogin.OAuthToken;
-import exception.FailReason;
 import exception.NotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import service.AddressService;
 import service.LoginLogService;
 import service.OAuthService;
 import service.UserService;
@@ -37,13 +37,15 @@ public class UserInfoController {
   private UserService userService;
   private OAuthService oAuthService;
   private LoginLogService loginLogService;
+  private AddressService addressService;
   private HttpUtil httpUtil;
 
   @Autowired
-  public UserInfoController(UserService userService,OAuthService oAuthService,LoginLogService loginLogService,HttpUtil httpUtil) {
+  public UserInfoController(UserService userService,OAuthService oAuthService,LoginLogService loginLogService, AddressService addressService, HttpUtil httpUtil) {
     this.userService = userService;
     this.oAuthService = oAuthService;
     this.loginLogService = loginLogService;
+    this.addressService = addressService;
     this.httpUtil = httpUtil;
   }
   
@@ -78,7 +80,9 @@ public class UserInfoController {
     try {
       if (userService.comparePasswordByEmail(reqEmail, reqPassword, ip)) {
         UserDto userDto = userService.getUserByEmail(reqEmail);
+        List<AddressDto> addressList = addressService.getSortedListByUserSeq(userDto);
         session.setAttribute("userDto", userDto);
+        session.setAttribute("addressList", addressList);
         session.setAttribute("userDtoExpiry", System.currentTimeMillis() + (30 * 60 * 1000));
 
         // 이전 페이지의 도메인 확인
@@ -202,19 +206,22 @@ public class UserInfoController {
       }
   }
   
-//  @PostMapping("/update/status")
-//  public ResponseEntity<?> updateStatus(@RequestBody UserDto reqUserDto) {
-//    try {
-//      userService.updateStatus((User)reqUserDto);
-//      return ResponseEntity.status(HttpStatus.OK).build();
-//    } catch (NotFoundException e) {
-//      e.printStackTrace();
-//      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//    } catch (SQLException e) {
-//      e.printStackTrace();
-//      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//    }
-//  }
+  @PostMapping("/update/info")
+  public ResponseEntity<?> updateInfo(@RequestBody() UserDto userDto,HttpSession session) {
+    System.out.println("updateInfo()실행");
+    try {
+      userService.updateInfo(userDto);
+      UserDto newUserDto = userService.getUserBySeq(userDto.getUserSeq());
+      session.setAttribute("userDto", newUserDto);
+      return ResponseEntity.status(HttpStatus.OK).build();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    } catch (NotFoundException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
   
   @PostMapping("/ouath/connect")
   public ResponseEntity<?> registerConnect(HttpSession session){
@@ -297,6 +304,7 @@ public class UserInfoController {
   
   @PostMapping("/join/once")
   public ResponseEntity<String> public1(@RequestBody Map<String, Object> request, HttpServletRequest httpServletRequest) {
+    
     ObjectMapper objectMapper = new ObjectMapper();
     RegisterUserDto registerUserDto = objectMapper.convertValue(request.get("registerUserDto"), RegisterUserDto.class);
     HttpHeaders headers = new HttpHeaders();

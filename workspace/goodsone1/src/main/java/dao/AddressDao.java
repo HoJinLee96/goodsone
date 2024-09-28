@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,14 +29,16 @@ public class AddressDao {
   @Transactional
   public void registerAddress(int userSeq, AddressDto addressDto) throws SQLException {
     String sql =
-        "INSERT INTO address (user_seq, postcode, main_address, detail_address) VALUES (?, ?, ?, ?)";
+        "INSERT INTO address (user_seq, name, postcode, main_address, detail_address,updated_at) VALUES (?, ?, ?, ?, ?,?)";
     try (Connection con = dataSource.getConnection();
         PreparedStatement pst = con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
         ) {
       pst.setInt(1, userSeq);
-      pst.setInt(2, addressDto.getPostcode());
-      pst.setString(3, addressDto.getMainAddress());
-      pst.setString(4, addressDto.getDetailAddress());
+      pst.setString(2, addressDto.getName());
+      pst.setInt(3, addressDto.getPostcode());
+      pst.setString(4, addressDto.getMainAddress());
+      pst.setString(5, addressDto.getDetailAddress());
+      pst.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
       pst.executeUpdate();
       ResultSet generatedKeys = pst.getGeneratedKeys();
       if (generatedKeys.next()) {
@@ -50,16 +54,17 @@ public class AddressDao {
   }
   
   @Transactional
-  public void updateAddress(int addressSeq, AddressDto addressDto) throws SQLException {
+  public void updateAddress(AddressDto addressDto) throws SQLException {
     String sql =
-        "update `address` set `postcode` = ?, `main_address` = ?,  `detail_address` = ? where `address_seq` = ?";
+        "update `address` set `name` = ?, `postcode` = ?, `main_address` = ?,  `detail_address` = ? where `address_seq` = ?";
     try (Connection con = dataSource.getConnection();
         PreparedStatement pst = con.prepareStatement(sql);
         ) {
-      pst.setInt(1, addressDto.getPostcode());
-      pst.setString(2, addressDto.getMainAddress());
-      pst.setString(3, addressDto.getDetailAddress());
-      pst.setInt(4, addressSeq);
+      pst.setString(1, addressDto.getName());
+      pst.setInt(2, addressDto.getPostcode());
+      pst.setString(3, addressDto.getMainAddress());
+      pst.setString(4, addressDto.getDetailAddress());
+      pst.setInt(5, addressDto.getAddressSeq());
       pst.executeUpdate();
 
     }
@@ -77,16 +82,49 @@ public class AddressDao {
 
     }
   }
+  
+  public Optional<AddressDto> getAddressDtoByAddressSeq(int addressSeq) throws SQLException {
+    String sql = "select * from address where address_seq=?";
+    try (Connection con = dataSource.getConnection();
+        PreparedStatement pst = con.prepareStatement(sql);) {
+        pst.setInt(1, addressSeq);
+        try (ResultSet rs = pst.executeQuery()) {
+          if (rs.next()) {
+            AddressDto addressDto = new AddressDto(
+                addressSeq, 
+                rs.getInt("user_seq"),
+                rs.getString("name"), 
+                rs.getInt("postcode"),
+                rs.getString("main_address"), 
+                rs.getString("detail_address"), 
+                rs.getTimestamp("created_at").toLocalDateTime(), 
+                rs.getTimestamp("updated_at").toLocalDateTime()
+                );
+            return Optional.of(addressDto);
+          }
+      }
+      return Optional.empty();
+    }
+  }
 
   public List<AddressDto> getAddressListByUserSeq(int userSeq) throws SQLException {
     List<AddressDto> list = new ArrayList<>();
-    String sql = "SELECT * FROM address where user_seq= ?";
-    try (Connection connection = dataSource.getConnection();
-        PreparedStatement statement = connection.prepareStatement(sql);) {
-      statement.setInt(1, userSeq);
-      try (ResultSet resultSet = statement.executeQuery()) {
-        while (resultSet.next()) {
-          list.add(new AddressDto(resultSet.getInt(1), userSeq, resultSet.getInt(3), resultSet.getString(4), resultSet.getString(5)));
+    String sql = "SELECT * FROM address where user_seq= ? ORDER BY updated_at DESC";
+    try (Connection con = dataSource.getConnection();
+        PreparedStatement pst = con.prepareStatement(sql);) {
+      pst.setInt(1, userSeq);
+      try (ResultSet rs = pst.executeQuery()) {
+        while (rs.next()) {
+          list.add(new AddressDto(
+              rs.getInt("address_seq"),
+              userSeq,
+              rs.getString("name"), 
+              rs.getInt("postcode"),
+              rs.getString("main_address"), 
+              rs.getString("detail_address"), 
+              rs.getTimestamp("created_at").toLocalDateTime(), 
+              rs.getTimestamp("updated_at").toLocalDateTime()
+              ));
         }
       }
     }

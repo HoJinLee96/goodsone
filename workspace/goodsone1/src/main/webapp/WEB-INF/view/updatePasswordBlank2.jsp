@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>비밀번호 찾기</title>
+<title>비밀번호 관리</title>
 <style type="text/css">
 @font-face {
 	font-family: 'SF_HambakSnow';
@@ -60,7 +60,7 @@
 #verificationTimeMessage {
 	position: absolute;
 	top: 60%;
-	right: 24px;
+	right: 40%;
 	transform: translateY(-50%);
 	font-size: 14px;
 	color: red;
@@ -126,18 +126,12 @@
 	<div class="container">
 		<div id="formDiv">
 			<span class="close" onclick="window.close()">&times;</span>
-			<h2>비밀번호 찾기</h2>
-			<br>
-			<label for="email">이메일</label>
-			<br>
-			<input type="email" id="email" name="email" required autofocus oninput="formatEmail()"placeholder="example@example.com" >
-			<br>
-			<span id="emailMessage"></span>
-			<br>
+			<h2>비밀번호 변경</h2>
+			<input type="hidden" id="email" val>
 			<label for="phone">휴대폰 번호</label>
 			<br>
 			<input type="text" id="phone" name="phone" required oninput="formatPhoneNumber(this)"maxlength="13" value="010-" >
-			<button class="sendSmsButton" id="sendSmsButton" type="button"onclick="sendSms()">인증번호 발송</button>
+			<button class="sendSmsButton" id="sendSmsButton" type="button">인증번호 발송</button>
 			<br> 
 			<span id="sendSmsMessage"></span> 
 			<br>
@@ -146,11 +140,11 @@
 				<br> 
 				<input type="text" id="verificationSmsCode" name="verificationSmsCode" required oninput="formatCode(this)" maxlength="5" readonly disabled>
 				<div id="verificationTimeMessage"></div>
-			</div>
 				<input type="hidden" id="smsSeq" value="" />
-				<button class="verifySmsCodeButton" id="verifySmsCodeButton" type="button" onclick="verifySmsCode()" disabled style="display:none;">인증번호 확인</button>
+				<button class="verifySmsCodeButton" id="verifySmsCodeButton" type="button" disabled>인증번호 확인</button>
 				<br> 
 				<span id="verificationSmsMessage"></span>
+			</div>
 			<br> <br> 
 			<div id="newPasswordDiv">
 				<span>비밀번호 변경</span>
@@ -167,7 +161,7 @@
 				<br>
 				<span id="confirmPasswordMessage"></span>
 				<br><br><br>
-				<button id="updatePasswordButton" type="button" onclick="updatePassword()">비밀번호 변경</button>
+				<button id="updatePasswordButton" type="button">비밀번호 변경</button>
 			</div>
 			<div id="confirmDiv">
 				<br> <br> 
@@ -199,11 +193,17 @@ function isEmailPhoneExist() {
 	    if (xhr.status === 200) {
 			document.getElementById("newPasswordDiv").style.display = "block";
 	    } else if (xhr.status === 404) {
-	    	alert("일치하는 회원이 없습니다.");
+	    	alert("가입시 입력한 정보와 일치하지 않습니다.");
+	    	confirmMessage.innerText = "가입시 입력한 정보와 일치하지 않습니다.";
+			document.getElementById("confirmDiv").style.display = "block";
 	    } else if (xhr.status === 500) {
 	    	alert("서버 오류가 발생했습니다. \n 잠시 후 다시 시도해주세요.");
+	    	confirmMessage.innerText = "서버 오류가 발생했습니다. \n 잠시 후 다시 시도해주세요.";
+			document.getElementById("confirmDiv").style.display = "block";
 	    } else {
 	    	alert("알 수 없는 오류가 발생했습니다. \n 잠시 후 다시 시도해주세요.");
+	    	confirmMessage.innerText = "알 수 없는 오류가 발생했습니다. \n 잠시 후 다시 시도해주세요.";
+			document.getElementById("confirmDiv").style.display = "block";
 	    }
 	};
 	 xhr.send(data);
@@ -211,7 +211,6 @@ function isEmailPhoneExist() {
 
 function updatePassword() {
 	var email = document.getElementById("email").value;
-	var phone = document.getElementById("phone").value;
 	var password = document.getElementById("password").value;
 	var confirmPassword = document.getElementById("confirmPassword").value;
 	
@@ -229,70 +228,66 @@ function updatePassword() {
 	    } else if (xhr.status === 401) {
 	    	alert("오류가 발생했습니다. 다시 시도해 주세요.");
 	    } else if (xhr.status === 500) {
-	    	alert("서버 오류가 발생했습니다. 잠시후 다시 시도해주세요.");
+	    	alert("오류가 발생했습니다. 잠시후 다시 시도해주세요.");
 	    } else {
-	    	alert("알 수 없는 오류가 발생했습니다.");
+	    	alert("오류가 발생했습니다.");
 	    }
+        window.opener.postMessage({ verifyStatus: xhr.status }, "*");
         window.close();
     };
 	 xhr.send(data);
 }
 </script>
 
-<!-- sms 인증 api -->
+<!-- sms 인증 api
 <script type="text/javascript">
 	var timerInterval; // 타이머 인터벌을 저장할 변수
 	
+	var reqPhone = document.getElementById("phone").value.replace(/[^0-9]/g, ''); // 인증할 휴대폰 번호
+	
+	var reqCode = document.getElementById("verificationSmsCode").value; // 인증할 인증코드 번호
+	var message = document.getElementById("verificationSmsMessage"); // 인증 결과 메시지
+	
 	function sendSms() {
-		if(!formatEmail()){
-			alert("올바른 이메일 형식을 입력 해주세요.");
-			return false;
-		}
 		
-		/* var message = document.getElementById("sendSmsMessage"); */
-		/* var verMessage = document.getElementById("verificationSmsMessage"); */
-		var reqPhone = document.getElementById("phone").value.replace(/[^0-9]/g, '');
 		if (reqPhone.length !== 11){
 			alert("휴대폰 번호를 확인해 주세요.");
 		} 
 		else {
-			console.log("sms인증 시작")
 			var xhr = new XMLHttpRequest();
 			xhr.open('POST', '/api/verify/sendsms', false);
 			xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
-			xhr.send('reqPhone=' + encodeURIComponent(reqPhone));
-			if (xhr.status === 200) {
-				alert("인증번호 발송 완료");
-				/* message.style.color = 'green';
-				message.innerText = "인증번호 발송 완료";
-				verMessage.innerText = ""; */
-				document.getElementById("email").setAttribute("readonly", true);
-				document.getElementById("email").setAttribute("disabled", true);
-				document.getElementById("phone").setAttribute("readonly", true);
-				document.getElementById("phone").setAttribute("disabled", true);
-				document.getElementById("sendSmsButton").innerText = "인증번호 재발송";
-				document.getElementById("input-wrapper").style.display = "inline-block";
-				document.getElementById("verifySmsCodeButton").style.display = "";
-				document.getElementById("verificationSmsCode").removeAttribute("readonly");
-				document.getElementById("verificationSmsCode").removeAttribute("disabled");
-				document.getElementById("verifySmsCodeButton").removeAttribute("disabled");
-				onVerificationCodeSent();
-			} else {
-				message.style.color = 'red';
-				if (xhr.status === 429) {
-					message.innerText = "시도 초과. 잠시 후 다시 시도 해주세요.";
-				}else if(xhr.status === 500){
-					message.innerText = "서버 오류가 발생했습니다. 다시 시도해주세요.";
-				} else {
-					message.innerText = "알 수 없는 오류가 발생했습니다. \n 재발송 시도 해주세요.";
-				}
-			}
+			
+		    xhr.onreadystatechange = function() {
+		        if (xhr.readyState === 4) {
+					if (xhr.status === 200) {
+						alert("인증번호 발송 완료");
+						document.getElementById("phone").setAttribute("readonly", true);
+						document.getElementById("phone").setAttribute("disabled", true);
+						document.getElementById("sendSmsButton").innerText = "인증번호 재발송";
+						document.getElementById("input-wrapper").style.display = "inline-block";
+						document.getElementById("verificationSmsCode").removeAttribute("readonly");
+						document.getElementById("verificationSmsCode").removeAttribute("disabled");
+						document.getElementById("verifySmsCodeButton").removeAttribute("disabled");
+						onVerificationCodeSent();
+					} else {
+						message.style.color = 'red';
+						if (xhr.status === 429) {
+							message.innerText = "시도 초과. 잠시 후 다시 시도 해주세요.";
+						}else if(xhr.status === 500){
+							message.innerText = "서버 오류가 발생했습니다. 다시 시도해주세요.";
+						} else {
+							message.innerText = "알 수 없는 오류가 발생했습니다. \n 재발송 시도 해주세요.";
+						}
+					}
+		        }
+		    };
+	    xhr.send('reqPhone=' + encodeURIComponent(reqPhone));
 		}
 	}
 
 	function verifySmsCode() {
-		var reqCode = document.getElementById("verificationSmsCode").value;
-		var message = document.getElementById("verificationSmsMessage");
+		
 		if (reqCode.length < 5) {
 			alert("인증번호를 다시 확인해주세요.");
 			message.style.color = 'red';
@@ -301,39 +296,38 @@ function updatePassword() {
 			var xhr = new XMLHttpRequest();
 			xhr.open('POST', '/api/verify/comparecode', false); 
 			xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
-			xhr.send('reqCode=' + encodeURIComponent(reqCode));
 
-			if (xhr.status === 200) {
-				alert("인증 성공");
-				isEmailPhoneExist();
-				message.style.color = 'green';
-				message.innerText = "인증 성공";
-				document.getElementById("phone").setAttribute("readonly", true);
-				document.getElementById("phone").setAttribute("disabled", true);
-				document.getElementById("sendSmsButton").setAttribute("disabled", true);
-				document.getElementById("verificationSmsCode").setAttribute("readonly", true);
-				document.getElementById("verificationSmsCode").setAttribute("disabled", true);
-				document.getElementById("verifySmsCodeButton").setAttribute("disabled", true);
-	            clearInterval(timerInterval); // 타이머 중지
-	            timerInterval = null; // 타이머 초기화
-				return true;
-			} else {
-				message.style.color = 'red';
-				if (xhr.status === 408) {
-					alert(xhr.responseText);
-					message.innerText = xhr.responseText;
-				}else if( xhr.status === 401){
-					alert(xhr.responseText);
-					message.innerText = xhr.responseText;
-				}else if( xhr.status === 500){
-					alert(xhr.responseText);
-					message.innerText = xhr.responseText;
-				}else {
-					alert("알 수 없는 장애 발생. \n 잠시 후 다시 시도 해주세요.");
-					message.innerText = "알 수 없는 장애 발생. 잠시 후 다시 시도 해주세요.";
+		    xhr.onload = function() {
+				if (xhr.status === 200) {
+					isEmailPhoneExist();
+					message.style.color = 'green';
+					message.innerText = "인증 성공";
+					document.getElementById("phone").setAttribute("readonly", true);
+					document.getElementById("phone").setAttribute("disabled", true);
+					document.getElementById("sendSmsButton").setAttribute("disabled", true);
+					document.getElementById("verificationSmsCode").setAttribute("readonly", true);
+					document.getElementById("verificationSmsCode").setAttribute("disabled", true);
+					document.getElementById("verifySmsCodeButton").setAttribute("disabled", true);
+		            clearInterval(timerInterval); // 타이머 중지
+		            timerInterval = null; // 타이머 초기화
+				} else {
+					message.style.color = 'red';
+					if (xhr.status === 408) {
+						alert(xhr.responseText);
+						message.innerText = xhr.responseText;
+					}else if( xhr.status === 401){
+						alert(xhr.responseText);
+						message.innerText = xhr.responseText;
+					}else if( xhr.status === 500){
+						alert(xhr.responseText);
+						message.innerText = xhr.responseText;
+					}else {
+						alert("알 수 없는 장애 발생. \n 잠시 후 다시 시도 해주세요.");
+						message.innerText = "알 수 없는 장애 발생. 잠시 후 다시 시도 해주세요.";
+					}
 				}
-				return false;
-			}
+			};
+		xhr.send('reqCode=' + encodeURIComponent(reqCode));
 		}
 	}
 	
@@ -372,22 +366,8 @@ function updatePassword() {
         return pad(minutes) + ':' + pad(remainingSeconds);
     }
 </script>
-
+-->
 <script type="text/javascript">
-function formatEmail() {
-	const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-	var email = document.getElementById("email").value;
-	/* var message = document.getElementById("emailMessage"); */
-	if (!emailPattern.test(email)) {
-		/* message.style.color = 'red';
-		message.innerText = "올바른 이메일 형식을 입력 해주세요."; */
-		return false;
-	} else {
-		/* message.style.color = 'green';
-		message.innerText = " "; */
-		return true;
-	}
-}
 function formatPhoneNumber(input) {
 	let value = input.value.replace(/[^0-9]/g, ''); // 숫자 이외의 문자를 제거합니다.
 	let formattedValue = value;
@@ -447,5 +427,20 @@ function validateConfirmPasswords() {
 	}
 }
 
+</script>
+<script type="text/javascript">
+document.getElementById('sendSmsButton').addEventListener('click', function(event) {
+	sendSms();	
+});
+document.getElementById('verifySmsCodeButton').addEventListener('click', function(event) {
+	verifySmsCode(function(result){
+		if(result){
+			isEmailPhoneExist();
+		}
+	});
+});
+document.getElementById('updatePasswordButton').addEventListener('click', function(event) {
+	updatePassword();	
+});
 </script>
 </html>

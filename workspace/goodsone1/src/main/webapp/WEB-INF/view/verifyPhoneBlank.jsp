@@ -127,13 +127,6 @@
 		<div id="formDiv">
 			<span class="close" onclick="window.close()">&times;</span>
 			<h2>휴대폰 인증</h2>
-			<br>
-			<label for="email">이메일</label>
-			<br>
-			<input type="email" id="email" name="email" required value="<%=session.getAttribute("stayEmail")%>" readonly="readonly" disabled="disabled">
-			<br>
-			<span id="emailMessage"></span>
-			<br>
 			<label for="phone">휴대폰 번호</label>
 			<br>
 			<input type="text" id="phone" name="phone" required oninput="formatPhoneNumber(this)"maxlength="13" value="010-" >
@@ -151,312 +144,34 @@
 				<br> 
 				<span id="verificationSmsMessage"></span>
 			</div>
-			<br> <br> 
-			<div id="newPasswordDiv">
-				<span>비밀번호 변경</span>
-				<br> <br>
-				<label for="password">새로운 비밀번호</label>
-				<br>
-				<input type="password" id="password" name="password" required oninput="formatPasswords();">
-				<br>
-				<span id="passwordMessage"></span>
-				<br><br>
-				<label for="confirmPassword">새로운 비밀번호 확인</label>
-				<br>
-				<input type="password" id="confirmPassword" name="confirmPassword" required oninput="validateConfirmPasswords()">
-				<br>
-				<span id="confirmPasswordMessage"></span>
-				<br><br><br>
-				<button id="updatePasswordButton" type="button">비밀번호 변경</button>
-			</div>
-			<div id="confirmDiv">
-				<br> <br> 
-				<span id="confirmMessage"></span>
-				<br> <br> <br> <br> 
-				<button id="confirmButton" type="button" onclick="window.close()">확인</button>
-			</div>
-
-
 		</div>
 	</div>
 
 </body>
-
-<!-- 휴대폰 번호와 이메일 조회 -->
+<!-- sms인증 -->
 <script type="text/javascript">
-function isEmailPhoneExist() {
-	var email = document.getElementById("email").value;
-	var phone = document.getElementById("phone").value;
-	var confirmMessage = document.getElementById("confirmMessage");
-
-	var xhr = new XMLHttpRequest();
-	xhr.open('POST', '/user/exist/emailPhone', false); 
-	xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
-
-	var data = 'email=' + encodeURIComponent(email) + '&phone=' + encodeURIComponent(phone);
-    
-	xhr.onload = function() {
-	    if (xhr.status === 200) {
-			document.getElementById("newPasswordDiv").style.display = "block";
-	    } else if (xhr.status === 404) {
-	    	alert("가입시 입력한 정보와 일치하지 않습니다.");
-	    	confirmMessage.innerText = "가입시 입력한 정보와 일치하지 않습니다.";
-			document.getElementById("confirmDiv").style.display = "block";
-	    } else if (xhr.status === 500) {
-	    	alert("서버 오류가 발생했습니다. \n 잠시 후 다시 시도해주세요.");
-	    	confirmMessage.innerText = "서버 오류가 발생했습니다. \n 잠시 후 다시 시도해주세요.";
-			document.getElementById("confirmDiv").style.display = "block";
-	    } else {
-	    	alert("알 수 없는 오류가 발생했습니다. \n 잠시 후 다시 시도해주세요.");
-	    	confirmMessage.innerText = "알 수 없는 오류가 발생했습니다. \n 잠시 후 다시 시도해주세요.";
-			document.getElementById("confirmDiv").style.display = "block";
-	    }
-	};
-	 xhr.send(data);
-}
-
-function updatePassword() {
-	var email = document.getElementById("email").value;
-	var password = document.getElementById("password").value;
-	var confirmPassword = document.getElementById("confirmPassword").value;
-	
-	var xhr = new XMLHttpRequest();
-	xhr.open('POST', '/user/update/password', false); 
-	xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
-	
-    var data = 'email=' + encodeURIComponent(email) +
-    '&password=' + encodeURIComponent(password) +
-    '&confirmPassword=' + encodeURIComponent(confirmPassword);
-    
-    xhr.onload = function() {
-	    if (xhr.status === 200) {
-	        alert("비밀번호 변경 완료.");
-	    } else if (xhr.status === 401) {
-	    	alert("오류가 발생했습니다. 다시 시도해 주세요.");
-	    } else if (xhr.status === 500) {
-	    	alert("오류가 발생했습니다. 잠시후 다시 시도해주세요.");
-	    } else {
-	    	alert("오류가 발생했습니다.");
-	    }
-        window.opener.postMessage({ verifyStatus: xhr.status }, "*");
-        window.close();
-    };
-	 xhr.send(data);
-}
+var phoneInput = document.getElementById("phone");
+var sendSmsButton = document.getElementById("sendSmsButton");
+var verificationSmsCodeInput = document.getElementById("verificationSmsCode");
+var verifySmsCodeButton = document.getElementById("verifySmsCodeButton");
+var message = document.getElementById("verificationSmsMessage");
+const timerElement = document.getElementById('verificationTimeMessage');
 </script>
+<script src="../../static/js/verifyPhone.js"></script>
 
-<!-- sms 인증 api -->
-<script type="text/javascript">
-	var timerInterval; // 타이머 인터벌을 저장할 변수
-	
-	function sendSms() {
-		
-		var reqPhone = document.getElementById("phone").value.replace(/[^0-9]/g, '');
-		if (reqPhone.length !== 11){
-			alert("휴대폰 번호를 확인해 주세요.");
-		} 
-		else {
-			var xhr = new XMLHttpRequest();
-			xhr.open('POST', '/api/verify/sendsms', false);
-			xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
-			
-		    xhr.onload = function() {
-				if (xhr.status === 200) {
-					alert("인증번호 발송 완료");
-					document.getElementById("phone").setAttribute("readonly", true);
-					document.getElementById("phone").setAttribute("disabled", true);
-					document.getElementById("sendSmsButton").innerText = "인증번호 재발송";
-					document.getElementById("input-wrapper").style.display = "inline-block";
-					document.getElementById("verificationSmsCode").removeAttribute("readonly");
-					document.getElementById("verificationSmsCode").removeAttribute("disabled");
-					document.getElementById("verifySmsCodeButton").removeAttribute("disabled");
-					onVerificationCodeSent();
-				} else {
-					message.style.color = 'red';
-					if (xhr.status === 429) {
-						message.innerText = "시도 초과. 잠시 후 다시 시도 해주세요.";
-					}else if(xhr.status === 500){
-						message.innerText = "서버 오류가 발생했습니다. 다시 시도해주세요.";
-					} else {
-						message.innerText = "알 수 없는 오류가 발생했습니다. \n 재발송 시도 해주세요.";
-					}
-				}
-		    };
-	    xhr.send('reqPhone=' + encodeURIComponent(reqPhone));
-		}
-	}
-
-	function verifySmsCode() {
-		var reqCode = document.getElementById("verificationSmsCode").value;
-		var message = document.getElementById("verificationSmsMessage");
-		if (reqCode.length < 5) {
-			alert("인증번호를 다시 확인해주세요.");
-			message.style.color = 'red';
-			message.innerText = "인증번호를 다시 확인해주세요.";
-		} else {
-			var xhr = new XMLHttpRequest();
-			xhr.open('POST', '/api/verify/comparecode', false); 
-			xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=UTF-8');
-
-		    xhr.onload = function() {
-				if (xhr.status === 200) {
-					isEmailPhoneExist();
-					message.style.color = 'green';
-					message.innerText = "인증 성공";
-					document.getElementById("phone").setAttribute("readonly", true);
-					document.getElementById("phone").setAttribute("disabled", true);
-					document.getElementById("sendSmsButton").setAttribute("disabled", true);
-					document.getElementById("verificationSmsCode").setAttribute("readonly", true);
-					document.getElementById("verificationSmsCode").setAttribute("disabled", true);
-					document.getElementById("verifySmsCodeButton").setAttribute("disabled", true);
-		            clearInterval(timerInterval); // 타이머 중지
-		            timerInterval = null; // 타이머 초기화
-					return true;
-				} else {
-					message.style.color = 'red';
-					if (xhr.status === 408) {
-						alert(xhr.responseText);
-						message.innerText = xhr.responseText;
-					}else if( xhr.status === 401){
-						alert(xhr.responseText);
-						message.innerText = xhr.responseText;
-					}else if( xhr.status === 500){
-						alert(xhr.responseText);
-						message.innerText = xhr.responseText;
-					}else {
-						alert("알 수 없는 장애 발생. \n 잠시 후 다시 시도 해주세요.");
-						message.innerText = "알 수 없는 장애 발생. 잠시 후 다시 시도 해주세요.";
-					}
-					return false;
-				}
-			};
-		xhr.send('reqCode=' + encodeURIComponent(reqCode));
-		}
-	}
-	
-	function onVerificationCodeSent() {
-	    // 3분 타이머 시작
-	    let timeLeft = 180; // 3분 = 180초
-	    const timerElement = document.getElementById('verificationTimeMessage');
-	    var message = document.getElementById("verificationSmsMessage");
-	    timerElement.textContent = formatTime(timeLeft);
-
-	    timerInterval = setInterval(() => {
-	        timeLeft--;
-	        timerElement.textContent = formatTime(timeLeft);
-
-	        if (timeLeft <= 0) {
-	            message.style.color = 'red';
-	            message.innerText = '인증 시간이 초과되었습니다. \n 재발송 시도 해주세요.' ;
-	            timerElement.textContent = '00:00' ;
-	            document.getElementById("verificationSmsCode").setAttribute("readonly", true);
-	            document.getElementById("verificationSmsCode").setAttribute("disabled", true);
-	            document.getElementById("verifySmsCodeButton").setAttribute("disabled", true);
-	            clearInterval(timerInterval); // 타이머 중지
-	            timerInterval = null; // 타이머 초기화
-	        }
-	    }, 1000);
-	}
-
-    function formatTime(seconds) {
-        var minutes = Math.floor(seconds / 60);
-        var remainingSeconds = seconds % 60;
-        
-        function pad(number) {
-            return (number < 10 ? '0' : '') + number;
-        }
-
-        return pad(minutes) + ':' + pad(remainingSeconds);
-    }
-</script>
-
-<script type="text/javascript">
-function formatEmail() {
-	const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-	var email = document.getElementById("email").value;
-	/* var message = document.getElementById("emailMessage"); */
-	if (!emailPattern.test(email)) {
-		/* message.style.color = 'red';
-		message.innerText = "올바른 이메일 형식을 입력 해주세요."; */
-		return false;
-	} else {
-		/* message.style.color = 'green';
-		message.innerText = " "; */
-		return true;
-	}
-}
-function formatPhoneNumber(input) {
-	let value = input.value.replace(/[^0-9]/g, ''); // 숫자 이외의 문자를 제거합니다.
-	let formattedValue = value;
-
-	// 앞 세 자리를 "010"으로 고정합니다.
-	if (value.startsWith('010')) {
-		value = value.slice(3); // 앞 세 자리("010")를 잘라냅니다.
-	}
-
-	if (value.length <= 4) {
-		formattedValue = '010-' + value; // 4자리 이하의 숫자만 있을 경우
-	} else if (value.length <= 7) {
-		formattedValue = '010-' + value.slice(0, 4) + '-' + value.slice(4); // 5~7자리의 경우
-	} else {
-		formattedValue = '010-' + value.slice(0, 4) + '-'
-				+ value.slice(4, 8); // 8자리 이상의 경우
-	}
-
-	input.value = formattedValue;
-}
-function formatCode(input) {
-	input.value = input.value.replace(/[^0-9]/g, '');
-}
-function formatPasswords() {
-	var password = document.getElementById("password").value;
-	var message = document.getElementById("passwordMessage");
-	var confirmPasswordMessage = document.getElementById("confirmPasswordMessage");
-	confirmPasswordMessage.innerText = ' ';
-
-	var passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
-
-	if (!passwordPattern.test(password)) {
-		message.style.color = 'red';
-		message.innerText = "최소 8자 이상이며, 영어, 숫자, 특수기호를 포함해야 합니다.";
-		return false;
-	} else {
-		message.style.color = 'green';
-		message.innerText = "유효한 비밀번호 입니다.";
-		return true;
-	}
-}
-function validateConfirmPasswords() {
-	var password = document.getElementById("password").value;
-	var confirmPassword = document.getElementById("confirmPassword").value;
-	var confirmPasswordMessage = document.getElementById("confirmPasswordMessage");
-
-	if (formatPasswords()) {
-		if (password !== confirmPassword) {
-			confirmPasswordMessage.style.color = 'red';
-			confirmPasswordMessage.innerText = "비밀번호가 일치하지 않습니다.";
-			return false;
-		} else {
-			confirmPasswordMessage.style.color = 'green';
-			confirmPasswordMessage.innerText = "비밀번호가 일치합니다.";
-			return true;
-		}
-	}
-}
-
-</script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script type="text/javascript">
 document.getElementById('sendSmsButton').addEventListener('click', function(event) {
 	sendSms();	
 });
 document.getElementById('verifySmsCodeButton').addEventListener('click', function(event) {
-	verifySmsCode();	
+	verifySmsCode(function(result){
+		if(result){
+			var reqPhone = document.getElementById("phone").value;
+			window.opener.postMessage({ updatePhoneBlankStatus: 200, reqPhone: reqPhone }, "*");
+			window.close();
+		}
+	});
 });
-document.getElementById('updatePasswordButton').addEventListener('click', function(event) {
-	updatePassword()();	
-});
-
 
 </script>
 </html>

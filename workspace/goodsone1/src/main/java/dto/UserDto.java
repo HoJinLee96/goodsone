@@ -98,15 +98,33 @@ public class UserDto extends User {
         return addressSeq;
       }
       
+      
       // setter
       
       public void setStatus(Status status) {
         this.status = status;
       }
-      
-      
-      
-      
+
+      public void setPhone(String phone) {
+        this.phone = phone;
+      }
+
+      public void setAddressSeq(int addressSeq) {
+        this.addressSeq = addressSeq;
+      }
+
+      public void setMarketingReceivedStatus(boolean marketingReceivedStatus) {
+        this.marketingReceivedStatus = marketingReceivedStatus;
+      }
+
+      @Override
+      public String toString() {
+        return "UserDto [userSeq=" + userSeq + ", email=" + email + ", password=" + password
+            + ", name=" + name + ", birth=" + birth + ", mobileCarrier=" + mobileCarrier
+            + ", phone=" + phone + ", addressSeq=" + addressSeq + ", status=" + status
+            + ", marketingReceivedStatus=" + marketingReceivedStatus + ", createdAt=" + createdAt
+            + ", updatedAt=" + updatedAt + "]";
+      }
       
     
 }

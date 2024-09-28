@@ -39,8 +39,11 @@ public class LoginAuthInterceptor implements HandlerInterceptor {
       response.setHeader("Pragma", "no-cache");
       response.setHeader("Expires", "0");
     }
+    
     return true;
   }
+  
+  
   
   private boolean isUserDtoExist(HttpSession session) {
     UserDto userDto = (UserDto) session.getAttribute("userDto");

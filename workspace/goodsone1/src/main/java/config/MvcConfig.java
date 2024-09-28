@@ -38,7 +38,7 @@ public class MvcConfig implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 	  registry.addInterceptor(oAuthRefreshInterceptor);
-	  registry.addInterceptor(loginAuthInterceptor).addPathPatterns("/login","/my/**");
+	  registry.addInterceptor(loginAuthInterceptor).addPathPatterns("/login","/my/**","/verifyUser");
 	}
 
     @Bean
