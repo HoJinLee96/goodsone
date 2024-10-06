@@ -201,7 +201,7 @@ document.addEventListener("DOMContentLoaded", function() {
 					<div class="valueDiv">
 					<p class="label">이메일</p>
 					<p class="value" id="maskedEmail"></p>
-					<input id="email" type="hidden" value=>
+					<input id="email" type="hidden">
 					<button class="changeButton" id="changeEmail">이메일 변경</button>
 					</div>
 					
@@ -256,7 +256,6 @@ document.addEventListener("DOMContentLoaded", function() {
 <!-- 변경 버튼 -->
 <script type="text/javascript">
 
-
 document.getElementById('changeEmail').addEventListener('click',function(event){
 	
 });
@@ -266,11 +265,11 @@ document.getElementById('changePassword').addEventListener('click',function(even
 });
 
 document.getElementById('changePhone').addEventListener('click',function(event){
-	openFindWindow('/update/phone/blank');
+	openFindWindow('/verify/phone/blank');
 });
 
 document.getElementById('changeAddress').addEventListener('click',function(event){
-	
+	openFindWindow('/my/addressBook/blank');
 });
 
 document.getElementById('marketingReceived').addEventListener('change',function(event){
@@ -316,7 +315,7 @@ function openFindWindow(url) {
 </script>
 <script type="text/javascript">
   window.addEventListener('message', function(event) {
-      if (event.data.updatePhoneBlankStatus === 200) {
+      if (event.data.verifyPhoneStatus === 200) {
   		var userDto = JSON.parse('${userJson}');
 		userDto.phone = event.data.reqPhone;
 		

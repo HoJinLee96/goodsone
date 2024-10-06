@@ -78,7 +78,7 @@ function sendSms() {
 				message.style.color = 'red';
 				if (xhr.status === 408) {
 					alert("인증번호 기간이 완료 되었습니다. 재발급 시도해 주세요.");
-					message.innerText = "인증번호 기간이 완료 되었습니다. 재발급 시도해 주세요.";
+					message.innerText = "인증번호 기간이 완료 되었습니다.";
 				}else if( xhr.status === 401){
 					alert("인증번호가 일치하지 않습니다.");
 					message.innerText = "인증번호가 일치하지 않습니다.";
@@ -109,7 +109,7 @@ function sendSms() {
 
 	        if (timeLeft <= 0) {
 	            message.style.color = 'red';
-	            message.innerText = '인증 시간이 초과되었습니다. \n 재발송 시도 해주세요.' ;
+	            message.innerText = '인증 시간이 초과되었습니다.' ;
 	            timerElement.textContent = '00:00' ;
 	            verificationSmsCodeInput.setAttribute("readonly", true);
 	            verificationSmsCodeInput.setAttribute("disabled", true);

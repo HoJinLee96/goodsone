@@ -1,7 +1,12 @@
 package intercepter;
 
+import java.util.List;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import dto.AddressDto;
 import dto.OAuthDto;
 import dto.UserDto;
 import dtoNaverLogin.OAuthToken;
@@ -38,7 +43,36 @@ public class LoginAuthInterceptor implements HandlerInterceptor {
       response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
       response.setHeader("Pragma", "no-cache");
       response.setHeader("Expires", "0");
+      
+      if(session.getAttribute("userJson")==null) {
+        UserDto userDto = (UserDto) session.getAttribute("userDto");
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        try {
+          String json = mapper.writeValueAsString(userDto);
+          session.setAttribute("userJson", json);
+        } catch (JsonProcessingException e) {
+          e.printStackTrace();
+          session.invalidate();
+        }
+      }
+      
+      if(session.getAttribute("addressListJson")==null) {
+        List<AddressDto> addressList = (List<AddressDto>) session.getAttribute("addressList");
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        try {
+          String json = mapper.writeValueAsString(addressList);
+          session.setAttribute("addressListJson", json);
+        } catch (JsonProcessingException e) {
+          e.printStackTrace();
+          session.invalidate();
+        }
+      }
+
+      return true;
     }
+    
     
     return true;
   }

@@ -75,6 +75,38 @@ public class AddressDto {
   public String getName() {
     return name;
   }
+  
+  public void setAddressSeq(int addressSeq) {
+    this.addressSeq = addressSeq;
+  }
+
+  public void setUserSeq(int userSeq) {
+    this.userSeq = userSeq;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setPostcode(int postcode) {
+    this.postcode = postcode;
+  }
+
+  public void setMainAddress(String mainAddress) {
+    this.mainAddress = mainAddress;
+  }
+
+  public void setDetailAddress(String detailAddress) {
+    this.detailAddress = detailAddress;
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public void setUpdatedAt(LocalDateTime updatedAt) {
+    this.updatedAt = updatedAt;
+  }
 
   @Override
   public String toString() {

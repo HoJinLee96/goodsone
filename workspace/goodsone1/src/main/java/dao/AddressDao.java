@@ -54,9 +54,9 @@ public class AddressDao {
   }
   
   @Transactional
-  public void updateAddress(AddressDto addressDto) throws SQLException {
+  public int updateAddress(AddressDto addressDto) throws SQLException {
     String sql =
-        "update `address` set `name` = ?, `postcode` = ?, `main_address` = ?,  `detail_address` = ? where `address_seq` = ?";
+        "update `address` set `name` = ?, `postcode` = ?, `main_address` = ?,  `detail_address` = ?, `updated_at` = ? where `address_seq` = ?";
     try (Connection con = dataSource.getConnection();
         PreparedStatement pst = con.prepareStatement(sql);
         ) {
@@ -64,9 +64,10 @@ public class AddressDao {
       pst.setInt(2, addressDto.getPostcode());
       pst.setString(3, addressDto.getMainAddress());
       pst.setString(4, addressDto.getDetailAddress());
-      pst.setInt(5, addressDto.getAddressSeq());
-      pst.executeUpdate();
-
+      pst.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+      pst.setInt(6, addressDto.getAddressSeq());
+      return pst.executeUpdate();
+      
     }
   }
   

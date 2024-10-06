@@ -4,12 +4,41 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>계정 복구</title>
+<style type="text/css">
+.container {
+	/* display: flex; */
+	max-width: 1200px;
+	margin: 0 auto;
+	padding-top: 50px;
+	min-height: 1080px;
+}
+.updatePasswordBlank{
+color: #20367a;
+background: white;
+border: 1px solid #20367a;
+border-radius: 120px;
+cursor: pointer;
+padding: 5px 15px;
+}
+.updatePasswordBlank:hover{
+color: white;
+background: #20367a;
+border: 1px solid white;
+}
+</style>
 </head>
 <body>
 	<%@ include file="main_header.jsp"%>
-	<a href="" onclick="openFindWindow('/update/password/blank')">비밀번호 변경</a>
+	<div class="container">
+		<div>
+		<h3>계정 복구</h3>
+		</div>
+		<div>
+			<button class="updatePasswordBlank" id="updatePasswordBlank" type="button" onclick="openFindWindow('/update/password/blank')">휴대폰 인증</button>
+		</div>
 	
+	</div>
 	<%@ include file="main_footer.jsp"%>
 </body>
 <script type="text/javascript">
@@ -33,7 +62,7 @@ function openFindWindow(url) {
 </script>
 <script type="text/javascript">
   window.addEventListener('message', function(event) {
-      if (event.data.verifyStatus === 200) {
+      if (event.data.updatePasswordStatus === 200) {
           location.href = "/clearLogin";
       }else {
           location.href = "/logout";

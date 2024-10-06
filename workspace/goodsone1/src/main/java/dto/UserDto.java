@@ -31,7 +31,7 @@ public class UserDto extends User {
       }
 
       public UserDto(int userSeq, String email, String name, String birth, String phone,
-          Status status, boolean marketingReceivedStatus, LocalDateTime createdAt,
+          int addressSeq, Status status, boolean marketingReceivedStatus, LocalDateTime createdAt,
           LocalDateTime updatedAt) {
         super();
         this.userSeq = userSeq;
@@ -39,6 +39,7 @@ public class UserDto extends User {
         this.name = name;
         this.birth = birth;
         this.phone = phone;
+        this.addressSeq = addressSeq;
         this.status = status;
         this.marketingReceivedStatus = marketingReceivedStatus;
         this.createdAt = createdAt;

@@ -59,7 +59,7 @@
 
 #verificationTimeMessage {
 	position: absolute;
-	top: 60%;
+	top: 65%;
 	right: 40%;
 	transform: translateY(-50%);
 	font-size: 14px;
@@ -141,9 +141,9 @@
 				<div id="verificationTimeMessage"></div>
 				<input type="hidden" id="smsSeq" value="" />
 				<button class="verifySmsCodeButton" id="verifySmsCodeButton" type="button" disabled>인증번호 확인</button>
-				<br> 
-				<span id="verificationSmsMessage"></span>
 			</div>
+			<br> 
+			<span id="verificationSmsMessage"></span>
 		</div>
 	</div>
 
@@ -153,6 +153,7 @@
 var phoneInput = document.getElementById("phone");
 var sendSmsButton = document.getElementById("sendSmsButton");
 var verificationSmsCodeInput = document.getElementById("verificationSmsCode");
+var inputWrapper = document.getElementById("input-wrapper");
 var verifySmsCodeButton = document.getElementById("verifySmsCodeButton");
 var message = document.getElementById("verificationSmsMessage");
 const timerElement = document.getElementById('verificationTimeMessage');
@@ -167,7 +168,7 @@ document.getElementById('verifySmsCodeButton').addEventListener('click', functio
 	verifySmsCode(function(result){
 		if(result){
 			var reqPhone = document.getElementById("phone").value;
-			window.opener.postMessage({ updatePhoneBlankStatus: 200, reqPhone: reqPhone }, "*");
+			window.opener.postMessage({ verifyPhoneStatus: 200, reqPhone: reqPhone }, "*");
 			window.close();
 		}
 	});

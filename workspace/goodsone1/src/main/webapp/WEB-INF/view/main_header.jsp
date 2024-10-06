@@ -111,7 +111,6 @@ padding-left: 20px;
 
 }
 </style>
-<link rel="stylesheet" href="http://localhost:8086/static/header.css">
 </head>
 <div id ="headerContainer">
         <div class="background-image"></div>

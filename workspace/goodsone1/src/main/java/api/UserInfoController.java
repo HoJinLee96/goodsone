@@ -207,12 +207,14 @@ public class UserInfoController {
   }
   
   @PostMapping("/update/info")
-  public ResponseEntity<?> updateInfo(@RequestBody() UserDto userDto,HttpSession session) {
+  public ResponseEntity<?> updateInfo(@RequestBody UserDto userDto,HttpSession session) {
     System.out.println("updateInfo()실행");
     try {
       userService.updateInfo(userDto);
       UserDto newUserDto = userService.getUserBySeq(userDto.getUserSeq());
+      List<AddressDto> list = addressService.getSortedListByUserSeq(newUserDto);
       session.setAttribute("userDto", newUserDto);
+      session.setAttribute("addressList", list);
       return ResponseEntity.status(HttpStatus.OK).build();
     } catch (SQLException e) {
       e.printStackTrace();

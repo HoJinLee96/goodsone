@@ -62,6 +62,10 @@ public class WebMainController {
 
     if (session != null) {
       session.removeAttribute("userDto");
+      session.removeAttribute("userJson");
+      session.removeAttribute("userDtoExpiry");
+      session.removeAttribute("addressList");
+      session.removeAttribute("addressListJson");
       session.removeAttribute("oAuthDto");
       session.removeAttribute("oAuthToken");
       session.removeAttribute("oAuthTokenExpiry");
@@ -70,7 +74,7 @@ public class WebMainController {
   }
 
   @GetMapping("/my")
-  public String showMy(HttpServletRequest req, HttpServletResponse res) {
+  public String showMy(HttpSession session) {
     System.out.println("----------WebMainController.showMy() 실행----------");
     return "my";
   }
@@ -152,17 +156,6 @@ public class WebMainController {
    @GetMapping("/my/loginInfo")
    public String showMyLoginInfo(HttpServletRequest req, HttpServletResponse res,HttpSession session) {
      System.out.println("----------WebMainController.showMyLoginInfo() 실행----------");
-     UserDto userDto = (UserDto)session.getAttribute("userDto");
-     ObjectMapper mapper = new ObjectMapper();
-     mapper.registerModule(new JavaTimeModule());
-     try {
-      String json = mapper.writeValueAsString(userDto);
-      session.setAttribute("userJson", json);
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-      session.invalidate();
-      return "login";
-    }
      return "myLoginInfo";
    }
    
@@ -175,6 +168,16 @@ public class WebMainController {
    public String showWithdrawalOAuth(HttpServletRequest req, HttpServletResponse res,HttpSession session) {
      System.out.println("----------WebMainController.showWithdrawalOAuth() 실행----------");
      return "withdrawalOAuth";
+   }
+   @GetMapping("/my/addressBook")
+   public String showMyAddressBook(HttpServletRequest req, HttpServletResponse res,HttpSession session) {
+     System.out.println("----------WebMainController.showMyAddress() 실행----------");
+     return "myAddressBook";
+   }
+   @GetMapping("/my/addressBook/Blank")
+   public String showMyAddressBookBlank(HttpServletRequest req, HttpServletResponse res,HttpSession session) {
+     System.out.println("----------WebMainController.showMyAddress() 실행----------");
+     return "myAddressBookBlank";
    }
    
 }

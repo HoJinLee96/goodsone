@@ -70,7 +70,7 @@ input[type="number"] {
 	margin-top: 0px !important;
 }
 
-#detailForm input:not([type="checkbox"]) {
+#detailForm input:not([type="checkbox"]), #postcode, #mainAddress{
 	width: 400px;
 	height: 40px;
 	border: none;
@@ -83,8 +83,13 @@ input[type="number"] {
 #detailForm input:focus {
 	border-bottom: 2px solid black;
 }
-
-#detailForm button {
+#postcode, #mainAddress{
+background: none; !important;
+text-align: left;
+cursor: text;
+color: #767676;
+}
+#detailForm button:not(#postcode):not(#mainAddress) {
 	border: none;
 	background-color: #20367a;
 	color: white;
@@ -94,7 +99,7 @@ input[type="number"] {
 	border-radius: 8px;
 }
 
-#detailForm button:hover {
+#detailForm button:hover:not(#postcode):not(#mainAddress) {
 	border: 1px solid #20367a;
 	background-color: white;
 	color: black;
@@ -193,8 +198,8 @@ width: 20px;
 				<button class="verifySmsCodeButton" id="verifySmsCodeButton" type="button" onclick="verifySmsCode()" disabled>인증번호 확인</button>
 				<span id="verificationSmsMessage"></span>
 				<label for="mainAddress">주소</label>
-				<input type="text" id="postcode" name="postcode" autocomplete="off" onclick="searchAddress()" required readonly placeholder="우편번호">
-				<input type="text" id="mainAddress" name="mainAddress" autocomplete="off" onclick="searchAddress()" required readonly placeholder="주소">
+				<button type="button" id="postcode" name="postcode" onclick="searchAddress()">우편번호</button>
+				<button type="button" id="mainAddress" name="mainAddress" onclick="searchAddress()">주소</button>
 				<input type="text" id="detailAddress" name="detailAddress" autocomplete="off" required placeholder="상세주소">
 				<span id="addressMessage"></span>
 				<input type="checkbox" id="marketingReceivedStatus" name="marketingReceivedStatus">
@@ -215,7 +220,7 @@ width: 20px;
 
 <!-- 주소 검색 api -->
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<script src="static/daumAddressSearch.js"></script>
+<script src="../static/js/daumAddressSearch.js"></script>
 
 <!-- sms 인증 api -->
 <script type="text/javascript">

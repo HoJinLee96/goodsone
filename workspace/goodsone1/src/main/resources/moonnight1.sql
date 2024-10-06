@@ -15,10 +15,12 @@ CREATE TABLE `user` (
 SELECT * FROM `user`;
 SELECT COUNT(*) FROM `user` WHERE `email` = 'st2035@naver.com' AND `phone` = '010-9611-1382';
 
-DELETE FROM `user`;
+DELETE FROM `user` where user_seq = "";
 DROP TABLE IF EXISTS `user`;
 ALTER TABLE `user` AUTO_INCREMENT = 1;
 
+update user set address_seq = '2' where user_seq=1;
+INSERT INTO user (email, password, name, birth, phone, status, marketing_received_status, created_at) VALUES ('chamman@chamman.net','1234','마스터', '12345678', '010-1234-5678', 'NORMAL', '0', CURRENT_TIMESTAMP);
 
 CREATE TABLE `address` (
 	`address_seq`	INT	AUTO_INCREMENT PRIMARY KEY,
@@ -39,7 +41,8 @@ REFERENCES `user` (
 );
 update address set `updated_at` = CURRENT_TIMESTAMP where address_seq=1;
 update address set `detail_address` = '805동502호 가나다라마바사아자차카타파하가나다라마바사아자차카타파하' where address_seq=1;
-INSERT INTO address (user_seq, name, postcode, main_address, detail_address,updated_at) VALUES (1, "이호진", "12345", "월드컵로42길 12", "805-502",CURRENT_TIMESTAMP);
+INSERT INTO address (user_seq, name, postcode, main_address, detail_address,updated_at) VALUES (1, "이호진", "36481", "마포구 12", "805-502",CURRENT_TIMESTAMP);
+
 SELECT * FROM `address`;
 
 DELETE FROM `address`;
