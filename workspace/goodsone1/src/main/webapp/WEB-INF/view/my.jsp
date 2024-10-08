@@ -13,13 +13,13 @@
 	<div class="container">
 		<%@ include file="../../static/mypageSidebar.jsp"%>
 		
-		<main class="content">
+		<div class="content">
 			<c:if test="${not empty sessionScope.userDto}">
 				<div class="profile">
 					${sessionScope.userDto.email}
 				</div>
 			</c:if>
-		</main>
+		</div>
 
 
 	</div>

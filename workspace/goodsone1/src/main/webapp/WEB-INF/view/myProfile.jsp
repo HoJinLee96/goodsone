@@ -1,19 +1,30 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
-<%@ page import= "dto.UserDto" %>
-<%@ page import= "dto.OAuthDto" %>
-<%@ page import= "dto.User" %>
-<%@ page import= "dto.AddressDto" %>
-<%@ page import= "java.util.List" %>
+	pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>로그인 정보</title>
+<title>프로필 관리</title>
 <style type="text/css">
-a{
-text-decoration: none;
-color: black;
+.subContent {
+	margin-top: 30px;
+}
+#overlay {
+	position: flex;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(128, 128, 128, 0.7);
+	display: none;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+}
+.switchDiv{
+position: absolute;
+right: 0px;
+bottom: 20px;
 }
 .label{
 display: block;
@@ -21,7 +32,6 @@ margin: 20px 0px 10px 0px;
 font-size: 14px;
 color: #acacac;
 }
-
 .valueDiv{
     border-bottom: 2px solid #20367a;
 max-width: 550px;
@@ -57,49 +67,7 @@ color: white;
 background: #20367a;
 border: 1px solid white;
 }
-.subContent {
-	margin-top: 30px;
-}
-.contentTitle{
-padding-bottom : 15px;
-border-bottom: 4px solid #20367a;
-}
-
-#overlay {
-	position: flex;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(128, 128, 128, 0.7);
-	display: none;
-	justify-content: center;
-	align-items: center;
-	z-index: 1000;
-}
-.switchDiv{
-position: absolute;
-right: 0px;
-bottom: 20px;
-}
-
-#stopBtn{
-color: #20367a;
-background: white;
-border: 1px solid #20367a;
-border-radius: 10px;
-cursor: pointer;
-padding: 6px 8px;
-position: absolute;
-margin-top: 50px; 
-}
-#stopBtn:hover{
-background: #20367a;
-border: 1px solid white;
-color: white;
-}
 </style>
-
 <!-- 스위치 -->
 <style type="text/css">
 /* 스위치 전체 컨테이너 */
@@ -150,120 +118,88 @@ color: white;
 }
 </style>
 </head>
-
 <script type="text/javascript">
 document.addEventListener("DOMContentLoaded", function() {
 
-	var email ="";
-/* 	var phone ="";
+	var name ="";
+	var phone ="";
 	var sortedAddress ="";
-	var marketingReceived =""; */
+	var marketingReceived ="";
 	
     if (${sessionScope.userDto != null}) {
-		email = "${sessionScope.userDto.email}";
-/* 		phone = "${sessionScope.userDto.phone}";
+    	name = "${sessionScope.userDto.name}";
+		phone = "${sessionScope.userDto.phone}";
 		sortedAddress = "(${sessionScope.addressList[0].postcode}) ${sessionScope.addressList[0].mainAddress} ${sessionScope.addressList[0].detailAddress}";
-		marketingReceived = ${sessionScope.userDto.marketingReceivedStatus ? 'true' : 'false'}; */
+		marketingReceived = ${sessionScope.userDto.marketingReceivedStatus ? 'true' : 'false'};
     }else if (${sessionScope.oAuthDto != null}) {
-		email = "${sessionScope.oAuthDto.email}";
-		/* phone = "${sessionScope.oAuthDto.phone}"; */
+    	name = "${sessionScope.oAuthDto.name}";
+		phone = "${sessionScope.oAuthDto.phone}";
     }
     
-	var emailParts = email.split("@"); //이메일을 '@' 기준으로 나누기
-	var userPart = emailParts[0]; // '@' 앞의 아이디 부분
-	var visiblePart = userPart.substring(0, 2); // 앞 2자리
-	var maskedPart = ""; // 가려질 부분을 저장할 변수
-	
-	//2번째 글자 이후는 '*'로 변경
-	for (var i = 2; i < userPart.length; i++) {
-	maskedPart += "*";
-	}
-	var maskedEmail = visiblePart + maskedPart + "@" + emailParts[1];
-	
-	document.getElementById("maskedEmail").textContent=maskedEmail;
-/* 	document.getElementById("phone").textContent=phone;
+	document.getElementById("name").textContent=name;
+	document.getElementById("phone").textContent=phone;
 	document.getElementById("sortedAddress").textContent=sortedAddress;
-	document.getElementById('marketingReceived').checked = marketingReceived; */
+	document.getElementById('marketingReceived').checked = marketingReceived;
 });
 </script>
 <body>
 	<%@ include file="main_header.jsp"%>
 	<div class="container">
 		<%@ include file="../../static/mypageSidebar.jsp"%>
-	
-		<div class="content">
-		<p class="headerFont contentTitle">로그인 정보</p>
-			<%-- <c:if test="${not empty sessionScope.userDto}"> --%>
 
-				<div class="subContent">
-					<p class="subHeaderFont">내 계정</p>
-					
-					<div class="valueDiv">
-					<p class="label">이메일</p>
-					<p class="value" id="maskedEmail"></p>
-					<input id="email" type="hidden">
-					<button class="changeButton" id="changeEmail">이메일 변경</button>
-					</div>
-					
-					<div class="valueDiv">
-					<p class="label">비밀번호</p>
-					<p class="value" id="maskedEmail">********</p>
-					<button class="changeButton" id="changePassword">비밀번호 변경</button>
-					</div>
-					
+		<div class="content">
+			<div class="subContent">
+				<p class="subHeaderFont">개인 정보</p>
+				
+				<div class="valueDiv">
+					<p class="label">이름</p>
+					<p class="value" id="name"></p>
+					<button class="changeButton" id="changeName">이름 변경</button>
 				</div>
-<%-- 				<div class="subContent">
-					<p class="subHeaderFont">개인 정보</p>
-					
-					<div class="valueDiv">
+
+				<div class="valueDiv">
 					<p class="label">휴대폰 번호</p>
 					<p class="value" id="phone"></p>
 					<button class="changeButton" id="changePhone">휴대폰 번호 변경</button>
-					</div>
-					
-					<div class="valueDiv">
+				</div>
+
+				<div class="valueDiv">
 					<p class="label">주소록</p>
 					<p class="value" id="sortedAddress"></p>
 					<button class="changeButton" id="changeAddress">주소록 변경</button>
-					</div>
-				</div>	
-				<div class="subContent">
-					<p class="subHeaderFont">광고성 정보 수신</p>
-					<div class="valueDiv">
+				</div>
+			</div>
+			<div class="subContent">
+				<p class="subHeaderFont">광고성 정보 수신</p>
+				<div class="valueDiv">
 					<p class="value" id="phone">개인정보 수집 및 이용 내역</p>
-					<div class="switchDiv" id ="switchDiv">
-					<div class="switch" id ="switch">
-					  <input type="checkbox" id="marketingReceived" class="toggle-checkbox" <%= marketingReceived ? "checked" : "" %>>
-					  <label for="marketingReceived" class="toggle-label">
-					    <span class="toggle-button"></span>
-					  </label>
+					<div class="switchDiv" id="switchDiv">
+						<div class="switch" id="switch">
+							<input type="checkbox" id="marketingReceived"
+								class="toggle-checkbox"<%-- <%= marketingReceived ? "checked" : "" %> --%>>
+							<label for="marketingReceived" class="toggle-label"> <span
+								class="toggle-button"></span>
+							</label>
+						</div>
 					</div>
-					</div>
-					</div>
-					
-					
-				</div> --%>
-		<div>
-			<button type="button" id="stopBtn">회원 탈퇴</button>
+				</div>
+
+
+			</div>
+
 		</div>
-		</div>
+
 	</div>
+
 	<div id ="overlay"></div>
 	<%@ include file="main_footer.jsp"%>
-
 </body>
-<!-- 변경 버튼 -->
 <script type="text/javascript">
-
-document.getElementById('changeEmail').addEventListener('click',function(event){
-	
+document.getElementById('changeName').addEventListener('click',function(event){
+	alert("현재 이름 변경은 지원하지 않습니다.");
 });
 
-document.getElementById('changePassword').addEventListener('click',function(event){
-	openFindWindow('/update/password/blank');
-});
-
-/* document.getElementById('changePhone').addEventListener('click',function(event){
+document.getElementById('changePhone').addEventListener('click',function(event){
 	openFindWindow('/verify/phone/blank');
 });
 
@@ -277,8 +213,8 @@ document.getElementById('marketingReceived').addEventListener('change',function(
 	userDto.marketingReceivedStatus = checked;
 	userUpdateInfo(userDto);
 });
- */
-/* function userUpdateInfo(userDto){
+
+function userUpdateInfo(userDto){
 	var xhr = new XMLHttpRequest();
 	xhr.open('POST','/user/update/info');
 	xhr.setRequestHeader('Content-Type','application/json; charset=UTF-8');
@@ -292,8 +228,7 @@ document.getElementById('marketingReceived').addEventListener('change',function(
         }
 	}
 	xhr.send(JSON.stringify(userDto));
-} */
-
+}
 function openFindWindow(url) {
     // 새 창의 크기 지정
     const width = 500;
@@ -312,10 +247,12 @@ function openFindWindow(url) {
     return false; // 기본 링크 동작을 막기 위해 false를 반환
 }
 </script>
+
+
 <script type="text/javascript">
-/*   window.addEventListener('message', function(event) {
-      if (event.data.verifyPhoneStatus === 200) {
-  		var userDto = JSON.parse('${userJson}');
+window.addEventListener('message', function(event) {
+    if (event.data.verifyPhoneStatus === 200) {
+		var userDto = JSON.parse('${userJson}');
 		userDto.phone = event.data.reqPhone;
 		
 		var xhr = new XMLHttpRequest();
@@ -335,18 +272,8 @@ function openFindWindow(url) {
 	        }
 		}
 		xhr.send(JSON.stringify(userDto));
-      }
+    }
 
-  }); */
-
-document.getElementById('stopBtn').addEventListener('click',function(event){
-	if (${sessionScope.oAuthDto != null}) {
-		window.location.href = '/my/withdrawalOAuth';
-	} else if (${sessionScope.userDto != null}) {
-	window.location.href = '/my/withdrawal';
-	}
 });
 </script>
-
-
 </html>

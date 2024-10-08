@@ -27,13 +27,13 @@ public class AddressDao {
 
   // **** 주소등록 ****
   @Transactional
-  public void registerAddress(int userSeq, AddressDto addressDto) throws SQLException {
+  public int registerAddress(AddressDto addressDto) throws SQLException {
     String sql =
         "INSERT INTO address (user_seq, name, postcode, main_address, detail_address,updated_at) VALUES (?, ?, ?, ?, ?,?)";
     try (Connection con = dataSource.getConnection();
         PreparedStatement pst = con.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
         ) {
-      pst.setInt(1, userSeq);
+      pst.setInt(1, addressDto.getUserSeq());
       pst.setString(2, addressDto.getName());
       pst.setInt(3, addressDto.getPostcode());
       pst.setString(4, addressDto.getMainAddress());
@@ -42,15 +42,10 @@ public class AddressDao {
       pst.executeUpdate();
       ResultSet generatedKeys = pst.getGeneratedKeys();
       if (generatedKeys.next()) {
-        sql = "update `user` set `address_seq` = ? where `user_seq` = ?";
-        int addressSeq = generatedKeys.getInt(1);
-        try(PreparedStatement updatePst = con.prepareStatement(sql);){
-          updatePst.setInt(1, addressSeq);
-          updatePst.setInt(2, userSeq);
-          updatePst.executeUpdate();
-        }
+        return generatedKeys.getInt(1);
       }
     }
+    return 0;
   }
   
   @Transactional

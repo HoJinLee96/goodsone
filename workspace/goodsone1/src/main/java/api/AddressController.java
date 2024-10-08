@@ -2,7 +2,6 @@ package api;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,11 +26,20 @@ public class AddressController {
   AddressService addressService;
   
   @PostMapping("/register")
-  public ResponseEntity<?> registerAddress(int userSeq, AddressDto addressDto) {
+  public ResponseEntity<?> registerAddress(@RequestBody AddressDto addressDto,HttpSession session) {
     try {
-      addressService.registerAddress(userSeq, addressDto);
+      addressService.registerAddress(addressDto);
+      List<AddressDto> list = (List)session.getAttribute("addressList");
+      list.add(addressDto);
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.registerModule(new JavaTimeModule());
+      session.setAttribute("addressList", list);
+      session.setAttribute("addressListJson", mapper.writeValueAsString(list));
       return ResponseEntity.status(HttpStatus.OK).build();
     } catch (SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    } catch (JsonProcessingException e) {
       e.printStackTrace();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }

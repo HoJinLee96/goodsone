@@ -2,6 +2,7 @@ package api;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dto.AddressDto;
 import dto.OAuthDto;
 import dto.RegisterUserDto;
@@ -22,6 +25,7 @@ import dto.User.Status;
 import dto.UserDto;
 import dtoNaverLogin.OAuthToken;
 import exception.NotFoundException;
+import exception.NotUpdateException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import service.AddressService;
@@ -208,18 +212,75 @@ public class UserInfoController {
   
   @PostMapping("/update/info")
   public ResponseEntity<?> updateInfo(@RequestBody UserDto userDto,HttpSession session) {
-    System.out.println("updateInfo()실행");
     try {
       userService.updateInfo(userDto);
-      UserDto newUserDto = userService.getUserBySeq(userDto.getUserSeq());
-      List<AddressDto> list = addressService.getSortedListByUserSeq(newUserDto);
-      session.setAttribute("userDto", newUserDto);
+      List<AddressDto> list = addressService.getSortedListByUserSeq(userDto);
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.registerModule(new JavaTimeModule());
+      session.setAttribute("userDto", userDto);
+      session.setAttribute("userJson", mapper.writeValueAsString(userDto));
       session.setAttribute("addressList", list);
+      session.setAttribute("addressListJson", mapper.writeValueAsString(list));
       return ResponseEntity.status(HttpStatus.OK).build();
     } catch (SQLException e) {
       e.printStackTrace();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     } catch (NotFoundException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+  
+  @PostMapping("/update/addressSeq")
+  public ResponseEntity<?> updateAddressSeq(@RequestBody Map<String,Integer> requestBody,HttpSession session){
+    int userSeq = requestBody.get("userSeq");
+    int addressSeq = requestBody.get("addressSeq");
+    try {
+      userService.updateAddressSeq(userSeq,addressSeq);
+      
+      ObjectMapper mapper = new ObjectMapper();
+      mapper.registerModule(new JavaTimeModule());
+      
+      UserDto userDto = (UserDto)session.getAttribute("userDto");
+      userDto.setAddressSeq(addressSeq);
+      session.setAttribute("userDto", userDto);
+      session.setAttribute("userJson", mapper.writeValueAsString(userDto));
+      
+      List<AddressDto> list = (List)session.getAttribute("addressList");
+      
+      AddressDto target = null;
+      
+      for (AddressDto content : list) {
+          if (content.getAddressSeq() == addressSeq) {
+              target = content;
+              break;
+          }
+      }
+      
+      if (target != null) {
+        list.remove(target);
+        list.add(0, target);
+      }else {
+        throw new NotFoundException();
+      }
+      
+      session.setAttribute("addressList", list);
+      session.setAttribute("addressListJson", mapper.writeValueAsString(list));
+      
+      return ResponseEntity.status(HttpStatus.OK).build();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    } catch (NotFoundException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    } catch (NotUpdateException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    } catch (JsonProcessingException e) {
       e.printStackTrace();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }

@@ -179,5 +179,10 @@ public class WebMainController {
      System.out.println("----------WebMainController.showMyAddress() 실행----------");
      return "myAddressBookBlank";
    }
+   @GetMapping("/my/profile")
+   public String showMyProfile(HttpServletRequest req, HttpServletResponse res,HttpSession session) {
+     System.out.println("----------WebMainController.showMyProfile() 실행----------");
+     return "myProfile";
+   }
    
 }

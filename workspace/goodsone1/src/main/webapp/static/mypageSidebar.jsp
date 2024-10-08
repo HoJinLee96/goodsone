@@ -68,7 +68,6 @@
 						<li><a href="/my/loginInfo">로그인 정보</a></li>
 						<li><a href="/my/profile">프로필 관리</a></li>
 						<li><a href="/my/addressBook">주소록</a></li>
-						<li><a href="/my/paymentInfo">결제정보</a></li>
 					</ul>
 				</li>
 			</ul>

@@ -15,6 +15,7 @@ import dto.UserDto;
 import dto.User.Status;
 import exception.FailReason;
 import exception.NotFoundException;
+import exception.NotUpdateException;
 
 @Service
 public class UserService {
@@ -35,7 +36,9 @@ public class UserService {
     public int registerUser(UserDto userDto,AddressDto addressDto) throws SQLException {
       String encodePassoword = passwordEncoder.encode(userDto.getPassword());
       int userSeq = userDao.registerUser(userDto, encodePassoword);
-      addressDao.registerAddress(userSeq, addressDto);
+      addressDto.setUserSeq(userSeq);
+      int addressSeq = addressDao.registerAddress(addressDto);
+      userDao.updateAddressSeq(userSeq, addressSeq);
       return userSeq;
     }
     
@@ -98,6 +101,13 @@ public class UserService {
     @Transactional
     public void updateStatus(User reqUser) throws SQLException{
       userDao.updateStatus(reqUser.getEmail(), reqUser.getStatus().name());
+    }
+    
+    @Transactional
+    public void updateAddressSeq(int userSeq, int addressSeq) throws SQLException, NotUpdateException{
+      int result = userDao.updateAddressSeq(userSeq, addressSeq);
+      if(result==0)
+        throw new NotUpdateException();
     }
 
     @Transactional

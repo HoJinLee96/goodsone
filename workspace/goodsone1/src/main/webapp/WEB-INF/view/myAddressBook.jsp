@@ -36,7 +36,7 @@ top:25px;
 color: #20367a;
 background: white;
 border: 1px solid #20367a;
-border-radius: 120px;
+border-radius: 10px;
 cursor: pointer;
 padding: 5px 10px;
 margin-left: 10px;
@@ -75,7 +75,7 @@ color: white;
 	position: relative;
 }
 
-.close {
+.closeBtn {
 	position:absolute;
 	top:5px;
 	left:15px;
@@ -109,6 +109,7 @@ border-bottom: 2px solid #20367a;
 width: 100px; !important
 }
 .postcode, .mainAddress{
+height:43px;
 cursor: text;
 margin-bottom: 10px;
 text-align: left;
@@ -121,6 +122,38 @@ border-bottom: 2px solid #20367a;
 .iframe p{
 color: #8b8b8b;
 }
+
+.addAddress{
+position:relative;
+border: 2px solid #afafaf;
+border-radius: 10px;
+border-style:dotted;
+padding: 15px 15px;
+margin-top: 10px;
+height: 42px;
+cursor: pointer;
+}
+.plusButton{
+position: absolute;
+color:#aaa;
+font-size:24px;
+top: 30%;
+left: 50%;
+}
+
+.updateButton{
+	font-size:16px;
+    position: absolute;
+    width: 500px;
+    bottom: 20px;
+	color: white;
+    background: #20367a;
+    border: 1px solid white;
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 10px 20px;
+}
+
 </style>
 </head>
 <script type="text/javascript">
@@ -158,6 +191,15 @@ document.addEventListener("DOMContentLoaded", function() {
 		        var buttonDiv = document.createElement('div');
 		        buttonDiv.classList.add('buttonDiv');
 
+		        // 대표 선택 버튼
+		        if(index!=0){
+		        var choiceButton = document.createElement('button');
+		        choiceButton.type = 'button';
+		        choiceButton.id = 'choiceAddress' + index;
+		        choiceButton.textContent = '대표 선택';
+		        buttonDiv.appendChild(choiceButton);
+		        }
+		        
 		        // 수정 버튼
 		        var updateButton = document.createElement('button');
 		        updateButton.type = 'button';
@@ -174,6 +216,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		        buttonDiv.appendChild(deleteButton);
 		        }
 		        
+		        
 
 		        // 요소들을 addressDiv에 추가
 		        addressDiv.appendChild(nameP);
@@ -187,6 +230,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		    
 		    var updateButtons = document.querySelectorAll('button[id^="updateAddress"]');
 		    var deleteButtons = document.querySelectorAll('button[id^="deleteAddress"]');
+		    var choiceButtons = document.querySelectorAll('button[id^="choiceAddress"]');
 
 		    updateButtons.forEach(function(button, index) {
 		        button.addEventListener('click', function() {
@@ -204,8 +248,29 @@ document.addEventListener("DOMContentLoaded", function() {
 		            deleteAddress(addressSeq);
 		        });
 		    });
+		    
+		    choiceButtons.forEach(function(button) {
+		        button.addEventListener('click', function() {
+		            var addressSeq = this.closest('.address').querySelector('input[id^="addressSeq"]').value;
+		            updateAddressSeq(addressSeq);
+		        });
+		    });
 	}
-	
+	if(${sessionScope.addressListJson}.length<5){
+        var addAddressDiv = document.createElement('div');
+        addAddressDiv.classList.add('addAddress');
+        addAddressDiv.addEventListener('click', function() {
+        	footerlayerLoad();
+        });
+        
+        var plusButton = document.createElement('div');
+        plusButton.classList.add('plusButton');
+        plusButton.textContent = '+';
+        
+        addAddressDiv.appendChild(plusButton);
+        contentDiv.appendChild(addAddressDiv);
+
+	}
 });
 </script>
 <body>
@@ -276,30 +341,38 @@ function footerlayerLoad(address) {
 
     var overlay = $('<div class="overlay"></div>');
     var popContent = $('<div class="popContent"></div>');
-    var closeBtn = $('<span class="close" onclick="window.close()">&times;</span>');
+    var closeBtn = $('<span class="closeBtn" onclick="window.close()">&times;</span>');
     var head = $('<h3>입력한 정보를 확인 후 저장해주세요</h3>');
 	var iframe = $('<div class ="iframe"></div>')
-    .attr('id', address.addressSeq);
+    .attr('id', address?address.addressSeq:'');
     var nameLabel = $('<p>이름</p>');
-	var name = $('<input type="text" class="name" id="name" maxlength="20">')
-    .val(address.name);
+	var name = $('<input type="text" class="name" id="name" maxlength="20" placeholder="이름">' )
+    .val(address?address.name:'');
     var addressLabel = $('<p>주소</p>');
     var postcode = $('<button tyue="button" class="postcode" id="postcode">')
-    .text(address.postcode)
+    .text(address?address.postcode:'우편번호')
+	.css('color', address ? 'black' : '#858585')
 	.on('click', function() {
     searchAddress();
 	});
     var mainAddress = $('<button type="button" class="mainAddress" id="mainAddress">')
-    .text(address.mainAddress)
+    .text(address?address.mainAddress:'주소')
+    .css('color', address ? 'black' : '#858585')
     .on('click', function() {
     searchAddress();
 	});
-    var detailAddress = $('<input type="text" class="detailAddress" id="detailAddress" type="text" maxlength="50">')
-    .val(address.detailAddress);
+    var detailAddress = $('<input type="text" class="detailAddress" id="detailAddress" type="text" maxlength="50" placeholder="상세주소">')
+    .val(address?address.detailAddress:'');
+    var buttonDiv = $('<div class="overayButtonDiv"></div>');
     var updateButton = $('<button type="button" class="updateButton">확인</button>')
     .on('click', function(){
-    	updateAddress(address);
+        if (address) {
+            updateAddress(address);
+        } else {
+        	registerAddress();
+        }
     });
+
     
     closeBtn.on('click', function() {
         overlay.remove();
@@ -321,6 +394,7 @@ function footerlayerLoad(address) {
     iframe.append(mainAddress);
     iframe.append(detailAddress);
     iframe.append(updateButton);
+    iframe.append(buttonDiv);
     popContent.append(head);
     popContent.append(iframe);
     overlay.append(popContent);
@@ -330,14 +404,10 @@ function footerlayerLoad(address) {
 
 function updateAddress(address){
 	
-	name = document.getElementById('name').value;
-	postcode = document.getElementById('postcode').innerText;
-	mainAddress = document.getElementById('mainAddress').innerText;
-	detailAddress = document.getElementById('detailAddress').value;
-    address.name = name;
-    address.postcode = postcode;
-    address.mainAddress = mainAddress;
-    address.detailAddress = detailAddress;
+    address.name = document.getElementById('name').value;
+    address.postcode = document.getElementById('postcode').innerText;
+    address.mainAddress = document.getElementById('mainAddress').innerText;
+    address.detailAddress = document.getElementById('detailAddress').value;
     
  	var xhr = new XMLHttpRequest();
     xhr.open('POST', '/address/update', true);
@@ -350,6 +420,49 @@ function updateAddress(address){
             	window.location.reload();
             } else {
             	alert("수정 오류");
+            }
+        }
+    };
+    xhr.send(data);
+}
+
+function registerAddress(){
+	var address ={
+			userSeq : ${userDto.userSeq},
+			name : document.getElementById('name').value,
+			postcode : document.getElementById('postcode').innerText,
+			mainAddress : document.getElementById('mainAddress').innerText,
+			detailAddress : document.getElementById('detailAddress').value
+	};
+ 	var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/address/register', true);
+    xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8'); 
+    var data = JSON.stringify(address); 
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) { // 요청 완료
+            if (xhr.status === 200) { // 성공
+            	window.location.reload();
+            } else {
+            	alert("잠시 후 재시도 해주세요.");
+            }
+        }
+    };
+    xhr.send(data);
+}
+
+function updateAddressSeq(addressSeq){
+	var userSeq = ${sessionScope.userDto.userSeq};
+	
+	var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/user/update/addressSeq', true);
+    xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8'); 
+    var data = JSON.stringify({userSeq:userSeq, addressSeq:addressSeq}); 
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) { // 요청 완료
+            if (xhr.status === 200) { // 성공
+            	window.location.reload();
+            } else {
+            	alert("잠시 후 재시도 해주세요.");
             }
         }
     };

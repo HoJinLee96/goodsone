@@ -212,6 +212,17 @@ public class UserDao {
     }
   }
   
+  public int updateAddressSeq(int userSeq, int addressSeq) throws SQLException {
+    String sql = "UPDATE user SET address_seq = ?, updated_at = ? WHERE user_seq = ?";
+    try (Connection con = dataSource.getConnection();
+        PreparedStatement pst = con.prepareStatement(sql)) {
+      pst.setInt(1, addressSeq);
+      pst.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+      pst.setInt(3, userSeq);
+      return pst.executeUpdate();
+    }
+  }
+  
   public Optional<Integer> updateStatus(String email,String status) throws SQLException {
     String sql = "UPDATE `user` SET `status` = ?, updated_at = ? WHERE email = ?";
     try (Connection con = dataSource.getConnection();

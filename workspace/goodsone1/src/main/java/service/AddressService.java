@@ -22,8 +22,10 @@ public class AddressService {
   }
   
   @Transactional
-  public void registerAddress(int userSeq, AddressDto addressDto) throws SQLException {
-    addressDao.registerAddress(userSeq, addressDto);
+  public void registerAddress(AddressDto addressDto) throws SQLException {
+    int result = addressDao.registerAddress(addressDto);
+    if(result==0)
+      throw new SQLException();
   }
   
   @Transactional
