@@ -30,8 +30,8 @@ public class AWSS3Dao {
   private String bucket;
   
   
-  private static final String S3_BUCKET_URL =
-      "https://your-bucket-name.s3.your-region.amazonaws.com/";
+  private final String S3_BUCKET_URL =
+      "s3://chamman/estimateImages/";
 
   public List<String> getS3Urls(String imagesPath) {
     String[] paths = imagesPath.split(",");

@@ -26,7 +26,7 @@ CREATE TABLE `address` (
 	`address_seq`	INT	AUTO_INCREMENT PRIMARY KEY,
 	`user_seq`	INT	NOT NULL,
     `name` VARCHAR(50),
-	`postcode`	INT	NOT NULL,
+	`postcode`	VARCHAR(50)	NOT NULL,
 	`main_address`	VARCHAR(255)	NOT NULL,
 	`detail_address`	VARCHAR(255)	NOT NULL,
     `created_at`	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

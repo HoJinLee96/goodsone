@@ -63,6 +63,17 @@ margin-bottom: 30px;
     border: 2px solid #20367a;
     color:#20367a;
 }
+#joinButton{
+    width: 400px;
+    height: 52px;
+    border: 2px solid #20367a;
+    border-radius: 10px;
+    background-color: white;
+    color: #20367a;
+    font-size: 18px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
 #OAutoLoginBlcok{
 padding:10px 0px 30px 0px;
     display: flex;
@@ -160,6 +171,54 @@ content:"다른 방법 로그인";
     left: 0px;
     z-index: -1;
 }
+
+.emailDiv{
+display:inline;
+position: relative;
+}
+#emailInitButton{
+display:none;
+position: absolute;
+right: 10px;
+top: 30px;
+border: 1px solid #d0d0d0;
+border-radius: 50%;
+padding: 0px 4px;
+font-size: 12px;
+color: white;
+background: #d0d0d0;
+cursor: pointer;
+}
+
+.passwordDiv{
+display:inline;
+position: relative;
+}
+#passwordViewButton{
+background-image: url('http://localhost:8086/static/img/eyeHiddenIcon.png'); 
+background-size: cover;
+width: 17px;
+height: 17px;
+
+display:none;
+position: absolute;
+right: 40px;
+top: 43px;
+cursor: pointer;
+}
+#passwordInitButton{
+display:none;
+position: absolute;
+right: 10px;
+top: 43px;
+border: 1px solid #d0d0d0;
+border-radius: 50%;
+padding: 0px 4px;
+font-size: 12px;
+color: white;
+background: #d0d0d0;
+cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -170,21 +229,26 @@ content:"다른 방법 로그인";
 	<div class ="loginform">
 	    <h2 class = "title">로그인</h2>
 		<form action="" id="loginForm">
-	        <label for="email">이메일</label>
-	        <input type="email" id=email name="email" required autofocus placeholder="example@example.com">
-	        <br>
-	        <label for="password">비밀번호</label>
-	        <input type="password" id="password" name="password" required placeholder="password">
-	        <br>
-	        <!-- <div id="error"></div> -->
+			<div class = "emailDiv">
+		        <label for="email">이메일</label>
+		        <input type="email" id=email name="email" required autofocus placeholder="example@example.com">
+		        <div id = "emailInitButton">&times;</div>
+			</div>
+			<div class = "passwordDiv">
+		        <label for="password">비밀번호</label>
+		        <input type="password" id="password" name="password" required placeholder="password">
+		        <div id = "passwordViewButton"></div>
+		        <div id = "passwordInitButton">&times;</div>
+			</div>
 	        <div id ="etcActionDiv">
-	        <input type="checkbox" id="rememmberIdCheckbox" name="rememmberIdCheckbox">
-	        <label for="rememmberIdCheckbox">이메일 저장</label>
-<a href="" id="findEmail" onclick="openFindWindow('/find/email')">이메일 찾기</a>
-<a href="" id="findPassword" onclick="openFindWindow('/update/password/blank')">비밀번호 찾기</a>
+	        	<input type="checkbox" id="rememmberIdCheckbox" name="rememmberIdCheckbox">
+	        	<label for="rememmberIdCheckbox">이메일 저장</label>
+				<a href="" id="findEmail" onclick="openFindWindow('/find/email')">이메일 찾기</a>
+				<a href="" id="findPassword" onclick="openFindWindow('/update/password/blank')">비밀번호 찾기</a>
 	        </div>
 	        <button type="submit">로그인</button>
 	    </form>
+	        <button id="joinButton" type="button">회원가입</button>
 	    <div id = "underline-text"></div>
 	    <div id = "OAutoLoginBlcok">
 	        <a href="/kakao/login/url" id="kakao-login">
@@ -201,6 +265,60 @@ content:"다른 방법 로그인";
 
 <%@ include file = "main_footer.jsp" %>
 </body>
+<script type="text/javascript">
+var email = document.getElementById('email');
+var emailInitButton = document.getElementById('emailInitButton');
+email.addEventListener('input', function() {
+    buttonDisplay(email, emailInitButton);
+});
+email.addEventListener('blur', function() {
+    buttonDisplay(email, emailInitButton);
+});
+emailInitButton.addEventListener('click', function() {
+    init(email,emailInitButton);
+});
+
+var password = document.getElementById('password');
+var passwordInitButton = document.getElementById('passwordInitButton');
+var passwordViewButton = document.getElementById('passwordViewButton');
+password.addEventListener('input', function() {
+    buttonDisplay(password, passwordInitButton);
+    buttonDisplay(password, passwordViewButton);
+});
+password.addEventListener('blur', function() {
+    buttonDisplay(password, passwordInitButton);
+    buttonDisplay(password, passwordViewButton);
+});
+passwordInitButton.addEventListener('click', function() {
+    init(password,passwordInitButton);
+    init(password,passwordViewButton);
+});
+passwordViewButton.addEventListener('click', function() {
+    view(password,passwordViewButton);
+});
+
+function view(input,button){
+    if (input.type === 'password') {
+    	input.type = 'text';
+    	button.style.backgroundImage= "url('http://localhost:8086/static/img/eyeIcon.png')";
+	} else {
+    	input.type = 'password';
+    	button.style.backgroundImage= "url('http://localhost:8086/static/img/eyeHiddenIcon.png')";
+    }
+}
+function init(input,button){
+	input.value='';
+	button.style.display="none";
+}
+
+function buttonDisplay(input,button){
+	if(input.value){
+		button.style.display="inline";
+	}else{
+		button.style.display="none";
+	}
+}
+</script>
 
 <!-- 로그인 -->
 <script type="text/javascript">
@@ -274,5 +392,10 @@ function openFindWindow(url) {
     );
     return false; // 기본 링크 동작을 막기 위해 false를 반환
 }
+
+document.getElementById('joinButton').addEventListener('click',function(){
+	window.location.href="/join";
+});
 </script>
+
 </html>

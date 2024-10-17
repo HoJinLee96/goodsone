@@ -45,7 +45,7 @@
 	padding: 0px 50px;
 }
 
-.sidebar2 li a{
+.sidebar li a:not(.headerFont) {
 	color: #afafaf;
 }
 .headerFont{
@@ -55,14 +55,15 @@
 .subHeaderFont{
 	margin:0px;
 	font-size: 20px;
+	
 }
 
 </style>
 </head>
 		<nav class="sidebar">
 			<ul>
-				<li><a class="headerFont" href="/my">마이페이지</a></li>
-				<li><a href="/my/cart">문의 내역</a></li>
+				<li style="margin-bottom:18px;"><a class="headerFont" href="/my" >마이페이지</a></li>
+				<li><a href="/my/estimate">견적 내역</a></li>
 				<li class="category-title"><h3>내정보</h3>
 					<ul class="sidebar2">
 						<li><a href="/my/loginInfo">로그인 정보</a></li>

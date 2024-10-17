@@ -17,12 +17,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dto.EstimateDto;
 import dto.EstimateDto.Status;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import service.EstimateService;
 
 @RestController
 @RequestMapping("/estimate")
+@MultipartConfig
 public class EstimateController {
   
   EstimateService estimateService;

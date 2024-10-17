@@ -1,4 +1,4 @@
-function searchAddress() {
+function searchAddress(callback) {
 		new daum.Postcode({
 			oncomplete : function(data) {
 
@@ -31,14 +31,19 @@ function searchAddress() {
 					addr = addr + extraAddr;
 
 				}
-
+				
+				if(callback){
+					callback(data.zonecode,addr);
+				}else{
+					
 				// 우편번호와 주소 정보를 해당 필드에 넣는다.
-				document.getElementById('postcode').innerText = data.zonecode;
-				document.getElementById('postcode').style.color = 'black';
-				document.getElementById("mainAddress").innerText = addr;
-				document.getElementById('mainAddress').style.color = 'black';
+				document.getElementById('postcode').value=data.zonecode;
+				document.getElementById('mainAddress').value=addr;
+				
 				// 커서를 상세주소 필드로 이동한다.
 				document.getElementById("detailAddress").focus();
+				}
+				
 			}
 		}).open();
 	}

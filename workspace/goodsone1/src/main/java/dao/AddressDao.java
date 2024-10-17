@@ -35,7 +35,7 @@ public class AddressDao {
         ) {
       pst.setInt(1, addressDto.getUserSeq());
       pst.setString(2, addressDto.getName());
-      pst.setInt(3, addressDto.getPostcode());
+      pst.setString(3, addressDto.getPostcode());
       pst.setString(4, addressDto.getMainAddress());
       pst.setString(5, addressDto.getDetailAddress());
       pst.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
@@ -56,7 +56,7 @@ public class AddressDao {
         PreparedStatement pst = con.prepareStatement(sql);
         ) {
       pst.setString(1, addressDto.getName());
-      pst.setInt(2, addressDto.getPostcode());
+      pst.setString(2, addressDto.getPostcode());
       pst.setString(3, addressDto.getMainAddress());
       pst.setString(4, addressDto.getDetailAddress());
       pst.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
@@ -90,7 +90,7 @@ public class AddressDao {
                 addressSeq, 
                 rs.getInt("user_seq"),
                 rs.getString("name"), 
-                rs.getInt("postcode"),
+                rs.getString("postcode"),
                 rs.getString("main_address"), 
                 rs.getString("detail_address"), 
                 rs.getTimestamp("created_at").toLocalDateTime(), 
@@ -115,7 +115,7 @@ public class AddressDao {
               rs.getInt("address_seq"),
               userSeq,
               rs.getString("name"), 
-              rs.getInt("postcode"),
+              rs.getString("postcode"),
               rs.getString("main_address"), 
               rs.getString("detail_address"), 
               rs.getTimestamp("created_at").toLocalDateTime(), 

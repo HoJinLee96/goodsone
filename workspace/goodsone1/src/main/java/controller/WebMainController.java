@@ -184,5 +184,10 @@ public class WebMainController {
      System.out.println("----------WebMainController.showMyProfile() 실행----------");
      return "myProfile";
    }
+   @GetMapping("/my/estimate")
+   public String showMyEstimate(HttpServletRequest req, HttpServletResponse res,HttpSession session) {
+     System.out.println("----------WebMainController.showMyProfile() 실행----------");
+     return "myEstimate";
+   }
    
 }

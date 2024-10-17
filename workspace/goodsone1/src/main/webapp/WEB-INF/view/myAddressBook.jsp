@@ -9,6 +9,10 @@
 p{
 margin: 0px;
 }
+.contentTitle{
+padding-bottom : 15px;
+border-bottom: 4px solid #20367a;
+}
 #address0{
 border: 2px solid #20367a;
 margin-bottom: 20px;
@@ -30,7 +34,7 @@ text-overflow: ellipsis;/*...으로표시  */
 display: inline;
 position: absolute;
 right: 20px;
-top:25px;
+top:20px;
 }
 .buttonDiv button{
 color: #20367a;
@@ -115,6 +119,7 @@ margin-bottom: 10px;
 text-align: left;
 }
 #detailAddress{
+height: 43px;
 }
 #detailAddress:focus{
 border-bottom: 2px solid #20367a;
@@ -349,15 +354,13 @@ function footerlayerLoad(address) {
 	var name = $('<input type="text" class="name" id="name" maxlength="20" placeholder="이름">' )
     .val(address?address.name:'');
     var addressLabel = $('<p>주소</p>');
-    var postcode = $('<button tyue="button" class="postcode" id="postcode">')
-    .text(address?address.postcode:'우편번호')
-	.css('color', address ? 'black' : '#858585')
+    var postcode = $('<input class="postcode" id="postcode" placeholder="우편번호" readonly>')
+    .val(address?address.postcode:'')
 	.on('click', function() {
     searchAddress();
 	});
-    var mainAddress = $('<button type="button" class="mainAddress" id="mainAddress">')
-    .text(address?address.mainAddress:'주소')
-    .css('color', address ? 'black' : '#858585')
+    var mainAddress = $('<input class="mainAddress" id="mainAddress" placeholder="주소" readonly>')
+    .val(address?address.mainAddress:'')
     .on('click', function() {
     searchAddress();
 	});
@@ -405,9 +408,14 @@ function footerlayerLoad(address) {
 function updateAddress(address){
 	
     address.name = document.getElementById('name').value;
-    address.postcode = document.getElementById('postcode').innerText;
-    address.mainAddress = document.getElementById('mainAddress').innerText;
+    address.postcode = document.getElementById('postcode').value;
+    address.mainAddress = document.getElementById('mainAddress').value;
     address.detailAddress = document.getElementById('detailAddress').value;
+ 	alert(address.postcode+address.mainAddress);
+    if(address.postcode=="" || address.mainAddress==""){
+    	alert("주소를 입력해 주세요.");
+    	return;
+    }
     
  	var xhr = new XMLHttpRequest();
     xhr.open('POST', '/address/update', true);
@@ -427,13 +435,19 @@ function updateAddress(address){
 }
 
 function registerAddress(){
-	var address ={
+ 	var address ={
 			userSeq : ${userDto.userSeq},
 			name : document.getElementById('name').value,
-			postcode : document.getElementById('postcode').innerText,
-			mainAddress : document.getElementById('mainAddress').innerText,
+			postcode : document.getElementById('postcode').value,
+			mainAddress : document.getElementById('mainAddress').value,
 			detailAddress : document.getElementById('detailAddress').value
 	};
+ 	alert(address.postcode+address.mainAddress);
+    if(address.postcode=="" || address.mainAddress==""){
+    	alert("주소를 입력해 주세요.");
+    	return;
+    }
+    
  	var xhr = new XMLHttpRequest();
     xhr.open('POST', '/address/register', true);
     xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8'); 
@@ -441,13 +455,17 @@ function registerAddress(){
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4) { // 요청 완료
             if (xhr.status === 200) { // 성공
-            	window.location.reload();
+            }else if(xhr.status === 400){
+            	alert("잘못된 시도입니다.");
+            }else if(xhr.status === 500){
+            	alert("잠시 후 재시도 해주세요.");
             } else {
             	alert("잠시 후 재시도 해주세요.");
             }
+            window.location.reload();
         }
     };
-    xhr.send(data);
+    xhr.send(data); 
 }
 
 function updateAddressSeq(addressSeq){
@@ -473,5 +491,5 @@ function updateAddressSeq(addressSeq){
 
 <!-- 주소 검색 api -->
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<script src="../static/js/daumAddressSearch.js"></script>
+<script src="../static/js/daumAddressSearch4.js"></script>
 </html>

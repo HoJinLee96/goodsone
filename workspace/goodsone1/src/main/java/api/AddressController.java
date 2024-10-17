@@ -27,7 +27,12 @@ public class AddressController {
   
   @PostMapping("/register")
   public ResponseEntity<?> registerAddress(@RequestBody AddressDto addressDto,HttpSession session) {
+    String postcode = addressDto.getPostcode();
+    String mainAddress = addressDto.getMainAddress();
     try {
+      if(postcode.equals("")|| mainAddress.equals("") ||!addressService.validateAddress(postcode, mainAddress)) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+      }
       addressService.registerAddress(addressDto);
       List<AddressDto> list = (List)session.getAttribute("addressList");
       list.add(addressDto);
@@ -85,6 +90,12 @@ public class AddressController {
   public ResponseEntity<?> updateAddress(@RequestBody AddressDto addressDto,HttpSession session) {
     
     try {
+      String postcode = addressDto.getPostcode()+"";
+      String mainAddress = addressDto.getMainAddress();
+      
+      if(postcode.equals("0")|| mainAddress.equals("") ||!addressService.validateAddress(postcode, mainAddress))
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+          
       addressService.updateAddress(addressDto);
       List<AddressDto> list = (List)session.getAttribute("addressList");
       for(int i = 0 ; i<list.size() ; i++) {

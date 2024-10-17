@@ -9,6 +9,10 @@
 .subContent {
 	margin-top: 30px;
 }
+.contentTitle{
+padding-bottom : 15px;
+border-bottom: 4px solid #20367a;
+}
 #overlay {
 	position: flex;
 	top: 0;
@@ -148,8 +152,8 @@ document.addEventListener("DOMContentLoaded", function() {
 		<%@ include file="../../static/mypageSidebar.jsp"%>
 
 		<div class="content">
+			<p class="headerFont contentTitle">개인 정보</p>
 			<div class="subContent">
-				<p class="subHeaderFont">개인 정보</p>
 				
 				<div class="valueDiv">
 					<p class="label">이름</p>

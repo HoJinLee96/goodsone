@@ -53,6 +53,9 @@ width: 200px !important;
 	border: 1.5px solid black;
 	transition: border-color 0.3s;
 }
+#postcode{
+width:100px !important;
+}
 #content {
     border: 1.5px solid #efefef;
     width: 500px;
@@ -181,6 +184,39 @@ margin-left:5px;
 }
 </style>
 </head>
+<script type="text/javascript">
+document.addEventListener("DOMContentLoaded", function() {
+	var name ="";
+	var phone ="010-";
+	var email ="";
+	var postcode ="";
+	var mainAddress ="";
+	var detailAddress ="";
+	
+    if (${sessionScope.userDto != null}) {
+    	name = "${sessionScope.userDto.name}";
+		phone = "${sessionScope.userDto.phone}";
+		email = "${sessionScope.userDto.email}";
+		postcode = "${sessionScope.addressList[0].postcode}";
+		mainAddress = "${sessionScope.addressList[0].mainAddress}";
+		detailAddress = "${sessionScope.addressList[0].detailAddress}";
+    }else if (${sessionScope.oAuthDto != null}) {
+    	name = "${sessionScope.oAuthDto.name}";
+		phone = "${sessionScope.oAuthDto.phone}";
+		email = "${sessionScope.userDto.email}";
+    }
+	
+	document.getElementById("name").value=name;
+	document.getElementById("phone").value=phone;
+	document.getElementById("email").value=email;
+	document.getElementById("postcode").value=postcode;
+	document.getElementById("mainAddress").value=mainAddress;
+	document.getElementById("detailAddress").value=detailAddress;
+});
+
+
+
+</script>
 <body>
 <%@ include file = "main_header.jsp" %>
 
@@ -193,6 +229,7 @@ margin-left:5px;
 			<table> 
 			    <tr><td class="tableHeader">성함 (상호명)</td></tr>
 			    <tr><td><input type="text" id="name" name="name" maxlength="20"></td></tr>
+			    
 			    <tr><td class="tableHeader">연락처<span style="color:red">＊</span></td></tr>
 				<tr><td><input type="text" id="phone" name="phone" oninput="formatPhoneNumber(this)" maxlength="13" value="010-" required>
 				수신 동의 :
@@ -202,13 +239,16 @@ margin-left:5px;
 				</td>
 				</tr>
 			    <tr><td><span id="receiveAgreeMessage"></span></td></tr>
+			    
   			    <tr><td class="tableHeader">이메일</td></tr>
 			    <tr><td><input type="email" id="email" name="email" maxlength="30"></td></tr>
+			    
 			    <tr><td class="tableHeader">주소<span style="color:red">＊</span></td></tr>
-			    <tr><td><input type="hidden" id="postcode" name="postcode" autocomplete="off" onclick="searchAddress()" readonly placeholder="우편번호"></td></tr>
-				<tr><td><input type="text" id="mainAddress" name="mainAddress" autocomplete="off" onclick="searchAddress()"  readonly placeholder="주소"></td></tr>
+			    <tr><td><input type="text" id="postcode" name="postcode" placeholder="우편번호" readonly></td></tr>
+				<tr><td><input type="text" id="mainAddress" name="mainAddress" placeholder="주소" readonly></td></tr>
 				<tr><td><input type="text" id="detailAddress" name="detailAddress" autocomplete="off" placeholder="상세주소"></td></tr>
 				<tr><td><span id="addressMessage"></span></td></tr>
+			    
 			    <tr><td class="tableHeader">내용</td></tr>
 			    <tr><td><textarea id="content" placeholder="내용을 입력하세요" name="content"></textarea></td></tr>
 			    <tr><td><input id="submit" type="submit" value="등록"><div id="agreeMentDiv"><input type="checkbox" id="agreeMent">개인정보 수집 및 이용 동의</div><a id="agreementClick" href="javascript:;" onclick="javascript:footerlayerLoad('static/InfoAgreement.html'); return false;">[원본]</a></td></tr>
@@ -281,9 +321,35 @@ margin-left:5px;
 <%@ include file = "main_footer.jsp" %>
 <%@ include file="../../static/footerlayerLoad.jsp"%>
 </body>
+<script type="text/javascript">
+var postcode = document.getElementById('postcode');
+var mainAddress = document.getElementById('mainAddress');
+var postcodeValue = "";
+var mainAddressValue = "";
+
+mainAddress.addEventListener('click', function() {
+	searchAddress(function(postcode, address){
+        postcodeValue = postcode;
+        mainAddressValue = address;
+        mainAddress.value="("+postcode+") "+address;
+		document.getElementById("detailAddress").focus();
+	});
+});
+document.getElementById('mainAddress').addEventListener('input',function(event){
+	event.target.value=mainAddressValue;
+});
+document.getElementById('postcode').addEventListener('input',function(event){
+	event.target.value=postcodeValue;
+});
+
+document.getElementById('detailAddress').addEventListener('click',function(){
+	alert(postcodeValue + mainAddressValue);
+});
+
+</script>
 <!-- 주소 검색 api -->
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-<script src="static/daumAddressSearch.js"></script>
+<script src="../static/js/daumAddressSearch4.js"></script>
 
 <!-- 이미지 압축 Compressor.js 라이브러리 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/compressorjs/1.0.6/compressor.min.js"></script>
@@ -304,14 +370,14 @@ document.querySelectorAll('.fileInput').forEach(function(input, index) {
         const maxSizeMB = 10;
         const maxSizeBytes = maxSizeMB * 1024 * 1024;
 
-        if (file.size > maxSizeBytes) {
-            alert("이미지 크기는 10MB를 초과할 수 없습니다.");
-            input.value = '';
-            document.getElementById('overlay').style.display = 'none';
-            return;
-        }
-
         if (file) {
+
+	        if (file.size > maxSizeBytes) {
+	            alert("이미지 크기는 10MB를 초과할 수 없습니다.");
+	            input.value = '';
+	            document.getElementById('overlay').style.display = 'none';
+	            return;
+	        }
             new Compressor(file, {
                 quality: 0.2,
                 success(result) {
@@ -344,6 +410,9 @@ document.querySelectorAll('.fileInput').forEach(function(input, index) {
                     
                 },
             });
+        }else{
+        	console.log("파일없음");
+            document.getElementById('overlay').style.display = 'none';
         }
     });
 });
@@ -369,6 +438,9 @@ document.querySelectorAll('.closeBtn').forEach(function(btn) {
 
 <!-- 메인 js -->
 <script type="text/javascript">
+document.getElementById('detailAddress').addEventListener('click',function(){
+	console.log(window.data2);
+});
 
 //개인동의 쉽게 체크하기
 document.getElementById('agreeMentDiv').addEventListener('click', function () {
@@ -404,6 +476,7 @@ $('#estimate').on('submit', function(event) {
 	  
 	  const agreeMentCheck = document.getElementById('agreeMent');
 	  const agreeMentMessage = document.getElementById('agreeMentMessage');
+	  
 	  if(!agreeMentCheck.checked){
 		  agreeMentMessage.style.color="red";
 		  agreeMentMessage.textContent = "개인정보처리방침에 동의해 주세요.";
@@ -424,7 +497,6 @@ $('#estimate').on('submit', function(event) {
 	  
 	  //주소 값 가져옴
 	  let mainAddress = document.getElementById("mainAddress").value;
-	  console.log(mainAddress.length);
 	  //주소 에러 메시지 요소
 	  const addressMessage = document.getElementById('addressMessage');
 	  
@@ -450,7 +522,7 @@ $('#estimate').on('submit', function(event) {
 	  // 에러 메시지 요소
 	  receiveAgreeMessage.style.color="red";
 
-	  // 최소 1개, 최대 3개 체크 여부를 확인
+	  // 최소 1개
 	  if (checkedCount < 1) {
 		  receiveAgreeMessage.textContent = "수신 방법을 최소 1개를 선택해야 합니다.";
 		  return;
@@ -458,9 +530,6 @@ $('#estimate').on('submit', function(event) {
 		  receiveAgreeMessage.textContent = "";
 	  }
 	    submitForm(event);
-	    alert("폼이 성공적으로 제출되었습니다!");
-	    
-	    
 });
 function submitForm(event) {
 	event.preventDefault();
@@ -493,7 +562,7 @@ function submitForm(event) {
         contentType: false,
         data: formData,
         success: function(response) {
-            alert("감사합니다 고객님.\n 빠른 답변 드리겠습니다.");
+            alert("이용해 주셔서 감사합니다.\n빠른 답변 드리겠습니다.");
             window.location.href = '/home';
         },
         error: function(xhr, status, error) {

@@ -6,7 +6,7 @@ public class AddressDto {
   private int addressSeq;
   private int userSeq;
   private String name;
-  private int postcode;
+  private String postcode;
   private String mainAddress;
   private String detailAddress;
   private LocalDateTime createdAt;
@@ -14,7 +14,7 @@ public class AddressDto {
   
   public AddressDto() {}
   
-  public AddressDto(int postcode, String mainAddress, String detailAddress) {
+  public AddressDto(String postcode, String mainAddress, String detailAddress) {
     super();
     this.postcode = postcode;
     this.mainAddress = mainAddress;
@@ -23,7 +23,7 @@ public class AddressDto {
 
 
 
-  public AddressDto(int userSeq, String name, int postcode, String mainAddress, String detailAddress) {
+  public AddressDto(int userSeq, String name, String postcode, String mainAddress, String detailAddress) {
     this.userSeq = userSeq;
     this.name = name;
     this.postcode = postcode;
@@ -31,7 +31,7 @@ public class AddressDto {
     this.detailAddress = detailAddress;
   }
   
-  public AddressDto(int addressSeq, int userSeq, String name, int postcode, String mainAddress,
+  public AddressDto(int addressSeq, int userSeq, String name, String postcode, String mainAddress,
       String detailAddress, LocalDateTime createdAt, LocalDateTime updatedAt) {
     super();
     this.addressSeq = addressSeq;
@@ -52,7 +52,7 @@ public class AddressDto {
     return userSeq;
   }
 
-  public int getPostcode() {
+  public String getPostcode() {
     return postcode;
   }
 
@@ -88,7 +88,7 @@ public class AddressDto {
     this.name = name;
   }
 
-  public void setPostcode(int postcode) {
+  public void setPostcode(String postcode) {
     this.postcode = postcode;
   }
 
@@ -107,7 +107,7 @@ public class AddressDto {
   public void setUpdatedAt(LocalDateTime updatedAt) {
     this.updatedAt = updatedAt;
   }
-
+  
   @Override
   public String toString() {
     return "AddressDto [addressSeq=" + addressSeq + ", userSeq=" + userSeq + ", postcode="

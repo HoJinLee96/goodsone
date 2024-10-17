@@ -25,7 +25,7 @@ import exception.NotFoundException;
 public class KakaoOAuthLoginService {
   @Value("${kakao-login.baseUrl}")
   private String baseUrl;
-  @Value("${kakao-login.clientId}")
+  @Value("${kakao.clientId}")
   private String clientId;
   @Value("${kakao-login.redirectUrl}")
   private String redirectUrl;
@@ -37,7 +37,7 @@ public class KakaoOAuthLoginService {
   @PostConstruct
   private void init() {
       System.out.println("kakao-login.baseUrl : " + baseUrl);
-      System.out.println("kakao-login.clientId : " + clientId);
+      System.out.println("kakao.clientId : " + clientId);
       System.out.println("kakao-login.redirectUrl : " + redirectUrl);
       System.out.println("kakao-login.clientSecret : " + clientSecret);
       System.out.println("kakao-login.redirectUri : " + redirectUri);
@@ -77,7 +77,7 @@ public String getKakaoToken(String path, String code) throws NotFoundException {
           HttpMethod.GET, 
           entity, 
           String.class
-  );
+          );
       
       int responseCode = response.getStatusCodeValue();
       String responseBody = response.getBody();

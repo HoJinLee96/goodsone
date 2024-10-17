@@ -40,16 +40,6 @@ public class MvcConfig implements WebMvcConfigurer {
 	  registry.addInterceptor(oAuthRefreshInterceptor);
 	  registry.addInterceptor(loginAuthInterceptor).addPathPatterns("/login","/my/**","/verifyUser");
 	}
+    
 
-    @Bean
-    public MultipartResolver multipartResolver() {
-        StandardServletMultipartResolver multipartResolver = new StandardServletMultipartResolver();
-        return multipartResolver;
-    }
-
-    @Bean
-    public MultipartConfigElement multipartConfigElement() {
-        MultipartConfigElement multipartConfigElement = new MultipartConfigElement("", 104857600, 104857600, 0);
-        return multipartConfigElement;
-    }
 }

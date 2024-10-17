@@ -11,9 +11,10 @@ margin: 8px 0px;
 }
 .container {
 	max-width: 1200px;
+	min-width: 1024px;
 	margin: 0 auto;
-	padding-top: 30px;
 	min-height: 1080px;
+	padding-top: 30px;
 }
 
 .mainImg {
@@ -28,7 +29,7 @@ margin: 8px 0px;
 #speedEstimateContainer{
 display:flex;
 	max-width: 1920px;
-	min-width: 800px;
+	min-width: 1600px;
 	height:80px;
 	background-color: #dbf1fd;
 	font-size: 15px;
@@ -78,8 +79,8 @@ top: 1.5px;
 	width:100%;
     position: fixed;
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
+/*     left: 50%;
+    transform: translateX(-50%); */
 }
 #agreeMentDiv{
 display: inline;
@@ -88,13 +89,15 @@ display: inline;
 </head>
 <%@ include file="main_header.jsp"%>
 <script type="text/javascript">
+	
 document.addEventListener('DOMContentLoaded', function () {
     const nav = document.querySelector('#speedEstimateContainer');
     const container = document.querySelector('.container');
     const navOffsetTop = nav.offsetTop;
-
+	
     window.addEventListener('scroll', function () {
-        console.log(window.scrollY);
+    var scrollLeft = window.scrollX;
+	console.log(scrollLeft);
         if (window.scrollY >= navOffsetTop) {
             nav.classList.add('fixed-top');
             container.style.paddingTop = '110px';
@@ -102,6 +105,8 @@ document.addEventListener('DOMContentLoaded', function () {
             nav.classList.remove('fixed-top');
             container.style.paddingTop = '30px';
         }
+        nav.style.left = -scrollLeft + 'px';
+
     });
 });
 </script>
