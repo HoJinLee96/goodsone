@@ -311,7 +311,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 // 삭제 버튼 클릭 시 호출되는 함수
 function deleteAddress(addressSeq) {
-    if (confirm("정말로 삭제하시겠습니까?")) {
+    if(confirm("정말로 삭제하시겠습니까?")) {
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '/address/delete', true);
         xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
@@ -339,7 +339,7 @@ function updateInfo() {
            	}
         }
     };
-    xhr.send(data);
+    xhr.send(data); 
 }
 
 function footerlayerLoad(address) {

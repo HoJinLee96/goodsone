@@ -57,7 +57,7 @@ public class AddressController {
     
     try {
       AddressDto addressDto = addressService.getAddressDtoByAddressSeq(addressSeq);
-      return ResponseEntity.status(HttpStatus.OK).body(addressDto);
+      return ResponseEntity.status(HttpStatus.OK).headers(headers).body(addressDto);
     } catch (SQLException e) {
       e.printStackTrace();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -76,7 +76,7 @@ public class AddressController {
     try {
       List<AddressDto> list = addressService.getListByUserSeq(userSeq);
       
-      return ResponseEntity.status(HttpStatus.OK).body(list);
+      return ResponseEntity.status(HttpStatus.OK).headers(headers).body(list);
     } catch (SQLException e) {
       e.printStackTrace();
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

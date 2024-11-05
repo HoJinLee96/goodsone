@@ -75,6 +75,9 @@ margin: 0px;
 position: relative;
 top: 1.5px;
 }
+label[for="agreement"]{
+cursor: pointer;
+}
 .fixed-top {
 	width:100%;
     position: fixed;
@@ -114,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	<div id="speedEstimateContainer">
 		<div id="speedEstimate">
 				<label for="phone">연락처 </label>
-				<input type="text" id="phone" name="phone" oninput="formatPhoneNumber(this)" maxlength="15" placeholder="- 없이 기입" required>
+				<input type="text" id="phone" name="phone" oninput="formatPhoneNumber(this)" maxlength="15" placeholder="- 없이 기입" required autocomplete="off">
 				<label for="cleaningService">청소 서비스 선택 </label>
 				<select id="cleaningService" name="cleaningService">
 					<option value="">선택</option>

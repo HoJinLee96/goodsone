@@ -9,8 +9,8 @@ CREATE TABLE `user` (
     `address_seq` INT NOT NULL,
     `status`	ENUM("NORMAL","STAY","STOP")	NOT NULL,
     `marketing_received_status`	BOOLEAN	NOT NULL,
-	`created_at`	DATETIME	NOT NULL,
-	`updated_at`	DATETIME
+	`created_at`	DATETIME NOT NULL,
+	`updated_at`	DATETIME NOT NULL
 );
 SELECT * FROM `user`;
 SELECT COUNT(*) FROM `user` WHERE `email` = 'st2035@naver.com' AND `phone` = '010-9611-1382';
@@ -29,7 +29,7 @@ CREATE TABLE `address` (
 	`postcode`	VARCHAR(50)	NOT NULL,
 	`main_address`	VARCHAR(255)	NOT NULL,
 	`detail_address`	VARCHAR(255)	NOT NULL,
-    `created_at`	DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `created_at`	DATETIME NOT NULL,
 	`updated_at`	DATETIME NOT NuLL
 );
 
@@ -77,9 +77,9 @@ CREATE TABLE `estimate` (
     `detailAddress` VARCHAR(255),
     `content` TEXT,
     `imagesPath` TEXT,
-    `status` ENUM("RECEIVED", "IN_PROGRESS", "COMPLETED") NOT NULL,
+    `status` ENUM("RECEIVED", "IN_PROGRESS", "COMPLETED", "DELETE") NOT NULL,
     `created_at` DATETIME NOT NULL, 
-    `updated_at` DATETIME
+    `updated_at` DATETIME NOT NULL
 );
 ALTER TABLE `estimate` ADD CONSTRAINT `FK_user_TO_estimate_1` FOREIGN KEY (
 	`user_seq`
@@ -89,11 +89,39 @@ REFERENCES `user` (
 );
 SELECT * FROM `estimate`;
 SELECT * FROM estimate ORDER BY created_at DESC LIMIT 50 OFFSET 0;
+select * from estimate where user_seq = 1 ORDER BY created_at DESC;
 
+
+update estimate set emailAgree =1 where estimate_seq=1;
 DELETE FROM `estimate`;
 DROP TABLE IF EXISTS `estimate`;
 ALTER TABLE `estimate` AUTO_INCREMENT = 1;
 
+create table `comment`(
+	`comment_seq` int auto_increment primary key,
+    `user_seq` int not null,
+    `estimate_seq` int not null,
+    `commentText` varchar(255) not null,
+    `created_at` datetime not null,
+    `updated_at` datetime not null
+);
+ALTER TABLE `comment` ADD CONSTRAINT `FK_estimate_TO_comment_1` FOREIGN KEY (
+	`estimate_seq`
+)
+REFERENCES `estimate` (
+	`estimate_seq`
+);
+ALTER TABLE `comment` ADD CONSTRAINT `FK_user_TO_comment_1` FOREIGN KEY (
+	`user_seq`
+)
+REFERENCES `user` (
+	`user_seq`
+);
+insert into comment (user_seq,estimate_seq,commentText,created_at,updated_at) values('1','1','완료된 견적 문의 입니다.',CURRENT_TIMESTAMP,CURRENT_TIMESTAMP);
+SELECT * FROM `comment`;
+DELETE FROM `comment`;
+DROP TABLE IF EXISTS `comment`;
+ALTER TABLE `comment` AUTO_INCREMENT = 1;
 
 CREATE TABLE `oauth` (
 	`oauth_seq`	INT	AUTO_INCREMENT PRIMARY KEY,
